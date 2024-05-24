@@ -54,7 +54,7 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
     traci.start(route)
     traci.vehicle.setEmissionClass("0", norm_in)
     traci.vehicle.setAccel("0", accel)
-    traci.route.add("Ruta_VAN_1",list(("430660463#2","430660463#7")))
+    traci.route.add("Ruta_VAN_1",["430660463#2","E0"])
     traci.vehicle.add("random01","Ruta_VAN_1","VAN","now")
     """SUMO finds the minimum route only if the route has 
     2 edges, depart edge and arrival edge; otherwise, SUMO gives
