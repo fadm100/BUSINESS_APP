@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 01/24/18 16:50:58 by SUMO duarouter Version 0.27.1
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
+
+
+____________________________________________________
+
+</configuration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+
+        <vType id="VAN" guiShape="bus" length="6.5" width="2.16" height="2.86" minGap="2.5" accel="2.6" decel="4.5" maxSpeed="55.55" color="255,12,0"> 
+
+        <param key="has.battery.device" value="true"/>
+        <!-- <param key="maximumBatteryCapacity" value="324000"/> this is an old parameter--> 
+		<param key="device.battery.capacity" value="324000"/>
+		<!-- <param key="actualBatteryCapacity" value="243000"/> this is an old parameter -->
+		<param key="device.battery.chargeLevel" value="243000"/>
+        <param key="maximumPower" value="10000"/>
+        <param key="vehicleMass" value="15000"/>
+        <param key="frontSurfaceArea" value="5"/>
+        <param key="airDragCoefficient" value="0.6"/>
+        <param key="rotatingMass" value="100"/>
+        <param key="radialDragCoefficient" value="0.5"/>
+        <param key="rollDragCoefficient" value="0.01"/>
+        <param key="constantPowerIntake" value="100"/>
+        <param key="propulsionEfficiency" value="0.9"/>
+        <param key="recuperationEfficiency" value="0.9"/>
+        <param key="stoppingThreshold" value="0.1"/>
+
+        </vType>
+         
+			 
+			 <route id="Ruta_E2" edges="430660463#2
+				430660463#3
+				430660463#4
+				430660463#5
+				430660463#6
+				430660463#7
+				430660463#8
+				430660463#9
+				430660463#10
+				430660463#11
+				430660463#12
+				430660463#13
+				430660463#14 
+				430660463#15 
+				430660463#16 
+				430660463#17 
+				430660463#18 
+				430660463#19
+				893436350
+				893436349#0
+				893436349#2
+				-47909390#5
+				-47909390#3
+				-47909390#2
+				-47909390#0
+				932018781#1
+				74918639#0
+				74918639#1
+				74918639#2
+				74918639#4
+				74918639#5
+				74918639#6
+				74918639#7
+				74918639#8
+				74918639#9
+				74918639#10
+				74918639#11
+				74918639#12
+				893393729
+				96321118#0
+				96321118#1
+				96321118#2
+				96321118#3
+				96321118#4
+				96321118#6
+				375276881#0
+				375276881#1
+				375276881#2
+				375276880#7
+				375276880#8
+				788589580#1
+				788589580#2
+				405395786#1
+				405395786#2
+				405395786#3
+				405395786#4
+				405395789#5
+				405395789#6
+				405395789#1
+				79536939#0
+				79536939#1
+				79536939#2
+				79536939#3
+				429965999#3
+				429965999#4
+				429965999#5
+				429965961#0
+				-429965959
+				633036941#0
+				633036941#1
+				797700848#0
+				797700848#1
+				79535856#2
+				79535856#3
+				-79536651#3
+				-79536651#2
+				-79536651#1
+				-79536651#0
+				79535889#4
+				247535951#0
+				247535951#1
+				-79535983#2
+				-79535983#0
+				-79536877#2
+				-79535889#2
+				-79535889#1
+				-79535889#0
+				48514961#1
+				-247535958
+				-247535959
+				-247535963#3
+				-247535963#2
+				-247535963#1
+				-247535963#0
+				-107286303#12
+				-107286303#11
+				-107286303#10
+				-107286303#9
+				-107286303#8
+				-107286303#7
+				-107286303#6
+				-107286303#5
+				-107286303#3
+				-107286303#2
+				-107286303#1
+				-79536342#5
+				-79536342#3
+				-79536342#2
+				-79536342#1
+				-79536342#0
+				-79536222#3
+				-79536222#2
+				-79536222#1
+				-79536222#0
+				-107286309#0
+				79535639#0
+				79535639#1
+				79535639#2
+				79535639#3
+				79535639#4
+				79535639#5
+				79535639#6
+				-107286291#4
+				-107286291#3
+				-107286291#1
+				107286394#3
+				-107286406#7
+				-107286406#6
+				-107286406#5
+				-107286406#4
+				-107286406#3
+				-107286406#2
+				-107286406#1
+				-107286406#0
+				-894445548
+				107286346#0
+				107286346#1
+				107286346#2
+				107286346#3
+				107286403
+				-894445546#4
+				-894445546#3
+				-894445546#1
+				-894445546#0
+				-894445547#1
+				-894445547#0
+				107286406#0
+				107286406#1
+				107286406#2
+				107286406#3
+				107286406#4
+				107286406#5
+				107286406#6
+				107286406#7
+				-107286394#3
+				-107286394#2
+				-107286394#1
+				-107286394#0
+				-107286301#1
+				-107286301#0
+				-894446023
+				107286309#0
+				79536222#0
+				79536222#1
+				79536222#2
+				79536222#3
+				79536342#0
+				79536342#1
+				79536342#2
+				79536342#3
+				79536342#5
+				107286303#1
+				107286303#2
+				107286303#3
+				107286303#5
+				107286303#6
+				107286303#7
+				107286303#8
+				107286303#9
+				107286303#10
+				107286303#11
+				107286303#12
+				107286336#0
+				107286336#1
+				107286336#2
+				107286336#3
+				107286336#4
+				79537358#0
+				79537358#1
+				79537358#2
+				-247535951#3
+				-247535951#2
+				-247535951#1
+				-247535951#0
+				-79535889#4
+				79536651#0
+				79536651#1
+				79536651#2
+				79536651#3
+				-79535856#3
+				-79535856#2
+				-79535856#1
+				-79535856#0
+				91399077#2
+				91399077#3
+				429965959
+				429965960
+				429965999#7
+				429965963
+				79536418#0
+				79536418#1
+				79536418#2
+				79536418#3
+				79536418#4
+				79536418#5
+				79536418#6
+				79536418#7
+				-167671622
+				79537464#0
+				79537464#1
+				79537464#2
+				79537464#3
+				-79537260#1
+				-79537260#0
+				99555871#1
+				439248073#1
+				-627041175#0
+				48399847#0
+				48399847#1
+				48399847#2
+				48399847#3
+				91387725#6
+				91387725#7
+				91387725#9
+				91387725#10
+				91387725#11
+				74918635#0
+				74918635#1
+				74918635#2
+				74918635#3
+				74918635#4
+				74918635#5
+				74918635#6
+				48358683#0
+				48358683#1
+				48376054#3
+				48376054#4
+				48376054#5
+				48376054#6
+				48376054#7
+				48376054#8
+				48376054#10
+				48376054#11
+				48376054#12
+				48376054#14
+				48376054#15
+				48376054#16
+				48376054#17
+				48376054#19
+				48376054#20
+				88520157
+				633036935#2
+				633036935#3
+				633036935#4
+				633036933#0
+				893436348#0
+				893436348#1
+				893436347
+				48268365#0
+				48268365#1
+				48268365#2
+				48268365#3
+				48268365#4
+				48268365#5
+				48268365#6
+				48268365#7
+				48268365#8
+				48268365#9
+				48268365#10
+				551105959#0
+				551105959#1
+				551105959#1-AddedOffRampEdge
+				551105959#2
+				551105959#3
+				551105959#4
+				551105959#5
+				551105959#6
+				551105959#7
+				551105959#8
+				551105959#9
+				551105959#10
+				824678523#0
+				430660463#2">
+
+             </route>
+
+			 <route id="Ruta_VAN" edges="E0
+			 	-79092048#1
+				430660463#2">
+             </route>
+
+			 <vehicle id="1" route="Ruta_VAN" type="VAN" depart="0.00" departPos="0.00"> 
+
+			 </vehicle>
+			 
+			 
+        
+            <vehicle id="0" route="Ruta_E2" type="VAN" depart="0.00" departPos="0.00">    
+				<!-- <stop chargingStation="cS_2to19_0a" until="50"/> -->
+
+                
+				<!-- <stop lane="108333945#1_0" endPos="10.54" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="-78046855#6_0" endPos="36.2" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="-824671351_0" endPos="25.9" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="108333920#2_0" endPos="64.3" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="108333920#4_0" endPos="331.84" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="108333920#7_0" endPos="105.11" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="108333920#10_0" endPos="39.36" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="-78046810#17_0" endPos="10.11" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="110678708#1_0" endPos="5.26" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="78046822#0_0" endPos="84.1" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="822259672#1_0" endPos="16.89" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="822259672#2_0" endPos="64.46" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="108333876#4_0" endPos="40.21" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="49157412#8_0" endPos="54.61" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="49157412#10_0" endPos="15.67" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="49157412#11-AddedOffRampEdge_0" endPos="52.36" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="375278864#10_0" endPos="24.69" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="375278864#12_0" endPos="81.82" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="916130890#1_0" endPos="27.01" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="268532189_0" endPos="37.71" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="48136203#2_0" endPos="33.05" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="48136203#6_0" endPos="45.64" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="48136201#10_0" endPos="59.4" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="48395935#5_0" endPos="8.6" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="48395935#7_0" endPos="39.18" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="419628718#0_0" endPos="9.23" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="822358805#3_0" endPos="16.6" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="822358805#5_0" endPos="52.74" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="821246157#1_0" endPos="10.23" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="821246157#3_0" endPos="42.43" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="419628717#5_0" endPos="51.42" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="74918639#12_0" endPos="81.74" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="96321118#1_0" endPos="12.86" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="48514959#0_0" endPos="52.3" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="48514959#3_0" endPos="7.95" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="247540447#2_0" endPos="37.2" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="48563010#8_0" endPos="56.55" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="142724418#1_0" endPos="65.16" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="79536939#1_0" endPos="33.9" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="91399039#1_0" endPos="34.62" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="48514961#0_0" endPos="67.31" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="48514961#5_0" endPos="13.0" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="48514961#13_0" endPos="43.58" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="894446023_0" endPos="11.69" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="107286301#2_0" endPos="20.9" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="107286346#3_0" endPos="17.66" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="107286403_0" endPos="65.23" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="-894445546#0_0" endPos="16.98" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="107286406#5_0" endPos="9.95" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="107286394#5_0" endPos="7.79" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="107286357#3_0" endPos="94.78" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="894445538_0" endPos="54.68" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="107286298#1_0" endPos="30.77" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="-48514961#20_0" endPos="7.41" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="-48514961#15_0" endPos="4.43" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="79536608#1_0" endPos="63.42" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="79536608#7_0" endPos="102.07" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="48563010#2_0" endPos="38.94" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="48563010#8_0" endPos="61.79" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="142724413#2_0" endPos="13.54" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="91387725#3_0" endPos="28.06" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="91387725#5_0" endPos="30.13" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="91387725#6_0" endPos="86.31" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="91387725#9_0" endPos="79.12" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="74918635#0_0" endPos="56.09" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="74918635#4_0" endPos="24.21" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="74918635#12_0" endPos="49.6" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="74918635#14_0" endPos="41.29" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="74918635#17_0" endPos="52.42" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="47909390#0_0" endPos="46.26" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="88520196#1_0" endPos="45.36" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="88520196#4_0" endPos="45.45" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="88520196#9_0" endPos="18.93" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="91908572#7_0" endPos="18.45" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="76391869#0_0" endPos="37.54" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="633036928#0_0" endPos="23.08" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="76391866#5_0" endPos="36.06" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="76391866#9_0" endPos="25.08" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="-108333876#2_0" endPos="23.26" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="-822259672#1_0" endPos="33.12" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="-78046822#1_0" endPos="17.87" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="-110678708#2_0" endPos="153.72" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="78046810#15_0" endPos="15.67" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="-108333920#9_0" endPos="10.69" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="-108333920#8_0" endPos="430.41" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="-108333920#6_0" endPos="109.16" duration="11"/> --> <!-- Paradero SETP -->
+				<!-- <stop lane="-78046868#1_0" endPos="113.94" duration="11"/> --> <!-- Paradero SETP -->
+				
+				<!-- <stop lane="-78046868#1_0" endPos="113.94" duration="11"/> <!Pare en carreras -->
+				
+						
+				      
+
+            </vehicle>
+            
+</routes>

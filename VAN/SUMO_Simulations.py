@@ -16,8 +16,8 @@ else:
 
 import traci
 
-sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
-# sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
+# sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
+sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
 
 routesJSON = ['RoutesJSON/E2Route.json']
 
@@ -54,6 +54,7 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
     traci.start(route)
     traci.vehicle.setEmissionClass("0", norm_in)
     traci.vehicle.setAccel("0", accel)
+    traci.vehicle.add("random01","Ruta_VAN","VAN","now")
 
     # rateOfStops --> this is a number between 0 and 1. 
     # This parameter defines how many stops will be set.

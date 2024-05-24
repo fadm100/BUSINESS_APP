@@ -1,1 +1,1 @@
-{"0.35": {"C1Route": {"EV": {"BatteryEnergy": 45.184689999998014, "TotalEnergyConsumed": 99.63825, "TotalEnergyRegenerated": 54.45115, "Speed": 13.178847801994094, "Acceleration": 6.514465587228537, "Distance": 18.15386284724664, "Noise": 58.60194836049046, "Effort": -5324685705216.0}}}}
+{"0.35": {"C1Route": {"EV": {"BatteryEnergy": 38.80189999999785, "TotalEnergyConsumed": 86.94901, "TotalEnergyRegenerated": 48.14441, "Speed": 12.357657210633155, "Acceleration": 6.694234020555281, "Distance": 18.15889073451353, "Noise": 58.35616067912757, "Effort": -5680094248960.0}}}}
