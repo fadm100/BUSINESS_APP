@@ -1,0 +1,38 @@
+{
+  "MetricId": {
+    "0": "DemaReal",
+    "1": "DemaReal"
+  },
+  "MetricName": {
+    "0": "Demanda Real por Sistema",
+    "1": "Demanda Real por Agente"
+  },
+  "Entity": {
+    "0": "Sistema",
+    "1": "Agente"
+  },
+  "MaxDays": {
+    "0": 31,
+    "1": 31
+  },
+  "Type": {
+    "0": "HourlyEntities",
+    "1": "HourlyEntities"
+  },
+  "Url": {
+    "0": "http://servapibi.xm.com.co/hourly",
+    "1": "http://servapibi.xm.com.co/hourly"
+  },
+  "Filter": {
+    "0": "No aplica",
+    "1": "Codigo Comercializador"
+  },
+  "MetricUnits": {
+    "0": "kWh",
+    "1": "kWh"
+  },
+  "MetricDescription": {
+    "0": "Demanda de usuarios regulados y no regulados que hacen parte del Sistema Interconectado Nacional (no incluye Alumbrado Público)",
+    "1": "Demanda de usuarios regulados y no regulados que hacen parte del Sistema Interconectado Nacional (no incluye Alumbrado Público)"
+  }
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2022-03-09 07:32:28 by Eclipse SUMO GUI Version 1.12.0
+-->
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <!-- <net-file value="C:\Users\alex-\Sumo\2022-03-09-07-21-16\osm.net.xml"/> -->
+		<net-file value="Pasto_VAN.net.xml"/>
+		<!-- <route-files value="Pasto_Ruta_C1.rou.xml,osm.passenger.trips.xml,osm.truck.trips.xml,osm.bus.trips.xml,osm.motorcycle.trips.xml,osm.bicycle.trips.xml"/> -->
+		<route-files value="VAN_Ruta_E2.rou.xml"/>
+        
+    </input>
+
+    <processing>
+        <ignore-route-errors value="true"/>
+    </processing>
+	
+    <!-- <emissions> -->
+        <!-- <emissions.volumetric-fuel value="true"/> -->
+    <!-- </emissions>	 -->
+
+    <report>
+        <verbose value="true"/>
+        <duration-log.statistics value="true"/>
+        <no-step-log value="true"/>
+    </report>
+
+	<!-- <output>
+		<emission-output value="Emissions_VAN.xml"/>
+    </output>  -->
+
+    <output>
+        <battery-output value="Battery.out.xml"/>
+        <battery-output.precision value="4"/>
+        <device.battery.probability value="1"/>
+        <summary-output value="summary_100.xml"/>
+    </output>
+
+
+</configuration>
