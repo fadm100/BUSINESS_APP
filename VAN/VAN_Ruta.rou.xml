@@ -332,13 +332,12 @@ ____________________________________________________
              </route>
 
 			 <route id="Ruta_VAN" edges="E0
-			 	-79092048#1
 				430660463#2">
              </route>
 
-			 <vehicle id="1" route="Ruta_VAN" type="VAN" depart="0.00" departPos="0.00"> 
+			 <!-- <vehicle id="1" route="Ruta_VAN" type="VAN" depart="0.00" departPos="0.00"> 
 
-			 </vehicle>
+			 </vehicle> -->
 			 
 			 
         

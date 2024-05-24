@@ -54,7 +54,11 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
     traci.start(route)
     traci.vehicle.setEmissionClass("0", norm_in)
     traci.vehicle.setAccel("0", accel)
-    traci.vehicle.add("random01","Ruta_VAN","VAN","now")
+    traci.route.add("Ruta_VAN_1",list(("430660463#2","430660463#7")))
+    traci.vehicle.add("random01","Ruta_VAN_1","VAN","now")
+    """SUMO finds the minimum route only if the route has 
+    2 edges, depart edge and arrival edge; otherwise, SUMO gives
+    a warning and teleports the vehicle"""
 
     # rateOfStops --> this is a number between 0 and 1. 
     # This parameter defines how many stops will be set.
