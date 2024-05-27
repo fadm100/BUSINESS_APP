@@ -17,10 +17,10 @@ else:
 
 import traci
 
-sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
-# sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
+# sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
+sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
 
-routesJSON = ['RoutesJSON/DE01_Route.json']
+routesJSON = ['RoutesJSON/DE_520001_Route.json', 'RoutesJSON/DE_520002_Route.json']
 
 nameJSON = ['C1Route']
 
@@ -29,7 +29,7 @@ norms = ['EV']
 
 acceleration = [2.0, 3.0, 4.0]
 stopsRate = [0] # 0.35 is used for peak-off and 0.65 is used for rush hours
-stopsRates = ['0.35']
+stopsRates = ['0.0']
 
 def defineStops(stopsRate):
    for j in range(len(deliveryRoute)):
@@ -73,7 +73,8 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    defineStops(rateOfStops)
    # traci.vehicle.setChargingStationStop("0", "cS_2to19_0a", 10, 2.0, 0) # stop 10 seconds but only go on if the time is uper than 2.0 seconds
    # print('The street name is: ', traci.edge.getStreetName(':cluster_979937596_979937615_7'))
-   simulationRun = True
+   deliveryStops = len(routes["names"])
+   deliverySuccess = 1
    while traci.simulation.getMinExpectedNumber() > 0:
    # while simulationRun:
       traci.simulation.getMinExpectedNumber()
@@ -99,14 +100,12 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
          noise = noise + traci.vehicle.getNoiseEmission("Delivery_01")
          effort = effort + traci.vehicle.getEffort("Delivery_01", 1.0, ':cluster_979937596_979937615_7')
          step += 1
-         if traci.vehicle.getRoadID("Delivery_01")==deliveryRoute[1] and simulationRun:
-            print('Delivery_01 current edge: ', traci.vehicle.getRoadID("Delivery_01"))
+         if traci.vehicle.getRoadID("Delivery_01")==deliveryRoute[deliverySuccess] and deliverySuccess < deliveryStops:
             traci.vehicle.remove("Delivery_01")
-            traci.route.add(routes['names'][1], routes['routes'][1]) # This route was made in VAN_Ruta.rou.xml, as well. Whatever option es possible
-            traci.vehicle.add("Delivery_01",routes['names'][1],"VAN","now")
-            simulationRun = False
+            traci.route.add(routes['names'][deliverySuccess], routes['routes'][deliverySuccess])
+            traci.vehicle.add("Delivery_01",routes['names'][deliverySuccess],"VAN","now")
+            deliverySuccess+=1
    traci.close()
-   print('Actual battery capacity is:', actualBatteryCapacity)
    meanSpeed = speed*3600/(step*1000)
    meanNoise = noise/step
    results = {
