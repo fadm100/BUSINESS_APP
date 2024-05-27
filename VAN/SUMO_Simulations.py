@@ -20,7 +20,7 @@ import traci
 # sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
 sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
 
-routesJSON = ['RoutesJSON/DE_520001_Route.json', 'RoutesJSON/DE_520002_Route.json']
+routesJSON = ['RoutesJSON/DE_520001_Route.json', 'RoutesJSON/DE_520001_Route.json', 'RoutesJSON/DE_520010_Route.json']
 
 nameJSON = ['C1Route']
 
@@ -31,12 +31,12 @@ acceleration = [2.0, 3.0, 4.0]
 stopsRate = [0] # 0.35 is used for peak-off and 0.65 is used for rush hours
 stopsRates = ['0.0']
 
-def defineStops(stopsRate):
+def defineStops(stopsRate, deliveryRoute):
    for j in range(len(deliveryRoute)):
       R = random.random()
       if R < stopsRate:
          stopTime = random.randint(3, 60)
-         traci.vehicle.setStop("Delivery_01", deliveryRoute[j], 0.1, 0, stopTime, 0, 0.0, 2.0)
+         traci.vehicle.setStop(vehicleNames[0], deliveryRoute[j], 0.1, 0, stopTime, 0, 0.0, 2.0)
 
 def DataCalculate(route, norm_in, accel, rateOfStops):
    print('My Route is: ', route)
@@ -54,23 +54,28 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    effort = 0
    traci.start(route)
 
-   routes = RG.DeliveryStops(deliveryRoute)
-    
-   traci.route.add(routes['names'][0], routes['routes'][0]) # This route was made in VAN_Ruta.rou.xml, as well. Whatever option es possible
-   traci.vehicle.add("Delivery_01",routes['names'][0],"VAN","now")
-   """This vehicle is added here because file.rou.xml don't give the minimum route.
+   vehicleNames = []
+   for i in range(len(routesJSON)):
+      with open(routesJSON[i]) as json_file:
+         deliveryRoute = json.load(json_file)
+      routes = RG.DeliveryStops(deliveryRoute, i)
+      print('The routes are: ', routes)
+
+      traci.route.add(routes['names'][0], routes['routes'][0]) # This route was made in VAN_Ruta.rou.xml, as well. Whatever option es possible
+      vehicleNames.append("Delivery_" + str(i))
+      traci.vehicle.add(vehicleNames[i], routes['names'][0],"VAN","now")
+      """This vehicle is added here because file.rou.xml don't give the minimum route.
       TraCI SUMO finds the minimum route only if the route has 
       2 edges, depart edge and arrival edge; otherwise, SUMO gives
       a warning and teleports the vehicle"""
-
-   traci.vehicle.setEmissionClass("Delivery_01", norm_in)
-   traci.vehicle.setAccel("Delivery_01", accel)
+      traci.vehicle.setEmissionClass(vehicleNames[i], norm_in)
+   traci.vehicle.setAccel(vehicleNames[0], accel)
 
    # rateOfStops --> this is a number between 0 and 1. 
    # This parameter defines how many stops will be set.
    # with a high number, the number of stops will be major 
    # TraCI retrievals --> https://sumo.dlr.de/docs/TraCI.html
-   defineStops(rateOfStops)
+   defineStops(rateOfStops, deliveryRoute)
    # traci.vehicle.setChargingStationStop("0", "cS_2to19_0a", 10, 2.0, 0) # stop 10 seconds but only go on if the time is uper than 2.0 seconds
    # print('The street name is: ', traci.edge.getStreetName(':cluster_979937596_979937615_7'))
    deliveryStops = len(routes["names"])
@@ -86,24 +91,24 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
             speed2 = speed2 + traci.vehicle.getSpeed("0")
             count += 1
          """
-         speed = speed + traci.vehicle.getSpeed("Delivery_01")
-         distance = traci.vehicle.getDistance("Delivery_01")
-         acceleration = acceleration + traci.vehicle.getAcceleration("Delivery_01")
-         totalEnergyBatConsumption = totalEnergyBatConsumption + float(traci.vehicle.getParameter("Delivery_01", "device.battery.energyConsumed"))
+         speed = speed + traci.vehicle.getSpeed(vehicleNames[0])
+         distance = traci.vehicle.getDistance(vehicleNames[0])
+         acceleration = acceleration + traci.vehicle.getAcceleration(vehicleNames[0])
+         totalEnergyBatConsumption = totalEnergyBatConsumption + float(traci.vehicle.getParameter(vehicleNames[0], "device.battery.energyConsumed"))
          # totalEnergyConsumption = totalEnergyConsumption + traci.vehicle.getElectricityConsumption("0")
-         totalEnergyConsumption = float(traci.vehicle.getParameter("Delivery_01", "device.battery.totalEnergyConsumed"))
-         totalEnergyRegenerated = float(traci.vehicle.getParameter("Delivery_01", "device.battery.totalEnergyRegenerated"))
-         actualBatteryCapacity = float(traci.vehicle.getParameter("Delivery_01", "device.battery.actualBatteryCapacity"))
-         maximumBatteryCapacity = float(traci.vehicle.getParameter("Delivery_01", "device.battery.maximumBatteryCapacity"))
+         totalEnergyConsumption = float(traci.vehicle.getParameter(vehicleNames[0], "device.battery.totalEnergyConsumed"))
+         totalEnergyRegenerated = float(traci.vehicle.getParameter(vehicleNames[0], "device.battery.totalEnergyRegenerated"))
+         actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[0], "device.battery.actualBatteryCapacity"))
+         maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[0], "device.battery.maximumBatteryCapacity"))
          stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*deepOfDischarge)
          # print('The vehicle stop state is', stop)
-         noise = noise + traci.vehicle.getNoiseEmission("Delivery_01")
-         effort = effort + traci.vehicle.getEffort("Delivery_01", 1.0, ':cluster_979937596_979937615_7')
+         noise = noise + traci.vehicle.getNoiseEmission(vehicleNames[0])
+         effort = effort + traci.vehicle.getEffort(vehicleNames[0], 1.0, ':cluster_979937596_979937615_7')
          step += 1
-         if traci.vehicle.getRoadID("Delivery_01")==deliveryRoute[deliverySuccess] and deliverySuccess < deliveryStops:
-            traci.vehicle.remove("Delivery_01")
+         if traci.vehicle.getRoadID(vehicleNames[0])==deliveryRoute[deliverySuccess] and deliverySuccess < deliveryStops:
+            traci.vehicle.remove(vehicleNames[0])
             traci.route.add(routes['names'][deliverySuccess], routes['routes'][deliverySuccess])
-            traci.vehicle.add("Delivery_01",routes['names'][deliverySuccess],"VAN","now")
+            traci.vehicle.add(vehicleNames[0],routes['names'][deliverySuccess],"VAN","now")
             deliverySuccess+=1
    traci.close()
    meanSpeed = speed*3600/(step*1000)
@@ -129,8 +134,8 @@ for j in range(len(stopsRate)):
    Routes = {}
    for i in range(len(sumoCmd)):
       ##### The route to use
-      with open(routesJSON[i]) as json_file:
-         deliveryRoute = json.load(json_file)
+      # with open(routesJSON[i]) as json_file:
+      #    deliveryRoute = json.load(json_file)
       fuelNorm = []
       Norms = {}
       for k in range(len(norm)):
