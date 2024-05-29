@@ -20,7 +20,7 @@ import traci
 # sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
 sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
 
-routesJSON = ['RoutesJSON/DE_520001_Route.json', 'RoutesJSON/DE_520001_Route.json', 'RoutesJSON/DE_520010_Route.json']
+routesJSON = ['RoutesJSON/DE_520001_Route.json', 'RoutesJSON/DE_520002_Route.json', 'RoutesJSON/DE_520010_Route.json']
 
 nameJSON = ['C1Route']
 
@@ -78,38 +78,33 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    defineStops(rateOfStops, deliveryRoute)
    # traci.vehicle.setChargingStationStop("0", "cS_2to19_0a", 10, 2.0, 0) # stop 10 seconds but only go on if the time is uper than 2.0 seconds
    # print('The street name is: ', traci.edge.getStreetName(':cluster_979937596_979937615_7'))
-   deliveryStops = len(routes["names"])
+   deliveryStops = len(routesJSON)
    deliverySuccess = 1
    while traci.simulation.getMinExpectedNumber() > 0:
-   # while simulationRun:
       traci.simulation.getMinExpectedNumber()
       traci.simulationStep()
       vehicles = traci.vehicle.getIDList()
-      if len(vehicles) != 0:
-         """ # This is made to calculate the the speed without considering the detention of the vehicle
-         if traci.vehicle.getSpeed("0") != 0:
-            speed2 = speed2 + traci.vehicle.getSpeed("0")
-            count += 1
-         """
-         speed = speed + traci.vehicle.getSpeed(vehicleNames[0])
-         distance = traci.vehicle.getDistance(vehicleNames[0])
-         acceleration = acceleration + traci.vehicle.getAcceleration(vehicleNames[0])
-         totalEnergyBatConsumption = totalEnergyBatConsumption + float(traci.vehicle.getParameter(vehicleNames[0], "device.battery.energyConsumed"))
-         # totalEnergyConsumption = totalEnergyConsumption + traci.vehicle.getElectricityConsumption("0")
-         totalEnergyConsumption = float(traci.vehicle.getParameter(vehicleNames[0], "device.battery.totalEnergyConsumed"))
-         totalEnergyRegenerated = float(traci.vehicle.getParameter(vehicleNames[0], "device.battery.totalEnergyRegenerated"))
-         actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[0], "device.battery.actualBatteryCapacity"))
-         maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[0], "device.battery.maximumBatteryCapacity"))
-         stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*deepOfDischarge)
-         # print('The vehicle stop state is', stop)
-         noise = noise + traci.vehicle.getNoiseEmission(vehicleNames[0])
-         effort = effort + traci.vehicle.getEffort(vehicleNames[0], 1.0, ':cluster_979937596_979937615_7')
-         step += 1
-         if traci.vehicle.getRoadID(vehicleNames[0])==deliveryRoute[deliverySuccess] and deliverySuccess < deliveryStops:
-            traci.vehicle.remove(vehicleNames[0])
-            traci.route.add(routes['names'][deliverySuccess], routes['routes'][deliverySuccess])
-            traci.vehicle.add(vehicleNames[0],routes['names'][deliverySuccess],"VAN","now")
-            deliverySuccess+=1
+      for i in range(len(routesJSON)):
+         if len(vehicles) != 0:
+            speed = speed + traci.vehicle.getSpeed(vehicleNames[i])
+            distance = traci.vehicle.getDistance(vehicleNames[i])
+            acceleration = acceleration + traci.vehicle.getAcceleration(vehicleNames[i])
+            totalEnergyBatConsumption = totalEnergyBatConsumption + float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.energyConsumed"))
+            # totalEnergyConsumption = totalEnergyConsumption + traci.vehicle.getElectricityConsumption("0")
+            totalEnergyConsumption = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.totalEnergyConsumed"))
+            totalEnergyRegenerated = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.totalEnergyRegenerated"))
+            actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
+            maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
+            stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*deepOfDischarge)
+            # print('The vehicle stop state is', stop)
+            noise = noise + traci.vehicle.getNoiseEmission(vehicleNames[i])
+            effort = effort + traci.vehicle.getEffort(vehicleNames[i], 1.0, ':cluster_979937596_979937615_7')
+            step += 1
+            if traci.vehicle.getRoadID(vehicleNames[i])==deliveryRoute[deliverySuccess] and deliverySuccess < deliveryStops:
+               traci.vehicle.remove(vehicleNames[i])
+               traci.route.add(routes['names'][deliverySuccess], routes['routes'][deliverySuccess])
+               traci.vehicle.add(vehicleNames[i],routes['names'][deliverySuccess],"VAN","now")
+               deliverySuccess+=1
    traci.close()
    meanSpeed = speed*3600/(step*1000)
    meanNoise = noise/step
