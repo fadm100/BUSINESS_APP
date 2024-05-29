@@ -21,7 +21,7 @@ import traci
 # sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
 sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
 
-routesJSON = ['RoutesJSON/DE_520001_Route.json']#, 'RoutesJSON/DE_520002_Route.json', 'RoutesJSON/DE_520010_Route.json']
+routesJSON = ['RoutesJSON/DE_520001_Route.json', 'RoutesJSON/DE_520002_Route.json', 'RoutesJSON/DE_520010_Route.json']
 
 nameJSON = ['C1Route']
 
@@ -72,7 +72,7 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    defineStops(rateOfStops, deliveryRoute)
    # traci.vehicle.setChargingStationStop("0", "cS_2to19_0a", 10, 2.0, 0) # stop 10 seconds but only go on if the time is uper than 2.0 seconds
    # print('The street name is: ', traci.edge.getStreetName(':cluster_979937596_979937615_7'))
-   deliveryStops = len(routesJSON)
+   deliveryStops = len(routes['names'])
    deliverySuccess = 1
    while traci.simulation.getMinExpectedNumber() > 0:
       traci.simulation.getMinExpectedNumber()
@@ -85,11 +85,16 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
             stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*minimumDoD)
             # print('The vehicle stop state is', stop)
             step += 1
-            if traci.vehicle.getRoadID(vehicleNames[i])==deliveryRoute[deliverySuccess] and deliverySuccess < deliveryStops:
-               traci.vehicle.remove(vehicleNames[i])
-               traci.route.add(routes['names'][deliverySuccess], routes['routes'][deliverySuccess])
-               traci.vehicle.add(vehicleNames[i],routes['names'][deliverySuccess],"VAN","now")
-               deliverySuccess+=1
+            if traci.vehicle.getRoadID(vehicleNames[i])==deliveryRoute[deliverySuccess]:
+               if deliverySuccess < deliveryStops:
+                  traci.vehicle.remove(vehicleNames[i])
+                  traci.route.add(routes['names'][deliverySuccess], routes['routes'][deliverySuccess])
+                  traci.vehicle.add(vehicleNames[i],routes['names'][deliverySuccess],"VAN","now")
+                  deliverySuccess+=1
+               elif traci.vehicle.getRoadID(vehicleNames[i])=="-E0":
+                  traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=2, flags=1)             
+      if traci.simulation.getTime() > 2000:
+         traci.vehicle.remove(vehicleNames[i])
    traci.close()
    results = {
       'ActualBatteryCapacity': actualBatteryCapacity/1e3, # in [Kwh]
