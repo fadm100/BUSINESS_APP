@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import EV_Charge as EVC
 import RouteGenerator as RG
+import xml.etree.ElementTree as ET
 
 from turtle import clear
 if 'SUMO_HOME' in os.environ:
@@ -49,6 +50,7 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    totalEnergyRegenerated = 0
    actualBatteryCapacity = 0
    maximumBatteryCapacity = 0
+   actualBatteryDoD = 0
    deepOfDischarge = 0.5
    noise = 0
    effort = 0
@@ -92,9 +94,10 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
             totalEnergyBatConsumption = totalEnergyBatConsumption + float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.energyConsumed"))
             # totalEnergyConsumption = totalEnergyConsumption + traci.vehicle.getElectricityConsumption("0")
             totalEnergyConsumption = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.totalEnergyConsumed"))
-            totalEnergyRegenerated = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.totalEnergyRegenerated"))
-            actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
-            maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
+            totalEnergyRegenerated = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.totalEnergyRegenerated")) ##DUPLICADO
+            actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity")) ##DUPLICADO
+            maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity")) ##DUPLICADO
+            actualBatteryDoD = maximumBatteryCapacity/actualBatteryCapacity * 100
             stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*deepOfDischarge)
             # print('The vehicle stop state is', stop)
             noise = noise + traci.vehicle.getNoiseEmission(vehicleNames[i])
@@ -106,20 +109,17 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
                traci.vehicle.add(vehicleNames[i],routes['names'][deliverySuccess],"VAN","now")
                deliverySuccess+=1
    traci.close()
-   meanSpeed = speed*3600/(step*1000)
-   meanNoise = noise/step
    results = {
       'BatteryEnergy': totalEnergyBatConsumption/1e3, # in [kwh] 
       'TotalEnergyConsumed': totalEnergyConsumption/1e3, # in [Kwh] 
       'TotalEnergyRegenerated': totalEnergyRegenerated/1e3, # in [Kwh]
       'ActualBatteryCapacity': actualBatteryCapacity/1e3, # in [Kwh]
-      'Speed': meanSpeed, # in [m/s]
-      'Acceleration': acceleration,
-      'Distance': distance/1e3, # in [km]
-      'Noise': meanNoise, # in [dB]
-      'Effort': effort # unidades???
+      'ActualBatteryDoD': actualBatteryDoD # in [%]
    }
    return results
+
+root = ET.parse("sample.xml")
+root_node = root.getroot()
 
 total = {}
 
