@@ -21,7 +21,7 @@ import traci
 # sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
 sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
 
-routesJSON = ['RoutesJSON/DE_520001_Route.json', 'RoutesJSON/DE_520002_Route.json', 'RoutesJSON/DE_520010_Route.json']
+routesJSON = ['RoutesJSON/DE_520001_Route.json']#, 'RoutesJSON/DE_520002_Route.json', 'RoutesJSON/DE_520010_Route.json']
 
 nameJSON = ['C1Route']
 
@@ -42,18 +42,10 @@ def defineStops(stopsRate, deliveryRoute):
 def DataCalculate(route, norm_in, accel, rateOfStops):
    print('My Route is: ', route)
    step = 0
-   speed = 0
-   distance = 0
-   acceleration = 0
-   totalEnergyBatConsumption = 0
-   totalEnergyConsumption = 0
-   totalEnergyRegenerated = 0
    actualBatteryCapacity = 0
    maximumBatteryCapacity = 0
-   actualBatteryDoD = 0
-   deepOfDischarge = 0.5
-   noise = 0
-   effort = 0
+   minimumDoD = 0.5
+
    traci.start(route)
 
    vehicleNames = []
@@ -88,20 +80,10 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
       vehicles = traci.vehicle.getIDList()
       for i in range(len(routesJSON)):
          if len(vehicles) != 0:
-            speed = speed + traci.vehicle.getSpeed(vehicleNames[i])
-            distance = traci.vehicle.getDistance(vehicleNames[i])
-            acceleration = acceleration + traci.vehicle.getAcceleration(vehicleNames[i])
-            totalEnergyBatConsumption = totalEnergyBatConsumption + float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.energyConsumed"))
-            # totalEnergyConsumption = totalEnergyConsumption + traci.vehicle.getElectricityConsumption("0")
-            totalEnergyConsumption = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.totalEnergyConsumed"))
-            totalEnergyRegenerated = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.totalEnergyRegenerated")) ##DUPLICADO
-            actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity")) ##DUPLICADO
-            maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity")) ##DUPLICADO
-            actualBatteryDoD = maximumBatteryCapacity/actualBatteryCapacity * 100
-            stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*deepOfDischarge)
+            actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
+            maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
+            stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*minimumDoD)
             # print('The vehicle stop state is', stop)
-            noise = noise + traci.vehicle.getNoiseEmission(vehicleNames[i])
-            effort = effort + traci.vehicle.getEffort(vehicleNames[i], 1.0, ':cluster_979937596_979937615_7')
             step += 1
             if traci.vehicle.getRoadID(vehicleNames[i])==deliveryRoute[deliverySuccess] and deliverySuccess < deliveryStops:
                traci.vehicle.remove(vehicleNames[i])
@@ -110,15 +92,11 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
                deliverySuccess+=1
    traci.close()
    results = {
-      'BatteryEnergy': totalEnergyBatConsumption/1e3, # in [kwh] 
-      'TotalEnergyConsumed': totalEnergyConsumption/1e3, # in [Kwh] 
-      'TotalEnergyRegenerated': totalEnergyRegenerated/1e3, # in [Kwh]
       'ActualBatteryCapacity': actualBatteryCapacity/1e3, # in [Kwh]
-      'ActualBatteryDoD': actualBatteryDoD # in [%]
    }
    return results
 
-root = ET.parse("sample.xml")
+root = ET.parse("Battery.out.xml")
 root_node = root.getroot()
 
 total = {}
