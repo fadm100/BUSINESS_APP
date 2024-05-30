@@ -69,36 +69,27 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    # with a high number, the number of stops will be major 
    # TraCI retrievals --> https://sumo.dlr.de/docs/TraCI.html
    # # # # # # defineStops(rateOfStops, deliveryRoute[vehicleNames[i]])
-   # traci.vehicle.setChargingStationStop("0", "cS_2to19_0a", 10, 2.0, 0) # stop 10 seconds but only go on if the time is uper than 2.0 seconds
-   # print('The street name is: ', traci.edge.getStreetName(':cluster_979937596_979937615_7'))
-   # deliverySuccess = 1
-   while traci.simulation.getMinExpectedNumber() > 0:
-      print(deliverySuccess)
-      traci.simulation.getMinExpectedNumber()
+   
+   # while traci.simulation.getMinExpectedNumber() > 0:
+   while step < 2000:
       traci.simulationStep()
-      vehicles = traci.vehicle.getIDList()
-      print(vehicles)
+      # vehicles = traci.vehicle.getIDList()
       for i in range(len(vehicleNames)):
-         with open(routesJSON[i]) as json_file:
-            deliveryRoute = json.load(json_file)
-         if len(vehicles) != 0:
-            actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
-            maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
-            stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*minimumDoD)
-            # print('The vehicle stop state is', stop)
-            step += 1
-            if traci.vehicle.getRoadID(vehicleNames[i])==deliveryRoute[deliverySuccess[i]]:
-               if deliverySuccess[i] < deliveryStops[i]:
-                  traci.vehicle.remove(vehicleNames[i])
-                  currentRouteName = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][0] # current route ID to vehicle i
-                  currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][1] # current route to vehicle i defined by tow edges
-                  traci.route.add(currentRouteName, currentRoute) 
-                  traci.vehicle.add(vehicleNames[i], currentRouteName,"VAN","now")
-                  deliverySuccess[i]+=1
-               if traci.vehicle.getRoadID(vehicleNames[i])=="-E0":
-                  traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=2, flags=1)             
-      if traci.simulation.getTime() > 2000:
-         traci.vehicle.remove(vehicleNames[i])
+         actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
+         maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
+         stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*minimumDoD)
+         currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]-1][1] # current route to vehicle i defined by tow edges
+         if traci.vehicle.getRoadID(vehicleNames[i]) == currentRoute[1]: 
+            if deliverySuccess[i] < deliveryStops[i]:
+               traci.vehicle.remove(vehicleNames[i])
+               currentRouteName = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][0] # current route ID to vehicle i
+               currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][1] # current route to vehicle i defined by tow edges
+               traci.route.add(currentRouteName, currentRoute) 
+               traci.vehicle.add(vehicleNames[i], currentRouteName,"VAN","now")
+               deliverySuccess[i]+=1
+            if traci.vehicle.getRoadID(vehicleNames[i]) == "-E0":
+               traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=2, flags=1)             
+      step += 1
    traci.close()
    results = {
       'ActualBatteryCapacity': actualBatteryCapacity/1e3, # in [Kwh]
@@ -115,9 +106,6 @@ for j in range(len(stopsRate)):
    fuelRoute = []
    Routes = {}
    for i in range(len(sumoCmd)):
-      ##### The route to use
-      # with open(routesJSON[i]) as json_file:
-      #    deliveryRoute = json.load(json_file)
       fuelNorm = []
       Norms = {}
       for k in range(len(norm)):

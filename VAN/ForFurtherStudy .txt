@@ -1,0 +1,1 @@
+1 --> Make the simulation more realistic. When vehicle battery is low, return to dispatch center and when the battery charge is full then continue with the dispatch.
