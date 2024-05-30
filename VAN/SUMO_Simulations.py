@@ -22,6 +22,7 @@ import traci
 sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
 
 routesJSON = ['RoutesJSON/DE_520001_Route.json', 'RoutesJSON/DE_520002_Route.json', 'RoutesJSON/DE_520010_Route.json']
+fleetRoutes = RG.DeliveryRoutes(routesJSON)
 
 nameJSON = ['C1Route']
 
@@ -44,54 +45,57 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    step = 0
    actualBatteryCapacity = 0
    maximumBatteryCapacity = 0
+   vehicleNames = list(fleetRoutes.keys())
+   deliverySuccess = [1] * len(vehicleNames)
+   deliveryStops = [0] * len(vehicleNames)
    minimumDoD = 0.5
 
    traci.start(route)
 
-   vehicleNames = []
-   for i in range(len(routesJSON)):
-      with open(routesJSON[i]) as json_file:
-         deliveryRoute = json.load(json_file)
-      routes = RG.DeliveryStops(deliveryRoute, i)
-      print('The routes are: ', routes)
-
-      traci.route.add(routes['names'][0], routes['routes'][0]) # This route was made in VAN_Ruta.rou.xml, as well. Whatever option es possible
-      vehicleNames.append("Delivery_" + str(i))
-      traci.vehicle.add(vehicleNames[i], routes['names'][0],"VAN","now")
+   for i in range(len(vehicleNames)):
+      initialRouteName = fleetRoutes[vehicleNames[i]][0][0] # first route ID to vehicle i
+      initialRoute = fleetRoutes[vehicleNames[i]][0][1] # first route to vehicle i defined by tow edges
+      traci.route.add(initialRouteName, initialRoute) # This route was made in VAN_Ruta.rou.xml, as well. Whatever option es possible
+      traci.vehicle.add(vehicleNames[i], initialRouteName,"VAN","now")
       """This vehicle is added here because file.rou.xml don't give the minimum route.
       TraCI SUMO finds the minimum route only if the route has 
       2 edges, depart edge and arrival edge; otherwise, SUMO gives
       a warning and teleports the vehicle"""
+      deliveryStops[i] = len(fleetRoutes[vehicleNames[i]])
       traci.vehicle.setEmissionClass(vehicleNames[i], norm_in)
-   traci.vehicle.setAccel(vehicleNames[0], accel)
 
    # rateOfStops --> this is a number between 0 and 1. 
    # This parameter defines how many stops will be set.
    # with a high number, the number of stops will be major 
    # TraCI retrievals --> https://sumo.dlr.de/docs/TraCI.html
-   defineStops(rateOfStops, deliveryRoute)
+   # # # # # # defineStops(rateOfStops, deliveryRoute[vehicleNames[i]])
    # traci.vehicle.setChargingStationStop("0", "cS_2to19_0a", 10, 2.0, 0) # stop 10 seconds but only go on if the time is uper than 2.0 seconds
    # print('The street name is: ', traci.edge.getStreetName(':cluster_979937596_979937615_7'))
-   deliveryStops = len(routes['names'])
-   deliverySuccess = 1
+   # deliverySuccess = 1
    while traci.simulation.getMinExpectedNumber() > 0:
+      print(deliverySuccess)
       traci.simulation.getMinExpectedNumber()
       traci.simulationStep()
       vehicles = traci.vehicle.getIDList()
-      for i in range(len(routesJSON)):
+      print(vehicles)
+      for i in range(len(vehicleNames)):
+         with open(routesJSON[i]) as json_file:
+            deliveryRoute = json.load(json_file)
          if len(vehicles) != 0:
             actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
             maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
             stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*minimumDoD)
             # print('The vehicle stop state is', stop)
             step += 1
-            if traci.vehicle.getRoadID(vehicleNames[i])==deliveryRoute[deliverySuccess]:
-               if deliverySuccess < deliveryStops:
+            if traci.vehicle.getRoadID(vehicleNames[i])==deliveryRoute[deliverySuccess[i]]:
+               if deliverySuccess[i] < deliveryStops[i]:
                   traci.vehicle.remove(vehicleNames[i])
-                  traci.route.add(routes['names'][deliverySuccess], routes['routes'][deliverySuccess])
-                  traci.vehicle.add(vehicleNames[i],routes['names'][deliverySuccess],"VAN","now")
-                  deliverySuccess+=1
-               elif traci.vehicle.getRoadID(vehicleNames[i])=="-E0":
+                  currentRouteName = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][0] # current route ID to vehicle i
+                  currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][1] # current route to vehicle i defined by tow edges
+                  traci.route.add(currentRouteName, currentRoute) 
+                  traci.vehicle.add(vehicleNames[i], currentRouteName,"VAN","now")
+                  deliverySuccess[i]+=1
+               if traci.vehicle.getRoadID(vehicleNames[i])=="-E0":
                   traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=2, flags=1)             
       if traci.simulation.getTime() > 2000:
          traci.vehicle.remove(vehicleNames[i])
