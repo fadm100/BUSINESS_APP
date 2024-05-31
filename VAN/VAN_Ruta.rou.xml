@@ -13,15 +13,15 @@ ____________________________________________________
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
 
-        <vType id="VAN" guiShape="bus" length="6.5" width="2.16" height="2.86" minGap="2.5" accel="2.6" decel="4.5" maxSpeed="55.55" color="255,12,0"> 
+        <vType id="VAN" guiShape="delivery" length="6.5" width="2.16" height="2.86" minGap="2.5" accel="2.6" decel="4.5" maxSpeed="28.55" color="255,12,0"> 
 
         <param key="has.battery.device" value="true"/>
         <!-- <param key="maximumBatteryCapacity" value="324000"/> this is an old parameter--> 
-		<param key="device.battery.capacity" value="324000"/>
+		<param key="device.battery.capacity" value="80000"/> <!-- https://lightningemotors.com/lightningelectric-ford-transit-cargo -->
 		<!-- <param key="actualBatteryCapacity" value="243000"/> this is an old parameter -->
-		<param key="device.battery.chargeLevel" value="243000"/>
+		<param key="device.battery.chargeLevel" value="60000"/>
         <param key="maximumPower" value="10000"/>
-        <param key="vehicleMass" value="15000"/>
+        <param key="vehicleMass" value="4989.5161"/> <!-- https://lightningemotors.com/lightningelectric-ford-transit-cargo -->
         <param key="frontSurfaceArea" value="5"/>
         <param key="airDragCoefficient" value="0.6"/>
         <param key="rotatingMass" value="100"/>

@@ -18,8 +18,8 @@ else:
 
 import traci
 
-sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
-# sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
+# sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
+sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
 
 routesJSON = ['RoutesJSON/DE_520001_Route.json', 'RoutesJSON/DE_520002_Route.json', 'RoutesJSON/DE_520010_Route.json']
 fleetRoutes = RG.DeliveryRoutes(routesJSON)

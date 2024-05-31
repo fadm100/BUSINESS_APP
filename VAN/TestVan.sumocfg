@@ -8,9 +8,8 @@
     <input>
         <!-- <net-file value="C:\Users\alex-\Sumo\2022-03-09-07-21-16\osm.net.xml"/> -->
 		<net-file value="Pasto_VAN.net.xml"/>
-		<!-- <route-files value="Pasto_Ruta_C1.rou.xml,osm.passenger.trips.xml,osm.truck.trips.xml,osm.bus.trips.xml,osm.motorcycle.trips.xml,osm.bicycle.trips.xml"/> -->
-		<!-- <route-files value="VAN_Ruta.rou.xml"/> -->
-        <route-files value="VAN_Ruta.rou.xml,bus.trips.xml,moto.trips.xml,taxi.trips.xml,vehicle.trips.xml"/>
+		<route-files value="VAN_Ruta.rou.xml"/>
+        <!-- <route-files value="VAN_Ruta.rou.xml,bus.trips.xml,moto.trips.xml,taxi.trips.xml,vehicle.trips.xml"/> -->
         
     </input>
 
