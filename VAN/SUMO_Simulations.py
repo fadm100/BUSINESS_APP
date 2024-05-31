@@ -74,17 +74,17 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
 
    traci.start(route)
 
-   for i in range(len(vehicleNames)):
-      initialRouteName = fleetRoutes[vehicleNames[i]][0][0] # first route ID to vehicle i
-      initialRoute = fleetRoutes[vehicleNames[i]][0][1] # first route to vehicle i defined by tow edges
-      traci.route.add(initialRouteName, initialRoute) # This route was made in VAN_Ruta.rou.xml, as well. Whatever option es possible
-      traci.vehicle.add(vehicleNames[i], initialRouteName,"VAN","now")
-      """This vehicle is added here because file.rou.xml don't give the minimum route.
-      TraCI SUMO finds the minimum route only if the route has 
-      2 edges, depart edge and arrival edge; otherwise, SUMO gives
-      a warning and teleports the vehicle"""
-      deliveryStops[i] = len(fleetRoutes[vehicleNames[i]])
-      traci.vehicle.setEmissionClass(vehicleNames[i], norm_in)
+   # for i in range(len(vehicleNames)):
+      # initialRouteName = fleetRoutes[vehicleNames[i]][0][0] # first route ID to vehicle i
+      # initialRoute = fleetRoutes[vehicleNames[i]][0][1] # first route to vehicle i defined by tow edges
+      # traci.route.add(initialRouteName, initialRoute) # This route was made in VAN_Ruta.rou.xml, as well. Whatever option es possible
+      # traci.vehicle.add(vehicleNames[i], initialRouteName,"VAN","now")
+      # """This vehicle is added here because file.rou.xml don't give the minimum route.
+      # TraCI SUMO finds the minimum route only if the route has 
+      # 2 edges, depart edge and arrival edge; otherwise, SUMO gives
+      # a warning and teleports the vehicle"""
+      # deliveryStops[i] = len(fleetRoutes[vehicleNames[i]])
+      # traci.vehicle.setEmissionClass(vehicleNames[i], norm_in)
 
    # rateOfStops --> this is a number between 0 and 1. 
    # This parameter defines how many stops will be set.
@@ -92,15 +92,33 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    # TraCI retrievals --> https://sumo.dlr.de/docs/TraCI.html
    # # # # # # defineStops(rateOfStops, deliveryRoute[vehicleNames[i]])
    
-   # while traci.simulation.getMinExpectedNumber() > 0:
    while step < midnights:
       # traci.simulationStep()
       if step < eightAM:
          traci.simulationStep()
-         if step == 0: print('Early morning')
+         if step == 0: 
+            print('Early morning')
+            for i in range(len(vehicleNames)):
+               initialRoute_EarlyMorning_Name = ["initial_V01", "initial_V02", "initial_V03"] # first route to vehicle i defined by tow edges
+               traci.route.add(initialRoute_EarlyMorning_Name[i], ["-E0", "E0"])
+               traci.vehicle.add(vehicleNames[i], initialRoute_EarlyMorning_Name[i], "VAN", "now")
+               traci.vehicle.setEmissionClass(vehicleNames[i], norm_in)
+               traci.vehicle.setChargingStationStop(vehicleNames[i], "cS_2to19_0a", duration=10.0, until=midday, flags=0)
       elif step >= eightAM and step < midday: 
-         if step == eightAM: print('Morning')
          traci.simulationStep()
+         if step == eightAM: 
+            print('Morning')
+            for i in range(len(vehicleNames)):
+               traci.vehicle.remove(vehicleNames[i])
+               initialRouteName = fleetRoutes[vehicleNames[i]][0][0] # first route ID to vehicle i
+               initialRoute = fleetRoutes[vehicleNames[i]][0][1] # first route to vehicle i defined by tow edges
+               traci.route.add(initialRouteName, initialRoute) # This route was made in VAN_Ruta.rou.xml, as well. Whatever option es possible
+               traci.vehicle.add(vehicleNames[i], initialRouteName,"VAN","now")
+               """This vehicle is added here because file.rou.xml don't give the minimum route.
+               TraCI SUMO finds the minimum route only if the route has 
+               2 edges, depart edge and arrival edge; otherwise, SUMO gives
+               a warning and teleports the vehicle"""
+               deliveryStops[i] = len(fleetRoutes[vehicleNames[i]])
          RoutesManagement(vehicleNames, minimumDoD, deliverySuccess, deliveryStops)
          # vehicles = traci.vehicle.getIDList()
       elif step >= midday and step < twoPM:

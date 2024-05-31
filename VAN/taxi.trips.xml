@@ -11,7 +11,7 @@
 -->
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
-    <vType id="T_passenger" vClass="passenger"/>
+    <vType id="T_passenger" vClass="passenger" emissionClass="HBEFA3/PC_G_EU4"/>
     <trip id="T0" depart="0.00" from="572150010#1" to="-107286424" type="T_passenger"/>
     <trip id="T1" depart="1.00" from="-79536635#0" to="-79091987#6" type="T_passenger"/>
     <trip id="T2" depart="2.00" from="79091784#1" to="78046848#0" type="T_passenger"/>

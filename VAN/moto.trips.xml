@@ -11,7 +11,7 @@
 -->
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
-    <vType id="M_motorcycle" vClass="motorcycle"/>
+    <vType id="M_motorcycle" vClass="motorcycle" emissionClass="HBEFA3/LDV_G_EU6"/>
     <trip id="M0" depart="0.00" from="572150010#1" to="-107286424" type="M_motorcycle"/>
     <trip id="M1" depart="1.00" from="-79536635#0" to="-79091987#6" type="M_motorcycle"/>
     <trip id="M2" depart="2.00" from="79091784#1" to="78046848#0" type="M_motorcycle"/>
