@@ -45,6 +45,23 @@ def defineStops(stopsRate, deliveryRoute):
          stopTime = random.randint(3, 60)
          traci.vehicle.setStop(vehicleNames[0], deliveryRoute[j], 0.1, 0, stopTime, 0, 0.0, 2.0)
 
+def RoutesManagement(vehicleNames, minimumDoD, deliverySuccess, deliveryStops):
+   for i in range(len(vehicleNames)):
+            actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
+            maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
+            stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*minimumDoD)
+            currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]-1][1] # current route to vehicle i defined by tow edges
+            if traci.vehicle.getRoadID(vehicleNames[i]) == currentRoute[1]: 
+               if deliverySuccess[i] < deliveryStops[i]:
+                  traci.vehicle.remove(vehicleNames[i])
+                  currentRouteName = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][0] # current route ID to vehicle i
+                  currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][1] # current route to vehicle i defined by tow edges
+                  traci.route.add(currentRouteName, currentRoute) 
+                  traci.vehicle.add(vehicleNames[i], currentRouteName,"VAN","now")
+                  deliverySuccess[i]+=1
+               if traci.vehicle.getRoadID(vehicleNames[i]) == "-E0":
+                  traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=2, flags=1)
+
 def DataCalculate(route, norm_in, accel, rateOfStops):
    print('My Route is: ', route)
    step = 0
@@ -77,27 +94,14 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    
    # while traci.simulation.getMinExpectedNumber() > 0:
    while step < midnights:
+      # traci.simulationStep()
       if step < eightAM:
          if step == 0: print('Early morning')
       elif step >= eightAM and step < midday: 
          if step == eightAM: print('Morning')
          traci.simulationStep()
+         RoutesManagement(vehicleNames, minimumDoD, deliverySuccess, deliveryStops)
          # vehicles = traci.vehicle.getIDList()
-         for i in range(len(vehicleNames)):
-            actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
-            maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
-            stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*minimumDoD)
-            currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]-1][1] # current route to vehicle i defined by tow edges
-            if traci.vehicle.getRoadID(vehicleNames[i]) == currentRoute[1]: 
-               if deliverySuccess[i] < deliveryStops[i]:
-                  traci.vehicle.remove(vehicleNames[i])
-                  currentRouteName = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][0] # current route ID to vehicle i
-                  currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][1] # current route to vehicle i defined by tow edges
-                  traci.route.add(currentRouteName, currentRoute) 
-                  traci.vehicle.add(vehicleNames[i], currentRouteName,"VAN","now")
-                  deliverySuccess[i]+=1
-               if traci.vehicle.getRoadID(vehicleNames[i]) == "-E0":
-                  traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=2, flags=1)
       elif step >= midday and step < twoPM:
          if step == midday: print('Lunch')
       elif step >= twoPM and step < sixPM:
