@@ -96,6 +96,7 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    while step < midnights:
       # traci.simulationStep()
       if step < eightAM:
+         traci.simulationStep()
          if step == 0: print('Early morning')
       elif step >= eightAM and step < midday: 
          if step == eightAM: print('Morning')
@@ -103,10 +104,13 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
          RoutesManagement(vehicleNames, minimumDoD, deliverySuccess, deliveryStops)
          # vehicles = traci.vehicle.getIDList()
       elif step >= midday and step < twoPM:
+         traci.simulationStep()
          if step == midday: print('Lunch')
       elif step >= twoPM and step < sixPM:
+         traci.simulationStep()
          if step == twoPM: print('Afternoon')
       elif step >= sixPM:
+         traci.simulationStep()
          if step == sixPM: print('Night')
       step += 1
    traci.close()
@@ -116,8 +120,8 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    }
    return results
 
-root = ET.parse("Battery.out.xml")
-root_node = root.getroot()
+# root = ET.parse("Battery.out.xml")
+# root_node = root.getroot()
 
 total = {}
 
