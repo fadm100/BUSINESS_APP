@@ -18,8 +18,8 @@ else:
 
 import traci
 
-# sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
-sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
+sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
+# sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
 
 routesJSON = ['RoutesJSON/DE_520001_Route.json', 'RoutesJSON/DE_520002_Route.json', 'RoutesJSON/DE_520010_Route.json']
 fleetRoutes = RG.DeliveryRoutes(routesJSON)
@@ -32,6 +32,11 @@ norms = ['EV']
 acceleration = [2.0, 3.0, 4.0]
 stopsRate = [0] # 0.35 is used for peak-off and 0.65 is used for rush hours
 stopsRates = ['0.0']
+eightAM = 28800
+midday = 43200
+twoPM = 50400
+sixPM = 64800
+midnights = 86400
 
 def defineStops(stopsRate, deliveryRoute):
    for j in range(len(deliveryRoute)):
@@ -71,26 +76,37 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    # # # # # # defineStops(rateOfStops, deliveryRoute[vehicleNames[i]])
    
    # while traci.simulation.getMinExpectedNumber() > 0:
-   while step < 2000:
-      traci.simulationStep()
-      # vehicles = traci.vehicle.getIDList()
-      for i in range(len(vehicleNames)):
-         actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
-         maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
-         stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*minimumDoD)
-         currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]-1][1] # current route to vehicle i defined by tow edges
-         if traci.vehicle.getRoadID(vehicleNames[i]) == currentRoute[1]: 
-            if deliverySuccess[i] < deliveryStops[i]:
-               traci.vehicle.remove(vehicleNames[i])
-               currentRouteName = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][0] # current route ID to vehicle i
-               currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][1] # current route to vehicle i defined by tow edges
-               traci.route.add(currentRouteName, currentRoute) 
-               traci.vehicle.add(vehicleNames[i], currentRouteName,"VAN","now")
-               deliverySuccess[i]+=1
-            if traci.vehicle.getRoadID(vehicleNames[i]) == "-E0":
-               traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=2, flags=1)             
+   while step < midnights:
+      if step < eightAM:
+         if step == 0: print('Early morning')
+      elif step >= eightAM and step < midday: 
+         if step == eightAM: print('Morning')
+         traci.simulationStep()
+         # vehicles = traci.vehicle.getIDList()
+         for i in range(len(vehicleNames)):
+            actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
+            maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
+            stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*minimumDoD)
+            currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]-1][1] # current route to vehicle i defined by tow edges
+            if traci.vehicle.getRoadID(vehicleNames[i]) == currentRoute[1]: 
+               if deliverySuccess[i] < deliveryStops[i]:
+                  traci.vehicle.remove(vehicleNames[i])
+                  currentRouteName = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][0] # current route ID to vehicle i
+                  currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][1] # current route to vehicle i defined by tow edges
+                  traci.route.add(currentRouteName, currentRoute) 
+                  traci.vehicle.add(vehicleNames[i], currentRouteName,"VAN","now")
+                  deliverySuccess[i]+=1
+               if traci.vehicle.getRoadID(vehicleNames[i]) == "-E0":
+                  traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=2, flags=1)
+      elif step >= midday and step < twoPM:
+         if step == midday: print('Lunch')
+      elif step >= twoPM and step < sixPM:
+         if step == twoPM: print('Afternoon')
+      elif step >= sixPM:
+         if step == sixPM: print('Night')
       step += 1
    traci.close()
+   print(step)
    results = {
       'ActualBatteryCapacity': actualBatteryCapacity/1e3, # in [Kwh]
    }
@@ -100,7 +116,6 @@ root = ET.parse("Battery.out.xml")
 root_node = root.getroot()
 
 total = {}
-
 
 for j in range(len(stopsRate)):
    fuelRoute = []
