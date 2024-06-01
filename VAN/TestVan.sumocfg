@@ -36,7 +36,7 @@
         <battery-output.precision value="4"/>
         <device.battery.probability value="1"/>
         <summary-output value="summary_100.xml"/>
-        <full-output value="FullData.xml"/>
+        <!-- <full-output value="FullData.xml"/> -->
     </output>
 
 

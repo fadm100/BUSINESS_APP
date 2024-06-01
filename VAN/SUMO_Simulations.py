@@ -18,8 +18,8 @@ else:
 
 import traci
 
-sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
-# sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
+# sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
+sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
 
 routesJSON = ['RoutesJSON/DE_520001_Route.json', 'RoutesJSON/DE_520002_Route.json', 'RoutesJSON/DE_520010_Route.json']
 fleetRoutes = RG.DeliveryRoutes(routesJSON)
@@ -36,7 +36,7 @@ eightAM = 28800
 midday = 43200
 twoPM = 50400
 sixPM = 64800
-midnights = 86400
+midnight = 86400
 
 def defineStops(stopsRate, deliveryRoute):
    for j in range(len(deliveryRoute)):
@@ -63,7 +63,6 @@ def RoutesManagement(vehicleNames, minimumDoD, deliverySuccess, deliveryStops):
                   traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=2, flags=1)
 
 def DataCalculate(route, norm_in, accel, rateOfStops):
-   print('My Route is: ', route)
    step = 0
    actualBatteryCapacity = 0
    maximumBatteryCapacity = 0
@@ -92,18 +91,25 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    # TraCI retrievals --> https://sumo.dlr.de/docs/TraCI.html
    # # # # # # defineStops(rateOfStops, deliveryRoute[vehicleNames[i]])
    
-   while step < midnights:
+   while step < midnight:
       # traci.simulationStep()
       if step < eightAM:
          traci.simulationStep()
          if step == 0: 
             print('Early morning')
+            initialRoute_EarlyMorning_Name = ["initial_V01", "initial_V02", "initial_V03"] # first route to vehicle i defined by tow edges
+            returnRoute_EarlyMorning_Name = ["return_V01", "return_V02", "return_V03"] 
             for i in range(len(vehicleNames)):
-               initialRoute_EarlyMorning_Name = ["initial_V01", "initial_V02", "initial_V03"] # first route to vehicle i defined by tow edges
                traci.route.add(initialRoute_EarlyMorning_Name[i], ["-E0", "E0"])
                traci.vehicle.add(vehicleNames[i], initialRoute_EarlyMorning_Name[i], "VAN", "now")
                traci.vehicle.setEmissionClass(vehicleNames[i], norm_in)
-               traci.vehicle.setChargingStationStop(vehicleNames[i], "cS_2to19_0a", duration=10.0, until=midday, flags=0)
+               traci.vehicle.setChargingStationStop(vehicleNames[i], "cS_2to19_0a", duration=10.0, until=eightAM, flags=0)
+               actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
+               maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
+               if actualBatteryCapacity <= maximumBatteryCapacity * 0.9:
+                  traci.route.add(returnRoute_EarlyMorning_Name[i], ["E0", "-E0"])
+                  traci.vehicle.add(vehicleNames[i], returnRoute_EarlyMorning_Name[i], "VAN", "now")
+                  traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=2, flags=1)
       elif step >= eightAM and step < midday: 
          traci.simulationStep()
          if step == eightAM: 
