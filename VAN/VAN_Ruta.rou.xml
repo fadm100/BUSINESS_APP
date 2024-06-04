@@ -19,7 +19,7 @@ ____________________________________________________
         <!-- <param key="maximumBatteryCapacity" value="324000"/> this is an old parameter--> 
 		<param key="device.battery.capacity" value="80000"/> <!-- https://lightningemotors.com/lightningelectric-ford-transit-cargo -->
 		<!-- <param key="actualBatteryCapacity" value="243000"/> this is an old parameter -->
-		<param key="device.battery.chargeLevel" value="60000"/>
+		<param key="device.battery.chargeLevel" value="70000"/>
         <param key="maximumPower" value="10000"/>
         <param key="vehicleMass" value="4989.5161"/> <!-- https://lightningemotors.com/lightningelectric-ford-transit-cargo -->
         <param key="frontSurfaceArea" value="5"/>
@@ -34,9 +34,18 @@ ____________________________________________________
 
         </vType>
 
-			 <!-- <route id="Ruta_VAN" edges="E0
-				-107286392#4">
-             </route> -->
+			<route id="ToCharging" edges="-E0
+				-E1
+                -E2
+                E3
+                E0">
+            </route>
+
+            <route id="ParkingReturn" edges="E0
+				79092048#2
+                -79092048#2
+                -E0">
+            </route>
 
 			 <!-- <vehicle id="Delivery_01" route="Ruta_VAN" type="VAN" depart="0.00" departPos="0.00"> 
 
