@@ -157,17 +157,19 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
                traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=twoPM-midday, until=sixPM, flags=1)
       elif step >= twoPM and step < sixPM:
          traci.simulationStep()
-         if step == twoPM: print('Afternoon')
+         if step == twoPM: 
+            print('Afternoon')
          # for i in range(len(vehicleNames)):
          #    print(traci.vehicle.isStoppedParking(vehicleNames[i]))
-         deliverySuccess = [1] * len(vehicleNames)
-         deliveryStops = [0] * len(vehicleNames)
+            deliverySuccess = [1] * len(vehicleNames)
+            deliveryStops = [0] * len(vehicleNames)
          RoutesManagement(step, vehicleNames, maximumDoD, deliverySuccess, deliveryStops, twoPM)
       elif step >= sixPM:
          traci.simulationStep()
          if step == sixPM: print('Night')
       step += 1
       print(step)
+      print(traci.simulation.getTime())
    traci.close()
    print(step)
    results = {
