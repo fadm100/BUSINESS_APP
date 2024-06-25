@@ -69,11 +69,13 @@ def RoutesManagement(step, vehicleNames, maximumDoD, deliverySuccess, deliverySt
       fleetRoutes = fleetRetrieval('PM')
    if step == hour: 
       for i in range(len(vehicleNames)):
-         traci.vehicle.remove(vehicleNames[i])
+         # traci.vehicle.remove(vehicleNames[i])
          initialRouteName = fleetRoutes[vehicleNames[i]][0][0] # first route ID to vehicle i
          initialRoute = fleetRoutes[vehicleNames[i]][0][1] # first route to vehicle i defined by tow edges
-         traci.route.add(initialRouteName, initialRoute) # This route was made in VAN_Ruta.rou.xml, as well. Whatever option es possible
-         traci.vehicle.add(vehicleNames[i], initialRouteName,"VAN","now")
+         # traci.route.add(initialRouteName, initialRoute) # This route was made in VAN_Ruta.rou.xml, as well. Whatever option es possible
+         # traci.vehicle.add(vehicleNames[i], initialRouteName,"VAN","now")
+         traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=0)
+         traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][1])
          """This vehicle is added here because file.rou.xml don't give the minimum route.
                TraCI SUMO finds the minimum route only if the route has 
                2 edges, depart edge and arrival edge; otherwise, SUMO gives
@@ -85,13 +87,14 @@ def RoutesManagement(step, vehicleNames, maximumDoD, deliverySuccess, deliverySt
          maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
          stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*maximumDoD)
          currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]-1][1] # current destination of the vehicle i 
-         if traci.vehicle.getRoadID(vehicleNames[i]) == currentRoute[1]: 
+         if traci.vehicle.getRoadID(vehicleNames[i]) == fleetRoutes[vehicleNames[i]][deliverySuccess[i]]: 
             if deliverySuccess[i] < deliveryStops[i]:
-               traci.vehicle.remove(vehicleNames[i])
+               # traci.vehicle.remove(vehicleNames[i])
                currentRouteName = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][0] # current route ID to vehicle i
                currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][1] # current route to vehicle i defined by tow edges
-               traci.route.add(currentRouteName, currentRoute) 
-               traci.vehicle.add(vehicleNames[i], currentRouteName,"VAN","now")
+               # traci.route.add(currentRouteName, currentRoute) 
+               # traci.vehicle.add(vehicleNames[i], currentRouteName,"VAN","now")
+               traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][0])
                deliverySuccess[i]+=1
             if traci.vehicle.getRoadID(vehicleNames[i]) == "-E0":
                traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=2, flags=1)
@@ -128,27 +131,13 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
             maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
             if not batteryFull[i] and actualBatteryCapacity >= maximumBatteryCapacity * maximumCharge:
                batteryFull[i] = True
-               traci.vehicle.remove(vehicleNames[i])
-               traci.vehicle.add(vehicleNames[i], "ParkingReturn", "VAN", "now")
+               traci.vehicle.setChargingStationStop(vehicleNames[i], "cS_2to19_0a", duration=10.0, until=eightAM, flags=0)
+               traci.vehicle.changeTarget(vehicleNames[i], "-E0")
                traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=1)
       elif step >= eightAM and step < midday: 
          traci.simulationStep()
-         if step == eightAM: 
-            print('Morning')
-            # if step == eightAM: 
-            #    for i in range(len(vehicleNames)):
-            #       traci.vehicle.remove(vehicleNames[i])
-            #       initialRouteName = fleetRoutes[vehicleNames[i]][0][0] # first route ID to vehicle i
-            #       initialRoute = fleetRoutes[vehicleNames[i]][0][1] # first route to vehicle i defined by tow edges
-            #       traci.route.add(initialRouteName, initialRoute) # This route was made in VAN_Ruta.rou.xml, as well. Whatever option es possible
-            #       traci.vehicle.add(vehicleNames[i], initialRouteName,"VAN","now")
-            #       """This vehicle is added here because file.rou.xml don't give the minimum route.
-            #             TraCI SUMO finds the minimum route only if the route has 
-            #             2 edges, depart edge and arrival edge; otherwise, SUMO gives
-            #             a warning and teleports the vehicle"""
-            #       deliveryStops[i] = len(fleetRoutes[vehicleNames[i]])
+         if step == eightAM: print('Morning')
          RoutesManagement(step, vehicleNames, maximumDoD, deliverySuccess, deliveryStops, eightAM)
-         # vehicles = traci.vehicle.getIDList()
       elif step >= midday and step < twoPM:
          traci.simulationStep()
          if step == midday: print('Lunch')
@@ -159,8 +148,6 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
          traci.simulationStep()
          if step == twoPM: 
             print('Afternoon')
-         # for i in range(len(vehicleNames)):
-         #    print(traci.vehicle.isStoppedParking(vehicleNames[i]))
             deliverySuccess = [1] * len(vehicleNames)
             deliveryStops = [0] * len(vehicleNames)
          RoutesManagement(step, vehicleNames, maximumDoD, deliverySuccess, deliveryStops, twoPM)
@@ -168,8 +155,8 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
          traci.simulationStep()
          if step == sixPM: print('Night')
       step += 1
-      print(step)
-      print(traci.simulation.getTime())
+      # print(step)
+      # print(traci.simulation.getTime())
    traci.close()
    print(step)
    results = {
