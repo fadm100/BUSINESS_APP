@@ -70,17 +70,13 @@ def RoutesManagement(step, vehicleNames, maximumDoD, deliverySuccess, deliverySt
    if step == hour: 
       for i in range(len(vehicleNames)):
          # traci.vehicle.remove(vehicleNames[i])
-         initialRouteName = fleetRoutes[vehicleNames[i]][0][0] # first route ID to vehicle i
-         initialRoute = fleetRoutes[vehicleNames[i]][0][1] # first route to vehicle i defined by tow edges
+         # initialRouteName = fleetRoutes[vehicleNames[i]][0][0] # first route ID to vehicle i
+         # initialRoute = fleetRoutes[vehicleNames[i]][0][1] # first route to vehicle i defined by tow edges
          # traci.route.add(initialRouteName, initialRoute) # This route was made in VAN_Ruta.rou.xml, as well. Whatever option es possible
          # traci.vehicle.add(vehicleNames[i], initialRouteName,"VAN","now")
          traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=0)
-         traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][1])
-         """This vehicle is added here because file.rou.xml don't give the minimum route.
-               TraCI SUMO finds the minimum route only if the route has 
-               2 edges, depart edge and arrival edge; otherwise, SUMO gives
-               a warning and teleports the vehicle"""
-         deliveryStops[i] = len(fleetRoutes[vehicleNames[i]])
+         traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][deliverySuccess[i]])
+         deliveryStops[i] = len(fleetRoutes[vehicleNames[i]])-1
    else:
       for i in range(len(vehicleNames)):
          actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
@@ -94,8 +90,8 @@ def RoutesManagement(step, vehicleNames, maximumDoD, deliverySuccess, deliverySt
                currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][1] # current route to vehicle i defined by tow edges
                # traci.route.add(currentRouteName, currentRoute) 
                # traci.vehicle.add(vehicleNames[i], currentRouteName,"VAN","now")
-               traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][0])
                deliverySuccess[i]+=1
+               traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][deliverySuccess[i]])
             if traci.vehicle.getRoadID(vehicleNames[i]) == "-E0":
                traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=2, flags=1)
 
@@ -108,8 +104,6 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    maximumBatteryCapacity = 0
    fleetRoutes = fleetRetrieval('AM')
    vehicleNames = list(fleetRoutes.keys())
-   deliverySuccess = [1] * len(vehicleNames)
-   deliveryStops = [0] * len(vehicleNames)
    maximumCharge = 0.9
    maximumDoD = 0.5
    batteryFull = []
@@ -136,7 +130,10 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
                traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=1)
       elif step >= eightAM and step < midday: 
          traci.simulationStep()
-         if step == eightAM: print('Morning')
+         if step == eightAM: 
+            print('Morning')
+            deliverySuccess = [1] * len(vehicleNames)
+            deliveryStops = [0] * len(vehicleNames)
          RoutesManagement(step, vehicleNames, maximumDoD, deliverySuccess, deliveryStops, eightAM)
       elif step >= midday and step < twoPM:
          traci.simulationStep()
