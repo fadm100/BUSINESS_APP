@@ -19,27 +19,17 @@ else:
 
 import traci
 
-# sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
-sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
+sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
+# sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
 
-morningRoutesJSON = ['MorningRoutesJSON/DE_520001_Route.json', 'MorningRoutesJSON/DE_520002_Route.json', 'MorningRoutesJSON/DE_520010_Route.json']
-afternoonRoutesJSON = ['AfternoonRoutesJSON/DE_520001_Route.json', 'AfternoonRoutesJSON/DE_520002_Route.json', 'AfternoonRoutesJSON/DE_520010_Route.json']
+morningRoutesJSON = ['MorningRoutesJSON/DE_520001_Route.json', 'MorningRoutesJSON/DE_520002_Route.json', 'MorningRoutesJSON/DE_520003_Route.json',
+                     'MorningRoutesJSON/DE_520004_Route.json', 'MorningRoutesJSON/DE_520006_Route.json', 'MorningRoutesJSON/DE_520010_Route.json']
+afternoonRoutesJSON = ['AfternoonRoutesJSON/DE_520001_Route.json', 'AfternoonRoutesJSON/DE_520002_Route.json', 'MorningRoutesJSON/DE_520003_Route.json',
+                     'MorningRoutesJSON/DE_520004_Route.json', 'MorningRoutesJSON/DE_520006_Route.json', 'MorningRoutesJSON/DE_520010_Route.json']
 
 def fleetRetrieval(session):
-   if session == 'AM':
-      directory = 'MorningRoutesJSON/TotalRoutes.json'
-   else:
-      directory = 'AfternoonRoutesJSON/TotalRoutes.json'
-   if not path.exists(directory):
-      fleetRoutes = RG.DeliveryRoutes(morningRoutesJSON, session)
-   else:
-      with open(directory) as json_file:
-         fleetRoutes = json.load(json_file)
-   '''fleetRoutes was created or loaded'''
+   fleetRoutes = RG.DeliveryRoutes(morningRoutesJSON, session)
    return fleetRoutes
-
-
-
 
 nameJSON = ['C1Route']
 
@@ -55,6 +45,12 @@ twoPM = 50400
 sixPM = 64800
 midnight = 86400
 
+
+actualBatteryCapacity = 0
+maximumBatteryCapacity = 0
+maximumCharge = 0.9
+maximumDoD = 0.5
+
 def defineStops(stopsRate, deliveryRoute):
    for j in range(len(deliveryRoute)):
       R = random.random()
@@ -62,51 +58,44 @@ def defineStops(stopsRate, deliveryRoute):
          stopTime = random.randint(3, 60)
          traci.vehicle.setStop(vehicleNames[0], deliveryRoute[j], 0.1, 0, stopTime, 0, 0.0, 2.0)
 
-def RoutesManagement(step, vehicleNames, maximumDoD, deliverySuccess, deliveryStops, hour):
-   if hour < midday:
-      fleetRoutes = fleetRetrieval('AM')
-   else:
-      fleetRoutes = fleetRetrieval('PM')
-   if step == hour: 
-      for i in range(len(vehicleNames)):
-         # traci.vehicle.remove(vehicleNames[i])
-         # initialRouteName = fleetRoutes[vehicleNames[i]][0][0] # first route ID to vehicle i
-         # initialRoute = fleetRoutes[vehicleNames[i]][0][1] # first route to vehicle i defined by tow edges
-         # traci.route.add(initialRouteName, initialRoute) # This route was made in VAN_Ruta.rou.xml, as well. Whatever option es possible
-         # traci.vehicle.add(vehicleNames[i], initialRouteName,"VAN","now")
+def RoutesManagement(step, norm_in, batteryFull, fleetRoutes, maximumDoD, deliverySuccess, deliveryStops, hour):
+
+   vehicleNames = list(fleetRoutes.keys())
+   for i in range(len(vehicleNames)):
+      if step == 0: 
+         # batteryFull.append(False)
+         traci.vehicle.add(vehicleNames[i], "ToCharging", "VAN", "now")
+         traci.vehicle.setEmissionClass(vehicleNames[i], norm_in)
+         traci.vehicle.setChargingStationStop(vehicleNames[i], "cS_2to19_0a", duration=10.0, until=eightAM, flags=1)
+      elif step == hour: 
          traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=0)
          traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][deliverySuccess[i]])
          deliveryStops[i] = len(fleetRoutes[vehicleNames[i]])-1
-   else:
-      for i in range(len(vehicleNames)):
-         actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
-         maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
-         stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*maximumDoD)
-         currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]-1][1] # current destination of the vehicle i 
-         if traci.vehicle.getRoadID(vehicleNames[i]) == fleetRoutes[vehicleNames[i]][deliverySuccess[i]]: 
-            if deliverySuccess[i] < deliveryStops[i]:
-               # traci.vehicle.remove(vehicleNames[i])
-               currentRouteName = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][0] # current route ID to vehicle i
-               currentRoute = fleetRoutes[vehicleNames[i]][deliverySuccess[i]][1] # current route to vehicle i defined by tow edges
-               # traci.route.add(currentRouteName, currentRoute) 
-               # traci.vehicle.add(vehicleNames[i], currentRouteName,"VAN","now")
-               deliverySuccess[i]+=1
-               traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][deliverySuccess[i]])
-            if traci.vehicle.getRoadID(vehicleNames[i]) == "-E0":
-               traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=2, flags=1)
+      elif traci.vehicle.getRoadID(vehicleNames[i]) == fleetRoutes[vehicleNames[i]][deliverySuccess[i]]: 
+         if deliverySuccess[i] < deliveryStops[i]:
+            deliverySuccess[i]+=1
+            traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][deliverySuccess[i]])
+         if traci.vehicle.getRoadID(vehicleNames[i]) == "-E0":
+            traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=2, flags=1)
+      actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
+      maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
+      stop = EVC.EVCharge(actualBatteryCapacity, minimumBatteryCapacity=maximumBatteryCapacity*maximumDoD)
+      if not batteryFull[i] and actualBatteryCapacity >= maximumBatteryCapacity * maximumCharge:
+         batteryFull[i] = True
+         traci.vehicle.setChargingStationStop(vehicleNames[i], "cS_2to19_0a", duration=10.0, until=eightAM, flags=0)
+         traci.vehicle.changeTarget(vehicleNames[i], "-E0")
+         traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=1)
 
 def DataCalculate(route, norm_in, accel, rateOfStops):
    '''rateOfStops --> this is a number between 0 and 1. 
    This parameter defines how many stops will be set.
    with a high number, the number of stops will be major'''
+   
+   batteryFull = [False] * len(morningRoutesJSON)
+   fleetRoutesAM = fleetRetrieval('AM')
+   fleetRoutesPM = fleetRetrieval('PM')
+   vehicleNames = list(fleetRoutesAM.keys())
    step = 0
-   actualBatteryCapacity = 0
-   maximumBatteryCapacity = 0
-   fleetRoutes = fleetRetrieval('AM')
-   vehicleNames = list(fleetRoutes.keys())
-   maximumCharge = 0.9
-   maximumDoD = 0.5
-   batteryFull = []
 
    traci.start(route)
    # defineStops(rateOfStops, deliveryRoute[vehicleNames[i]])
@@ -114,27 +103,18 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    while step < midnight:
       if step < eightAM:
          traci.simulationStep()
-         for i in range(len(vehicleNames)):
-            if step == 0: 
-               print('Early morning')
-               batteryFull.append(False)
-               traci.vehicle.add(vehicleNames[i], "ToCharging", "VAN", "now")
-               traci.vehicle.setEmissionClass(vehicleNames[i], norm_in)
-               traci.vehicle.setChargingStationStop(vehicleNames[i], "cS_2to19_0a", duration=10.0, until=eightAM, flags=1)
-            actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
-            maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
-            if not batteryFull[i] and actualBatteryCapacity >= maximumBatteryCapacity * maximumCharge:
-               batteryFull[i] = True
-               traci.vehicle.setChargingStationStop(vehicleNames[i], "cS_2to19_0a", duration=10.0, until=eightAM, flags=0)
-               traci.vehicle.changeTarget(vehicleNames[i], "-E0")
-               traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=1)
+         if step == 0: 
+            print('Early morning')
+            deliverySuccess = [1] * len(vehicleNames)
+            deliveryStops = [0] * len(vehicleNames)
+         RoutesManagement(step, norm_in, batteryFull, fleetRoutesAM, maximumDoD, deliverySuccess, deliveryStops, 0)
       elif step >= eightAM and step < midday: 
          traci.simulationStep()
          if step == eightAM: 
             print('Morning')
             deliverySuccess = [1] * len(vehicleNames)
             deliveryStops = [0] * len(vehicleNames)
-         RoutesManagement(step, vehicleNames, maximumDoD, deliverySuccess, deliveryStops, eightAM)
+         RoutesManagement(step, norm_in, batteryFull, fleetRoutesAM, maximumDoD, deliverySuccess, deliveryStops, eightAM)
       elif step >= midday and step < twoPM:
          traci.simulationStep()
          if step == midday: print('Lunch')
@@ -147,13 +127,11 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
             print('Afternoon')
             deliverySuccess = [1] * len(vehicleNames)
             deliveryStops = [0] * len(vehicleNames)
-         RoutesManagement(step, vehicleNames, maximumDoD, deliverySuccess, deliveryStops, twoPM)
+         RoutesManagement(step, norm_in, batteryFull, fleetRoutesPM, maximumDoD, deliverySuccess, deliveryStops, twoPM)
       elif step >= sixPM:
          traci.simulationStep()
          if step == sixPM: print('Night')
       step += 1
-      # print(step)
-      # print(traci.simulation.getTime())
    traci.close()
    print(step)
    results = {
@@ -181,3 +159,8 @@ for j in range(len(stopsRate)):
 
    with open('TotalResults.json', 'w') as outfile:
       json.dump(total, outfile)
+
+file = 'MorningRoutesJSON/TotalRoutes.json'
+os.remove(file)
+file = 'AfternoonRoutesJSON/TotalRoutes.json'
+os.remove(file)
