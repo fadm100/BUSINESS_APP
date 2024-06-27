@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import EV_Charge as EVC
 import RouteGenerator as RG
-import xml.etree.ElementTree as ET
 import os.path as path
 
 from turtle import clear
@@ -138,9 +137,6 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
       'ActualBatteryCapacity': actualBatteryCapacity/1e3, # in [Kwh]
    }
    return results
-
-# root = ET.parse("Battery.out.xml")
-# root_node = root.getroot()
 
 total = {}
 
