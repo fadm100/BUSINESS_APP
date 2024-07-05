@@ -35,7 +35,8 @@
     <output>
         <battery-output value="Battery.out.xml"/>
         <battery-output.precision value="4"/>
-        <device.battery.probability value="1"/>
+        <device.battery.probability value="-1"/>
+        <!-- <device.battery.explicit value=["Delivery_0" "Delivery_1" "Delivery_2" "Delivery_3" "Delivery_4" "Delivery_5"]/> -->
         <summary-output value="summary_100.xml"/>
         <!-- <full-output value="FullData.xml"/> -->
     </output>
