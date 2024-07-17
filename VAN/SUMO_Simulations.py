@@ -8,6 +8,7 @@ import numpy as np
 import EV_Charge as EVC
 import RouteGenerator as RG
 import os.path as path
+from random import sample
 
 from turtle import clear
 if 'SUMO_HOME' in os.environ:
@@ -85,40 +86,14 @@ def RoutesManagement(step, norm_in, batteryFull, fleetRoutes, maximumDoD, delive
          traci.vehicle.changeTarget(vehicleNames[i], "-E0")
          traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=1)
 
-def Traffic(hour):
-   print('# vhe = ', traci.vehicle.getIDCount())
-   if hour <= 18000:
-      if traci.vehicle.getIDCount() < 5000: # Add 5000 vehicles to the simulation before 5am
-         print('5am-' + str(hour) + 'veh')
-         traci.vehicle.add('5am-' + str(hour) + 'veh', "", "P_passenger", depart='now')
-   elif hour > 18000 and hour < eightAM:
-      for i in range(4): # Add 4 vehicles each second until 8am to achieve around 35000 vehicles
-         traci.vehicle.add('5am+' + str(hour) + 'veh' + str(i), "", "P_passenger", depart='now')
-   elif hour >= eightAM and hour < (eightAM + 7200):
-      if traci.vehicle.getIDCount() < 24000: # between 8am and 10am vehicles must be more than 24000
-         traci.vehicle.add('8am+' + str(hour) + 'veh', "", "P_passenger", depart='now')
-   elif hour >= (eightAM + 7200) and hour < (eightAM + 10800):
-      if traci.vehicle.getIDCount() < 25000:
-         for i in range(2): # Add 2 vehicles each second until 11am to achieve around 25000 vehicles
-            traci.vehicle.add('10am+' + str(hour) + 'veh' + str(i), "", "P_passenger", depart='now')
-   elif hour >= (eightAM + 10800) and hour < (eightAM + 12600):
-      if traci.vehicle.getIDCount() < 30000:
-         for i in range(2): # Add 2 vehicles each second until 11:30am to achieve around 30000 vehicles
-            traci.vehicle.add('11am+' + str(hour) + 'veh' + str(i), "", "P_passenger", depart='now')
-   elif hour >= (eightAM + 12600) and hour < midday:
-      if traci.vehicle.getIDCount() < 35000:
-         for i in range(2): # Add 2 vehicles each second until 12m to achieve around 35000 vehicles
-            traci.vehicle.add('11am+' + str(hour) + 'veh' + str(i), "", "P_passenger", depart='now')
-   elif hour >= midday and hour < (midday + 3600):
-      if traci.vehicle.getIDCount() < 28000: # between 12m and 1pm vehicles must be more than 28000
-         traci.vehicle.add('12m+' + str(hour) + 'veh', "", "P_passenger", depart='now')
-   elif hour >= (midday + 3600) and hour < twoPM:
-      if traci.vehicle.getIDCount() < 30000:
-         for i in range(2): # Add 2 vehicles each second until 2pm to achieve around 30000 vehicles
-            traci.vehicle.add('1pm+' + str(hour) + 'veh' + str(i), "", "P_passenger", depart='now')
-   elif hour >= twoPM and hour < sixPM:
-      if traci.vehicle.getIDCount() < 24000: # between 2pm and 6pm vehicles must be more than 24000
-         traci.vehicle.add('2pm+' + str(hour) + 'veh', "", "P_passenger", depart='now')
+def Traffic(secondT, vehicleNames):
+   if secondT % 60 == 0:
+      if traci.vehicle.getIDCount() > 24000:
+         vehicleList = traci.vehicle.getIDList()
+         randomIDs = sample([x for x in range(0,traci.vehicle.getIDCount())],1000)
+         for ID in randomIDs:
+            if not vehicleList[ID] in vehicleNames:
+               traci.vehicle.remove(vehicleList[ID])
 
 def DataCalculate(route, norm_in, accel, rateOfStops):
    '''rateOfStops --> this is a number between 0 and 1. 
@@ -150,7 +125,7 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
             deliverySuccess = [1] * len(vehicleNames)
             deliveryStops = [0] * len(vehicleNames)
          RoutesManagement(step, norm_in, batteryFull, fleetRoutesAM, maximumDoD, deliverySuccess, deliveryStops, 0)
-         Traffic(step)
+         Traffic(step, vehicleNames)
       elif step >= eightAM and step < midday: 
          traci.simulationStep()
          if step == eightAM: 
@@ -160,7 +135,7 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
             deliverySuccess = [1] * len(vehicleNames)
             deliveryStops = [0] * len(vehicleNames)
          RoutesManagement(step, norm_in, batteryFull, fleetRoutesAM, maximumDoD, deliverySuccess, deliveryStops, eightAM)
-         Traffic(step)
+         Traffic(step,vehicleNames)
       elif step >= midday and step < twoPM:
          traci.simulationStep()
          if step == midday: 
@@ -173,7 +148,7 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
                else:
                   traci.vehicle.changeTarget(vehicleNames[i], "-E0")
                   traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=midnight, until=midnight, flags=1)
-         Traffic(step)
+         Traffic(step,vehicleNames)
       elif step >= twoPM and step < sixPM:
          traci.simulationStep()
          if step == twoPM: 
@@ -183,7 +158,7 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
             deliverySuccess = [1] * len(vehicleNames)
             deliveryStops = [0] * len(vehicleNames)
          RoutesManagement(step, norm_in, batteryFull, fleetRoutesPM, maximumDoD, deliverySuccess, deliveryStops, twoPM)
-         Traffic(step)
+         Traffic(step,vehicleNames)
       elif step >= sixPM:
          traci.simulationStep()
          if step == sixPM: print('Night')

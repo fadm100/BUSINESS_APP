@@ -34,7 +34,7 @@ ____________________________________________________
 
         </vType>
 
-        <vType id="P_passenger" vClass="passenger"/>
+        <!-- <vType id="P_passenger" vClass="passenger"/> -->
 
 			<route id="ToCharging" edges="-E0
 				-E1
