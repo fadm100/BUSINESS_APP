@@ -33,7 +33,7 @@ def fleetRetrieval(session):
 
 nameJSON = ['C1Route']
 
-norm = ["Energy/unknown"] # Energy/unknown --> https://sumo.dlr.de/docs/Models/Electric.html
+norm = ["MMPEVEM"] # Energy/unknown --> https://sumo.dlr.de/docs/Models/Electric.html
 norms = ['EV']
 
 acceleration = [2.0, 3.0, 4.0]

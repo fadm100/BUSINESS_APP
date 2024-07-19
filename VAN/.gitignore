@@ -13,3 +13,4 @@ TotalEdges.json
 TotalLanes.json
 GeneralTests.py
 XMLScripts/
+EnergyUnknownBattery.out.xml
