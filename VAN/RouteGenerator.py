@@ -24,7 +24,7 @@ def DeliveryRoutes(routesJSON, session):
     if session == 'AM':
         with open('MorningRoutesJSON/TotalRoutes.json', 'w') as outfile:
             json.dump(routesDic, outfile)
-    else:
+    elif session == 'PM':
         with open('AfternoonRoutesJSON/TotalRoutes.json', 'w') as outfile:
             json.dump(routesDic, outfile)
         

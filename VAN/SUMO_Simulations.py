@@ -19,21 +19,24 @@ else:
 
 import traci
 
-# sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
-sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
+sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
+# sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
 
 morningRoutesJSON = ['MorningRoutesJSON/DE_520001_Route.json', 'MorningRoutesJSON/DE_520002_Route.json', 'MorningRoutesJSON/DE_520003_Route.json',
                      'MorningRoutesJSON/DE_520004_Route.json', 'MorningRoutesJSON/DE_520006_Route.json', 'MorningRoutesJSON/DE_520010_Route.json']
-afternoonRoutesJSON = ['AfternoonRoutesJSON/DE_520001_Route.json', 'AfternoonRoutesJSON/DE_520002_Route.json', 'MorningRoutesJSON/DE_520003_Route.json',
-                     'MorningRoutesJSON/DE_520004_Route.json', 'MorningRoutesJSON/DE_520006_Route.json', 'MorningRoutesJSON/DE_520010_Route.json']
+afternoonRoutesJSON = ['AfternoonRoutesJSON/DE_520001_Route.json', 'AfternoonRoutesJSON/DE_520002_Route.json', 'AfternoonRoutesJSON/DE_520003_Route.json',
+                     'AfternoonRoutesJSON/DE_520004_Route.json', 'AfternoonRoutesJSON/DE_520006_Route.json', 'AfternoonRoutesJSON/DE_520010_Route.json']
 
 def fleetRetrieval(session):
-   fleetRoutes = RG.DeliveryRoutes(morningRoutesJSON, session)
+   if session == 'AM':
+      fleetRoutes = RG.DeliveryRoutes(morningRoutesJSON, session)
+   elif session == 'PM':
+      fleetRoutes = RG.DeliveryRoutes(afternoonRoutesJSON, session)
    return fleetRoutes
 
 nameJSON = ['C1Route']
 
-norm = ["MMPEVEM"] # Energy/unknown --> https://sumo.dlr.de/docs/Models/Electric.html
+norm = ["MMPEVEM"] # --> https://sumo.dlr.de/docs/Models/MMPEVEM.html
 norms = ['EV']
 
 acceleration = [2.0, 3.0, 4.0]

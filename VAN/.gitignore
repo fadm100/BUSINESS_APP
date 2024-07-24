@@ -14,3 +14,6 @@ TotalLanes.json
 GeneralTests.py
 XMLScripts/
 EnergyUnknownBattery.out.xml
+Battery28m_s.out.xml
+Battery10ms.out.xml
+BatterySpeeds.out.xml
