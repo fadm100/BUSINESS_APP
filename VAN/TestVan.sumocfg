@@ -6,12 +6,9 @@
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
-        <!-- <net-file value="C:\Users\alex-\Sumo\2022-03-09-07-21-16\osm.net.xml"/> -->
-		<!-- <net-file value="Pasto_VAN.net.xml"/> -->
         <net-file value="Pasto_VAN_Updated.net.xml"/>
-		<!-- <route-files value="VAN_Ruta.rou.xml"/> -->
-        <route-files value="VAN_Ruta.rou.xml,bus.trips.xml,moto.trips.xml,taxi.trips.xml,vehicle.trips.xml"/>
-        <!-- <route-files value="VAN_Ruta.rou.xml,taxi.trips.xml,vehicle.trips.xml"/> -->
+        <!-- <route-files value="VAN_Ruta.rou.xml,bus.trips.xml,moto.trips.xml,taxi.trips.xml,vehicle.trips.xml"/> -->
+        <route-files value="VAN_Ruta.rou.xml,busWeek.trips.xml,motoWeek.trips.xml,taxiWeek.trips.xml,vehicleWeek.trips.xml"/>
     </input>
 
     <processing>

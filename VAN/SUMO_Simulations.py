@@ -61,16 +61,16 @@ def defineStops(stopsRate, deliveryRoute):
          stopTime = random.randint(3, 60)
          traci.vehicle.setStop(vehicleNames[0], deliveryRoute[j], 0.1, 0, stopTime, 0, 0.0, 2.0)
 
-def RoutesManagement(step, norm_in, batteryFull, fleetRoutes, maximumDoD, deliverySuccess, deliveryStops, hour):
+def RoutesManagement(step, Day, norm_in, batteryFull, fleetRoutes, maximumDoD, deliverySuccess, deliveryStops, hour):
 
    vehicleNames = list(fleetRoutes.keys())
    for i in range(len(vehicleNames)):
-      if step == 0: 
+      if step == 0 and Day < 2: 
          # batteryFull.append(False)
          traci.vehicle.add(vehicleNames[i], "ToCharging", "VAN", "now")
          traci.vehicle.setEmissionClass(vehicleNames[i], norm_in)
          traci.vehicle.setChargingStationStop(vehicleNames[i], "cS_2to19_0a", duration=10.0, until=eightAM, flags=1)
-      elif step == hour: 
+      elif step == hour and step != 0: 
          traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=0)
          traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][deliverySuccess[i]])
          deliveryStops[i] = len(fleetRoutes[vehicleNames[i]])-1
@@ -108,6 +108,7 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    fleetRoutesPM = fleetRetrieval('PM')
    vehicleNames = list(fleetRoutesAM.keys())
    step = 0
+   Day = 1
    
    #test
    totalVeh = []
@@ -120,14 +121,15 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    traci.start(route)
    # defineStops(rateOfStops, deliveryRoute[vehicleNames[i]])
    
-   while step < midnight:
+   while step < midnight and Day <= 5:
       if step < eightAM:
          traci.simulationStep()
          if step == 0: 
+            print('Day = ', Day)
             print('Early morning')
             deliverySuccess = [1] * len(vehicleNames)
             deliveryStops = [0] * len(vehicleNames)
-         RoutesManagement(step, norm_in, batteryFull, fleetRoutesAM, maximumDoD, deliverySuccess, deliveryStops, 0)
+         RoutesManagement(step, Day, norm_in, batteryFull, fleetRoutesAM, maximumDoD, deliverySuccess, deliveryStops, 0)
          Traffic(step, vehicleNames)
       elif step >= eightAM and step < midday: 
          traci.simulationStep()
@@ -137,7 +139,7 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
             deliveryStops = []
             deliverySuccess = [1] * len(vehicleNames)
             deliveryStops = [0] * len(vehicleNames)
-         RoutesManagement(step, norm_in, batteryFull, fleetRoutesAM, maximumDoD, deliverySuccess, deliveryStops, eightAM)
+         RoutesManagement(step, Day, norm_in, batteryFull, fleetRoutesAM, maximumDoD, deliverySuccess, deliveryStops, eightAM)
          Traffic(step,vehicleNames)
       elif step >= midday and step < twoPM:
          traci.simulationStep()
@@ -160,12 +162,18 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
             deliveryStops = []
             deliverySuccess = [1] * len(vehicleNames)
             deliveryStops = [0] * len(vehicleNames)
-         RoutesManagement(step, norm_in, batteryFull, fleetRoutesPM, maximumDoD, deliverySuccess, deliveryStops, twoPM)
+         RoutesManagement(step, Day, norm_in, batteryFull, fleetRoutesPM, maximumDoD, deliverySuccess, deliveryStops, twoPM)
          Traffic(step,vehicleNames)
       elif step >= sixPM:
          traci.simulationStep()
          if step == sixPM: print('Night')
+      
       step += 1
+      if step >= midnight-1:
+         if Day < 5:
+            step = 0
+            Day = Day + 1        
+                     
       #test
       # print("vehicles", traci.vehicle.getIDCount())
       totalVeh.append(traci.vehicle.getIDCount())
@@ -173,7 +181,7 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
       deliverySuccessTot.append(deliverySuccess)
       #test
    traci.close()
-   print(step)
+   print("Step = ", step, "; Day = ", Day)
    results = {
       #test
       'total of vehicles in scenario': totalVeh, # int
