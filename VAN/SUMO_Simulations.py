@@ -98,15 +98,6 @@ def RoutesManagement(step, Day, norm_in, chargeFlag, fleetRoutes, maximumDoD, de
          traci.vehicle.changeTarget(vehicleNames[i], "-E0")
          traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=midnight, until=midnight, flags=1)
 
-def Traffic(secondT, vehicleNames):
-   if secondT % 60 == 0:
-      if traci.vehicle.getIDCount() > 24000:
-         vehicleList = traci.vehicle.getIDList()
-         randomIDs = sample([x for x in range(0,traci.vehicle.getIDCount())],1000)
-         for ID in randomIDs:
-            if not vehicleList[ID] in vehicleNames:
-               traci.vehicle.remove(vehicleList[ID])
-
 def DataCalculate(route, norm_in, accel, rateOfStops):
    '''rateOfStops --> this is a number between 0 and 1. 
    This parameter defines how many stops will be set.
@@ -140,7 +131,6 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
             deliverySuccess = [1] * len(vehicleNames)
             deliveryStops = [0] * len(vehicleNames)
          RoutesManagement(step, Day, norm_in, chargeFlag, fleetRoutesAM, maximumDoD, deliverySuccess, deliveryStops, 0)
-         Traffic(step, vehicleNames)
       elif step >= eightAM and step < midday: 
          traci.simulationStep()
          if step == eightAM: 
@@ -150,7 +140,6 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
             deliverySuccess = [1] * len(vehicleNames)
             deliveryStops = [0] * len(vehicleNames)
          RoutesManagement(step, Day, norm_in, chargeFlag, fleetRoutesAM, maximumDoD, deliverySuccess, deliveryStops, eightAM)
-         Traffic(step,vehicleNames)
       elif step >= midday and step < twoPM:
          traci.simulationStep()
          if step == midday: 
@@ -163,7 +152,6 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
             #    else:
             #       traci.vehicle.changeTarget(vehicleNames[i], "-E0")
             #       traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=midnight, until=midnight, flags=1)
-         Traffic(step,vehicleNames)
       elif step >= twoPM and step < sixPM:
          traci.simulationStep()
          if step == twoPM: 
@@ -173,7 +161,6 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
             deliverySuccess = [1] * len(vehicleNames)
             deliveryStops = [0] * len(vehicleNames)
          RoutesManagement(step, Day, norm_in, chargeFlag, fleetRoutesPM, maximumDoD, deliverySuccess, deliveryStops, twoPM)
-         Traffic(step,vehicleNames)
       elif step >= sixPM:
          traci.simulationStep()
          if step == sixPM: print('Night')
