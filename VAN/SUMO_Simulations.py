@@ -111,13 +111,8 @@ def DataCalculate(route, norm_in, rateOfStops):
    step = 0
    Day = 1
    
-   #test
-   totalVeh = []
-   distance = 0
-   deliverySuccessTot = []
    deliverySuccess = []
    deliveryStops = []
-   #test
 
    traci.start(route)
    # defineStops(rateOfStops, deliveryRoute[vehicleNames[i]])
