@@ -19,7 +19,7 @@ ____________________________________________________
          specifically SUV.xml-->
         <param key="has.battery.device" value="true"/>
 		<param key="device.battery.capacity" value="80000"/>
-		<param key="device.battery.chargeLevel" value="70000"/>
+		<param key="device.battery.chargeLevel" value="25000"/>
         <param key="maximumPower" value="160000"/>
         <param key="vehicleMass" value="4989.5161"/>
         <param key="frontSurfaceArea" value="5"/>
