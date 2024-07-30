@@ -170,28 +170,11 @@ def DataCalculate(route, norm_in, rateOfStops):
          if Day < simulationDays:
             step = 0
             Day = Day + 1        
-                     
-      #test
-      # print("vehicles", traci.vehicle.getIDCount())
-      totalVeh.append(traci.vehicle.getIDCount())
-      distance = distance + traci.vehicle.getDistance(vehicleNames[0])
-      deliverySuccessTot.append(deliverySuccess)
-      #test
+
    traci.close()
    print("Step = ", step, "; Day = ", Day)
-   results = {
-      #test
-      'total of vehicles in scenario': totalVeh, # int
-      'total distance route delivery_0': distance, # in [m]
-      'delivery success': deliverySuccessTot
-      #test
-   }
-   return results
 
-outResults = DataCalculate(sumoCmd, norm, stopsRate)
-
-with open('TotalResults.json', 'w') as outfile:
-   json.dump(outResults, outfile)
+DataCalculate(sumoCmd, norm, stopsRate)
 
 file = 'MorningRoutesJSON/TotalRoutes.json'
 os.remove(file)
