@@ -12,7 +12,7 @@ Notes.txt
 TotalEdges.json
 TotalLanes.json
 GeneralTests.py
-XMLScripts/
+XMLScripts/*.xml
 EnergyUnknownBattery.out.xml
 BatteryOneDay.out.xml
 Battery5Days.out.xml
