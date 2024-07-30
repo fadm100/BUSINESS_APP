@@ -144,14 +144,7 @@ def DataCalculate(route, norm_in, rateOfStops):
          traci.simulationStep()
          if step == midday: 
             print('Lunch')
-            # for i in range(len(vehicleNames)):
-            #    if traci.vehicle.isStoppedParking(vehicleNames[i]) == True:
-            #       traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=twoPM-midday, until=sixPM, flags=1)
-            #    elif traci.vehicle.getRoadID(vehicleNames[i]) == "-E0":
-            #       traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=midnight, until=midnight, flags=1)
-            #    else:
-            #       traci.vehicle.changeTarget(vehicleNames[i], "-E0")
-            #       traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=midnight, until=midnight, flags=1)
+
       elif step >= twoPM and step < sixPM:
          traci.simulationStep()
          if step == twoPM: 
