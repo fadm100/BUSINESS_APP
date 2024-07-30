@@ -19,8 +19,8 @@ else:
 
 import traci
 
-sumoCmd = [["sumo", "-c", "TestVan.sumocfg"]]
-# sumoCmd = [["sumo-gui", "-c", "TestVan.sumocfg"]]
+sumoCmd = ["sumo", "-c", "TestVan.sumocfg"]
+# sumoCmd = ["sumo-gui", "-c", "TestVan.sumocfg"]
 
 morningRoutesJSON = ['MorningRoutesJSON/DE_520001_Route.json', 'MorningRoutesJSON/DE_520002_Route.json', 'MorningRoutesJSON/DE_520003_Route.json',
                      'MorningRoutesJSON/DE_520004_Route.json', 'MorningRoutesJSON/DE_520006_Route.json', 'MorningRoutesJSON/DE_520010_Route.json']
@@ -36,11 +36,11 @@ def fleetRetrieval(session):
 
 nameJSON = ['C1Route']
 
-norm = ["MMPEVEM"] # --> https://sumo.dlr.de/docs/Models/MMPEVEM.html
+norm = "MMPEVEM" # --> https://sumo.dlr.de/docs/Models/MMPEVEM.html
 norms = ['EV']
 
 acceleration = [2.0, 3.0, 4.0]
-stopsRate = [0] # 0.35 is used for peak-off and 0.65 is used for rush hours
+stopsRate = 0 # 0.35 is used for peak-off and 0.65 is used for rush hours
 stopsRates = ['0.0']
 
 eightAM = 28800
@@ -98,7 +98,7 @@ def RoutesManagement(step, Day, norm_in, chargeFlag, fleetRoutes, maximumDoD, de
          traci.vehicle.changeTarget(vehicleNames[i], "-E0")
          traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=midnight, until=midnight, flags=1)
 
-def DataCalculate(route, norm_in, accel, rateOfStops):
+def DataCalculate(route, norm_in, rateOfStops):
    '''rateOfStops --> this is a number between 0 and 1. 
    This parameter defines how many stops will be set.
    with a high number, the number of stops will be major'''
@@ -188,23 +188,10 @@ def DataCalculate(route, norm_in, accel, rateOfStops):
    }
    return results
 
-total = {}
+outResults = DataCalculate(sumoCmd, norm, stopsRate)
 
-for j in range(len(stopsRate)):
-   fuelRoute = []
-   Routes = {}
-   for i in range(len(sumoCmd)):
-      fuelNorm = []
-      Norms = {}
-      for k in range(len(norm)):
-         outResults = DataCalculate(sumoCmd[i], norm[k], acceleration[1], stopsRate[j])
-         Norms[norms[k]] = outResults
-      fuelRoute.append(fuelNorm)
-      Routes[nameJSON[i]] = Norms
-   total[stopsRates[j]] = Routes
-
-   with open('TotalResults.json', 'w') as outfile:
-      json.dump(total, outfile)
+with open('TotalResults.json', 'w') as outfile:
+   json.dump(outResults, outfile)
 
 file = 'MorningRoutesJSON/TotalRoutes.json'
 os.remove(file)
