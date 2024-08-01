@@ -5,7 +5,6 @@ import random
 import json
 import matplotlib.pyplot as plt 
 import numpy as np
-import EV_Charge as EVC
 import RouteGenerator as RG
 import os.path as path
 from random import sample
@@ -48,7 +47,7 @@ midday = 43200
 twoPM = 50400
 sixPM = 64800
 midnight = 86400
-simulationDays = 1
+simulationDays = 5
 
 actualBatteryCapacity = 0
 maximumBatteryCapacity = 0
@@ -63,7 +62,7 @@ def defineStops(stopsRate, deliveryRoute):
          stopTime = random.randint(3, 60)
          traci.vehicle.setStop(vehicleNames[0], deliveryRoute[j], 0.1, 0, stopTime, 0, 0.0, 2.0)
 
-def RoutesManagement(step, Day, norm_in, chargeFlag, fleetRoutes, maximumDoD, deliverySuccess, deliveryStops):
+def VehiclesManagement(step, chargeFlag, fleetRoutes, maximumDoD, deliverySuccess, deliveryStops):
 
    vehicleNames = list(fleetRoutes.keys())
    for i in range(len(vehicleNames)):
@@ -71,11 +70,9 @@ def RoutesManagement(step, Day, norm_in, chargeFlag, fleetRoutes, maximumDoD, de
       maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
       chargeStop = True if actualBatteryCapacity < maximumBatteryCapacity * (1-maximumDoD) else False 
       batteryFull = True if actualBatteryCapacity > maximumBatteryCapacity * maximumCharge else False
-      # if step == 0 and Day < 2: 
-      #    traci.vehicle.add(vehicleNames[i], "ParkingReturn", "VAN", "now")
-      #    traci.vehicle.setEmissionClass(vehicleNames[i], norm_in)
-      #    traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=1)
       if step == eightAM or step == twoPM: 
+         deliverySuccess[i] = 1
+         deliveryStops[i] = 0
          traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=0)
          traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][deliverySuccess[i]])
          deliveryStops[i] = len(fleetRoutes[vehicleNames[i]])-1
@@ -85,10 +82,6 @@ def RoutesManagement(step, Day, norm_in, chargeFlag, fleetRoutes, maximumDoD, de
             traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][deliverySuccess[i]])
          if traci.vehicle.getRoadID(vehicleNames[i]) == "-E0" and chargeStop == False:
             traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=midnight, until=midnight, flags=1)
-      # actualBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.actualBatteryCapacity"))
-      # maximumBatteryCapacity = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.maximumBatteryCapacity"))
-      # chargeStop = True if actualBatteryCapacity < maximumBatteryCapacity * (1-maximumDoD) else False 
-      # batteryFull = True if actualBatteryCapacity > maximumBatteryCapacity * maximumCharge else False
       if chargeStop and traci.vehicle.getRoadID(vehicleNames[i]) == "-E0" and chargeFlag[i] == 0: 
          traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=0)
          chargeFlag[i] = 1
@@ -110,6 +103,8 @@ def DataCalculate(route, norm_in, rateOfStops):
    fleetRoutesAM = fleetRetrieval('AM')
    fleetRoutesPM = fleetRetrieval('PM')
    vehicleNames = list(fleetRoutesAM.keys())
+   deliverySuccess = [1] * len(vehicleNames)
+   deliveryStops = [0] * len(vehicleNames)
    step = 0
    Day = 1
 
@@ -123,17 +118,9 @@ def DataCalculate(route, norm_in, rateOfStops):
    
    while step < midnight and Day <= simulationDays:
       traci.simulationStep()
-      if step == 0 or step == eightAM or step == twoPM: 
-         deliverySuccess = []
-         deliveryStops = []
-         deliverySuccess = [1] * len(vehicleNames)
-         deliveryStops = [0] * len(vehicleNames)
-      if step == 0: print('Day = ', Day, ' Early morning ')
-      elif step == eightAM: print('Morning')
-      elif step == midday: print('Lunch')
-      elif step == twoPM: print('Afternoon')
-      elif step == sixPM: print('Night')
-      RoutesManagement(step, Day, norm_in, chargeFlag, fleetRoutesAM, maximumDoD, deliverySuccess, deliveryStops)
+      fleetRoutes = fleetRoutesAM if step < midday else fleetRoutesPM
+
+      VehiclesManagement(step, chargeFlag, fleetRoutes, maximumDoD, deliverySuccess, deliveryStops)
       
       step += 1
       if step >= midnight-1:
