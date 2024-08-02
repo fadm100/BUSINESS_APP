@@ -33,14 +33,9 @@ def fleetRetrieval(session):
       fleetRoutes = RG.DeliveryRoutes(afternoonRoutesJSON, session)
    return fleetRoutes
 
-nameJSON = ['C1Route']
-
 norm = "MMPEVEM" # --> https://sumo.dlr.de/docs/Models/MMPEVEM.html
-norms = ['EV']
 
-acceleration = [2.0, 3.0, 4.0]
-stopsRate = 0 # 0.35 is used for peak-off and 0.65 is used for rush hours
-stopsRates = ['0.0']
+stopsRate = 1 # 0.35 is used for peak-off and 0.65 is used for rush hours
 
 eightAM = 28800
 midday = 43200
@@ -55,12 +50,12 @@ maximumBatteryCapacity = 0
 maximumCharge = 0.8 
 maximumDoD = 0.8
 
-def defineStops(stopsRate, deliveryRoute):
-   for j in range(len(deliveryRoute)):
-      R = random.random()
-      if R < stopsRate:
-         stopTime = random.randint(3, 60)
-         traci.vehicle.setStop(vehicleNames[0], deliveryRoute[j], 0.1, 0, stopTime, 0, 0.0, 2.0)
+# def defineStops(stopsRate, deliveryRoute):
+#    for j in range(len(deliveryRoute)):
+#       R = random.random()
+#       if R < stopsRate:
+#          stopTime = random.randint(60, 600)
+#          traci.vehicle.setStop(vehicleNames[0], deliveryRoute[j], 0.1, 0, stopTime, 0, 0.0, 2.0)
 
 def VehiclesManagement(step, chargeFlag, fleetRoutes, maximumDoD, deliverySuccess, deliveryStops):
 
@@ -76,10 +71,15 @@ def VehiclesManagement(step, chargeFlag, fleetRoutes, maximumDoD, deliverySucces
          traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=0)
          traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][deliverySuccess[i]])
          deliveryStops[i] = len(fleetRoutes[vehicleNames[i]])-1
+         stopTime = random.randint(60, 600)
+         traci.vehicle.setStop(vehicleNames[i], fleetRoutes[vehicleNames[i]][deliverySuccess[i]], 0.1, 0, stopTime, 0, 0.0, 2.0)
       elif traci.vehicle.getRoadID(vehicleNames[i]) == fleetRoutes[vehicleNames[i]][deliverySuccess[i]]: 
          if deliverySuccess[i] < deliveryStops[i]:
             deliverySuccess[i]+=1
             traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][deliverySuccess[i]])
+            if fleetRoutes[vehicleNames[i]][deliverySuccess[i]] != "-E0":
+               stopTime = random.randint(60, 600)
+               traci.vehicle.setStop(vehicleNames[i], fleetRoutes[vehicleNames[i]][deliverySuccess[i]], 0.1, 0, stopTime, 0, 0.0, 2.0)
          if traci.vehicle.getRoadID(vehicleNames[i]) == "-E0" and chargeStop == False:
             traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=midnight, until=midnight, flags=1)
       if chargeStop and traci.vehicle.getRoadID(vehicleNames[i]) == "-E0" and chargeFlag[i] == 0: 
