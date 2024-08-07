@@ -19,12 +19,12 @@ def DeliveryRoutes(routesJSON, session):
         vehicleNames.append("Delivery_" + str(i))
         with open(routesJSON[i]) as json_file:
             deliveryRoute = json.load(json_file)
-        routesDic[vehicleNames[i]] = DeliveryStops(deliveryRoute, session, vehicleNames[i])
+        routesDic[vehicleNames[i]] = deliveryRoute # DeliveryStops(deliveryRoute, session, vehicleNames[i])
     
     if session == 'AM':
         with open('MorningRoutesJSON/TotalRoutes.json', 'w') as outfile:
             json.dump(routesDic, outfile)
-    else:
+    elif session == 'PM':
         with open('AfternoonRoutesJSON/TotalRoutes.json', 'w') as outfile:
             json.dump(routesDic, outfile)
         

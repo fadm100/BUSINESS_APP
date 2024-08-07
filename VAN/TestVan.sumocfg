@@ -6,11 +6,9 @@
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
-        <!-- <net-file value="C:\Users\alex-\Sumo\2022-03-09-07-21-16\osm.net.xml"/> -->
-		<net-file value="Pasto_VAN.net.xml"/>
-		<route-files value="VAN_Ruta.rou.xml"/>
+        <net-file value="Pasto_VAN_Updated.net.xml"/>
         <!-- <route-files value="VAN_Ruta.rou.xml,bus.trips.xml,moto.trips.xml,taxi.trips.xml,vehicle.trips.xml"/> -->
-        
+        <route-files value="VAN_Ruta.rou.xml,busWeek.trips.xml,motoWeek.trips.xml,taxiWeek.trips.xml,vehicleWeek.trips.xml"/>
     </input>
 
     <processing>
@@ -25,6 +23,7 @@
         <verbose value="true"/>
         <duration-log.statistics value="true"/>
         <no-step-log value="true"/>
+        <!-- <vehroutes.route-length value="true"/> -->
     </report>
 
 	<!-- <output>
@@ -34,8 +33,9 @@
     <output>
         <battery-output value="Battery.out.xml"/>
         <battery-output.precision value="4"/>
-        <device.battery.probability value="1"/>
-        <summary-output value="summary_100.xml"/>
+        <device.battery.probability value="-1"/>
+        <!-- <device.battery.explicit value=["Delivery_0" "Delivery_1" "Delivery_2" "Delivery_3" "Delivery_4" "Delivery_5"]/> -->
+        <!-- <summary-output value="summary_100.xml"/> -->
         <!-- <full-output value="FullData.xml"/> -->
     </output>
 
