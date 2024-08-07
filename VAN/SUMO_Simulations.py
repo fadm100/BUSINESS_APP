@@ -35,27 +35,17 @@ def fleetRetrieval(session):
 
 norm = "MMPEVEM" # --> https://sumo.dlr.de/docs/Models/MMPEVEM.html
 
-stopsRate = 1 # 0.35 is used for peak-off and 0.65 is used for rush hours
-
 eightAM = 28800
 midday = 43200
 twoPM = 50400
 sixPM = 64800
 midnight = 86400
-simulationDays = 5
+simulationDays = 1
 
-actualBatteryCapacity = 0
-maximumBatteryCapacity = 0
 # keep battery level between 20% and 80% --> https://v2charge.com/es/carga-completa-coche-electrico/
 maximumCharge = 0.8 
 maximumDoD = 0.8
-
-# def defineStops(stopsRate, deliveryRoute):
-#    for j in range(len(deliveryRoute)):
-#       R = random.random()
-#       if R < stopsRate:
-#          stopTime = random.randint(60, 600)
-#          traci.vehicle.setStop(vehicleNames[0], deliveryRoute[j], 0.1, 0, stopTime, 0, 0.0, 2.0)
+initialMass = 4989.5161
 
 def VehiclesManagement(step, chargeFlag, fleetRoutes, maximumDoD, deliverySuccess, deliveryStops):
 
@@ -66,6 +56,7 @@ def VehiclesManagement(step, chargeFlag, fleetRoutes, maximumDoD, deliverySucces
       chargeStop = True if actualBatteryCapacity < maximumBatteryCapacity * (1-maximumDoD) else False 
       batteryFull = True if actualBatteryCapacity > maximumBatteryCapacity * maximumCharge else False
       if step == eightAM or step == twoPM: 
+         # traci.vehicle.setParameter(vehicleNames[i], "device.battery.vehicleMass", initialMass)
          deliverySuccess[i] = 1
          deliveryStops[i] = 0
          traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=0)
@@ -80,6 +71,8 @@ def VehiclesManagement(step, chargeFlag, fleetRoutes, maximumDoD, deliverySucces
             if fleetRoutes[vehicleNames[i]][deliverySuccess[i]] != "-E0":
                stopTime = random.randint(60, 600)
                traci.vehicle.setStop(vehicleNames[i], fleetRoutes[vehicleNames[i]][deliverySuccess[i]], 0.1, 0, stopTime, 0, 0.0, 2.0)
+               # vehMass = float(traci.vehicle.getParameter(vehicleNames[i], "device.battery.vehicleMass"))
+               # traci.vehicle.setParameter(vehicleNames[i], "device.battery.vehicleMass", vehMass - 50.0)
          if traci.vehicle.getRoadID(vehicleNames[i]) == "-E0" and chargeStop == False:
             traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=midnight, until=midnight, flags=1)
       if chargeStop and traci.vehicle.getRoadID(vehicleNames[i]) == "-E0" and chargeFlag[i] == 0: 
@@ -93,12 +86,11 @@ def VehiclesManagement(step, chargeFlag, fleetRoutes, maximumDoD, deliverySucces
          traci.vehicle.changeTarget(vehicleNames[i], "-E0")
          traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=midnight, until=midnight, flags=1)
 
-def DataCalculate(route, norm_in, rateOfStops):
+def DataCalculate(route, norm_in):
    '''rateOfStops --> this is a number between 0 and 1. 
    This parameter defines how many stops will be set.
    with a high number, the number of stops will be major'''
    
-   # batteryFull = [False] * len(morningRoutesJSON)
    chargeFlag = [0] * len(morningRoutesJSON)
    fleetRoutesAM = fleetRetrieval('AM')
    fleetRoutesPM = fleetRetrieval('PM')
@@ -109,7 +101,6 @@ def DataCalculate(route, norm_in, rateOfStops):
    Day = 1
 
    traci.start(route)
-   # defineStops(rateOfStops, deliveryRoute[vehicleNames[i]])
    traci.simulationStep()
    for i in range(len(vehicleNames)):
       traci.vehicle.add(vehicleNames[i], "ParkingReturn", "VAN", "now")
@@ -131,7 +122,7 @@ def DataCalculate(route, norm_in, rateOfStops):
    traci.close()
    print("Step = ", step, "; Day = ", Day)
 
-DataCalculate(sumoCmd, norm, stopsRate)
+DataCalculate(sumoCmd, norm)
 
 file = 'MorningRoutesJSON/TotalRoutes.json'
 os.remove(file)

@@ -1,0 +1,1 @@
+correr el siguiente comando --> python xml2csv.py "file.xml"

@@ -13,7 +13,7 @@ ____________________________________________________
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
 
-        <vType id="VAN" guiShape="delivery" length="6.5" width="2.16" height="2.86" minGap="2.5" accel="2.6" decel="4.5" maxSpeed="28.55" color="255,12,0"> 
+        <vType id="VAN" guiShape="delivery" length="6.5" width="2.16" height="2.86" minGap="2.5" accel="2.6" decel="4.5" maxSpeed="28.55" color="255,12,0" timeToTeleport="-1"> 
 
         <!-- Parameters configured using information in  https://lightningemotors.com/lightningelectric-ford-transit-cargo and examples in {SUMO_HOME}/data/emissions/MMPEVEM,
          specifically SUV.xml-->

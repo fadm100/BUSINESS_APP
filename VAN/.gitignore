@@ -6,7 +6,6 @@ DataBaseTest.xlsx
 AfternoonRoutesJSON/TotalRoutes.json
 MorningRoutesJSON/TotalRoutes.json
 FullData.xml
-Análisis_01.pbix
 Notes.txt
 *.pbix
 TotalEdges.json
@@ -16,4 +15,5 @@ XMLScripts/*.xml
 EnergyUnknownBattery.out.xml
 BatteryOneDay.out.xml
 Battery5Days.out.xml
+*.csv
 OUTCOMES/
