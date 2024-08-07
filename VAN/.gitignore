@@ -1,6 +1,7 @@
 Battery.out.xml
 summary_100.xml
 TotalResults.json
+TotalRoutes.json
 BatteryOut.json
 DataBaseTest.xlsx
 AfternoonRoutesJSON/TotalRoutes.json
@@ -10,7 +11,6 @@ Notes.txt
 *.pbix
 TotalEdges.json
 TotalLanes.json
-GeneralTests.py
 XMLScripts/*.xml
 EnergyUnknownBattery.out.xml
 BatteryOneDay.out.xml
