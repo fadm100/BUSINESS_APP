@@ -40,7 +40,7 @@ midday = 43200
 twoPM = 50400
 sixPM = 64800
 midnight = 86400
-simulationDays = 1
+simulationDays = 5
 
 # keep battery level between 20% and 80% --> https://v2charge.com/es/carga-completa-coche-electrico/
 maximumCharge = 0.8 

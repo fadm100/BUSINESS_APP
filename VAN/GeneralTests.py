@@ -3,36 +3,39 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Leer el DataFrame desde un archivo CSV
-file_path = 'Battery.out.csv'  # Reemplaza 'ruta/al/archivo.csv' con la ruta real de tu archivo
-df = pd.read_csv(file_path, sep=';')
+filePath = 'Battery.out.csv'  # Reemplaza 'ruta/al/archivo.csv' con la ruta real de tu archivo
+df = pd.read_csv(filePath, sep=';')
 
-# Mostrar las primeras 5 filas del DataFrame
-print("Primeras 5 filas del DataFrame:")
+print("DataFrame first 5 rows")
 print(df.head())
 
-# Información del DataFrame
-print("\nInformación del DataFrame:")
+print("\nDataFrame information")
 print(df.info())
 
-# Estadísticas descriptivas
-print("\nEstadísticas descriptivas del DataFrame:")
+print("\nDataFrame Descriptive statistics")
 print(df.describe())
 
-# Agrupar por vehicle_id y realizar análisis
+# Group per vehicle_id and perform analysis
 grouped = df.groupby('vehicle_id')
 
-# Analizar el consumo de energía total por vehicle_id
-total_energy_consumed = grouped['vehicle_totalEnergyConsumed'].last() - grouped['vehicle_totalEnergyRegenerated'].last()
-print("\nConsumo total de energía por vehicle_id:")
-print(total_energy_consumed)
+# Analyze total energy consumption per vehicle_id
+totalEnergyConsumed = (grouped['vehicle_totalEnergyConsumed'].last() - grouped['vehicle_totalEnergyRegenerated'].last()) / 1000
+print("\nTotal energy consumption per vehicle [kWh]")
+print(totalEnergyConsumed)
 
-# Analizar la capacidad de batería actual promedio por vehicle_id
-mean_battery_capacity = grouped['vehicle_actualBatteryCapacity'].last()
-print("\nCapacidad de batería final por vehicle_id:")
-print(mean_battery_capacity)
+# Analyze total cost of energy consumption per vehicle_id
+totalEnergyCost = totalEnergyConsumed * 1099.25 # COP/kWh CEDENAR july 2024
+print("\nTotal energy consumption per vehicle [COP]")
+print(totalEnergyCost)
 
-# Función para añadir anotaciones a las barras
-def add_annotations(ax):
+# Analyze the final battery state of charge
+totalCapacity = 80000
+batterySoC = grouped['vehicle_actualBatteryCapacity'].last() / totalCapacity * 100
+print("\nFinal SoC per vehicle")
+print(batterySoC)
+
+# Function to add annotations to the bars
+def AddAnnotations(ax):
     for p in ax.patches:
         ax.annotate(format(p.get_height(), '.2f'), 
                     (p.get_x() + p.get_width() / 2., p.get_height()), 
@@ -40,38 +43,109 @@ def add_annotations(ax):
                     xytext = (0, 9), 
                     textcoords = 'offset points')
 
-# Graficar el consumo total de energía por vehicle_id
+# Graph total energy consumption per vehicle_id
 plt.figure(figsize=(10, 6))
-ax = sns.barplot(x=total_energy_consumed.index, y=total_energy_consumed.values)
-add_annotations(ax)
-plt.xlabel('Vehicle ID')
-plt.ylabel('Consumo Total de Energía')
-plt.title('Consumo Total de Energía por Vehicle ID')
+ax = sns.barplot(x=totalEnergyConsumed.index, y=totalEnergyConsumed.values)
+AddAnnotations(ax)
+plt.xlabel('ID vehículo')
+plt.ylabel('Consumo Total de Energía [kWh]')
+plt.title('Consumo Total de Energía por vehículo')
 plt.xticks(rotation=45)
 plt.show()
 
-# Graficar la capacidad de batería actual promedio por vehicle_id
+# Graph total cost of energy consumption per vehicle_id
 plt.figure(figsize=(10, 6))
-ax = sns.barplot(x=mean_battery_capacity.index, y=mean_battery_capacity.values)
-add_annotations(ax)
-plt.xlabel('Vehicle ID')
-plt.ylabel('Capacidad de Batería Promedio')
-plt.title('Capacidad de Batería Promedio por Vehicle ID')
+ax = sns.barplot(x=totalEnergyCost.index, y=totalEnergyCost.values)
+AddAnnotations(ax)
+plt.xlabel('ID vehículo')
+plt.ylabel('Costo Total de Energía [COP]')
+plt.title('Costo Total de Energía por vehículo')
 plt.xticks(rotation=45)
 plt.show()
 
-# Contar cuántas filas en 'vehicle_chargingStationId' son diferentes de NULL, discriminado por 'vehicle_id'
-chargingTime = df.groupby('vehicle_id')['vehicle_chargingStationId'].apply(lambda x: x.notnull().sum())
+# Graph battery SoC per vehicle_id
+plt.figure(figsize=(10, 6))
+ax = sns.barplot(x=batterySoC.index, y=batterySoC.values)
+AddAnnotations(ax)
+plt.xlabel('ID vehículo')
+plt.ylabel('SoC de la Batería [%]')
+plt.title('Estado de carga de la Batería por vehículo')
+plt.xticks(rotation=45)
+plt.show()
 
-print("Número de filas donde 'vehicle_chargingStationId' es diferente de NULL, discriminado por 'vehicle_id':")
+# Count how many rows in 'vehicle_chargingStationId' are different from NULL, discriminated per 'vehicle_id'  vehicle_lane
+chargingTime = df.groupby('vehicle_id')['vehicle_chargingStationId'].apply(lambda x: x.notnull().sum()) / 60
+
+print("Total charging time per vehicle [min]")
 print(chargingTime)
 
-# Graficar el tiempo total de carga por vehicle_id
+# Grapf total charging time per vehicle
 plt.figure(figsize=(10, 6))
 ax = sns.barplot(x=chargingTime.index, y=chargingTime.values)
-add_annotations(ax)
-plt.xlabel('Vehicle ID')
-plt.ylabel('Tiempo Total de Carga')
-plt.title('Tiempo Total de Carga por Vehicle ID')
+AddAnnotations(ax)
+plt.xlabel('ID vehículo')
+plt.ylabel('Tiempo Total de Carga [min]')
+plt.title('Tiempo Total de Carga por vehículo')
 plt.xticks(rotation=45)
+plt.show()
+
+# Count how many rows in 'vehicle_lane' are equal to -E0_0, discriminated per 'vehicle_id'  
+parkingTime = df[df['vehicle_lane'] == '-E0_0'].groupby('vehicle_id').size() /3600
+
+print("Total parking time per vehicle [h]")
+print(parkingTime)
+
+# Grapf total charging time per vehicle
+plt.figure(figsize=(10, 6))
+ax = sns.barplot(x=parkingTime.index, y=parkingTime.values)
+AddAnnotations(ax)
+plt.xlabel('ID vehículo')
+plt.ylabel('Tiempo Total de parqueo [h]')
+plt.title('Tiempo Total de parqueo por vehículo')
+plt.xticks(rotation=45)
+plt.show()
+
+# Crear el DataFrame combinado (si no lo tienes ya)
+combined_data = pd.DataFrame({
+    'charging_time': chargingTime / 60,
+    'parking_time': parkingTime
+})
+
+# Rellenar NaN con 0 para los vehículos sin registros
+combined_data = combined_data.fillna(0)
+
+# Añadir vehicle_id como una columna
+combined_data['vehicle_id'] = combined_data.index
+
+# Reordenar columnas para el gráfico
+combined_data = combined_data[['vehicle_id', 'charging_time', 'parking_time']]
+
+# Supongamos que ya tenemos el DataFrame combined_data
+# Calcular la tercera variable
+combined_data['time_on_route'] = 24 - (combined_data['charging_time'] + combined_data['parking_time'])
+
+# Asegurarse de que no haya valores negativos
+combined_data['time_on_route'] = combined_data['time_on_route'].clip(lower=0)
+
+# Verificar el DataFrame
+print('Combined Data')
+print(combined_data.head())
+
+# Configurar la figura del gráfico
+plt.figure(figsize=(12, 8))
+
+# Crear el gráfico de áreas apiladas
+plt.stackplot(combined_data['vehicle_id'], 
+              combined_data['charging_time'], 
+              combined_data['parking_time'],
+              combined_data['time_on_route'],
+              labels=['Tiempo de carga', 'Tiempo de parqueo', 'Tiempo en ruta'])
+
+# Configurar las etiquetas y el título
+plt.title('Distribución de tiempo en un día por vehículo en horas')
+plt.xlabel('ID del Vehículo')
+plt.ylabel('Tiempo [h]')
+plt.legend(loc='upper left')
+
+# Mostrar el gráfico
 plt.show()
