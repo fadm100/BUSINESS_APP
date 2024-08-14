@@ -47,7 +47,6 @@ for tasa_descuento in tasa_descuento_rango:
             })
 
 df_resultados = pd.DataFrame(resultados)
-print(df_resultados)
 
 # Análisis de sensibilidad - Graficar VAN por vida útil
 fig, ax = plt.subplots(figsize=(10, 6))
@@ -60,6 +59,7 @@ ax.set_ylabel('Valor Actual Neto (VAN) (USD)')
 ax.set_title('Análisis de Sensibilidad - VAN vs Vida Útil')
 ax.legend()
 ax.grid()
+plt.savefig("VPN_10_Years.png")
 plt.show()
 
 # Análisis de sensibilidad - Graficar flujos de caja anuales
@@ -86,4 +86,6 @@ for index, (tasa_descuento, ax) in enumerate(zip(tasa_descuento_rango, axs)):
                         ha='center', va='bottom')
 
 plt.tight_layout()
+# Guardar la figura en el disco duro en formato PNG
+plt.savefig('CashFlow_10_Years.png')
 plt.show()
