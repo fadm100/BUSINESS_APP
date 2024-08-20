@@ -93,9 +93,6 @@ def VehiclesManagement(step, i, chargeFlag, vehicleNames, fleetRoutes, maximumDo
       traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=midnight, until=midnight, flags=1)
 
 def DataCalculate(route, norm_in):
-   '''rateOfStops --> this is a number between 0 and 1. 
-   This parameter defines how many stops will be set.
-   with a high number, the number of stops will be major'''
    
    chargeFlag = [0] * len(morningRoutesJSON)
    fleetRoutesAM = fleetRetrieval('AM')
