@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy_financial as npf
-import seaborn as sns
 
 # Función para calcular el NPV a lo largo de la vida útil
 def calcular_NPV_por_año(tasa_descuento, costos_mantenimiento, crecimiento_demanda, inversion_inicial, vida_util, tarifa):
@@ -12,7 +10,10 @@ def calcular_NPV_por_año(tasa_descuento, costos_mantenimiento, crecimiento_dema
         flujos_caja = [-inversion_inicial]
         for t in range(año + 1):
             ingresos_anuales = tarifa * cargas_diarias_promedio * tiempo_carga_promedio * potencia_promedio_carga * 365
-            ingresos_anuales *= (1 + crecimiento_demanda) ** t
+            if t> maximo_años_crecimiento_demanda and crecimiento_demanda >= 0.25:
+                ingresos_anuales *= (1 + crecimiento_demanda) ** maximo_años_crecimiento_demanda
+            else:
+                ingresos_anuales *= (1 + crecimiento_demanda) ** t
             ingresos_anuales *= (1 + inflacion) ** t
             gastos = costos_mantenimiento * (1 + inflacion) ** t
             flujo_caja = ingresos_anuales - gastos
@@ -48,7 +49,10 @@ def graficar(df_resultados):
     columnas = ['NPV_final']
     # Crear histogramas para cada columna
     df_resultados[columnas].hist(bins=15, figsize=(15, 10), layout=(1, 1), edgecolor='black')
-    plt.suptitle('Histogramas de Variables')
+    plt.suptitle('Histogramas de Variables', fontsize=20, fontweight='bold')
+    # Configurar las etiquetas de los ejes en negrita
+    plt.xticks(fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12, fontweight='bold')
     plt.savefig("VPN_Histogram.png")
     plt.show()
 
@@ -84,22 +88,40 @@ def graficar(df_resultados):
     # cbar.set_label('NPV Final')
     # plt.show()
 
-    # Crear gráfico de dispersión 3D con cambio de colores tasa_descuento, crecimiento_demanda y NPV
-    fig = plt.figure(figsize=(10, 8))
+    # Crear gráfico de dispersión 3D con colores basado en tasa_descuento, crecimiento_demanda y NPV
+    fig = plt.figure(figsize=(12, 10))
     ax = fig.add_subplot(111, projection='3d')
+
+    # Definir los límites de color
     npv_min = df_resultados['NPV_final'].min()
     npv_max = df_resultados['NPV_final'].max()
-    scatter = ax.scatter(df_resultados['tasa_descuento'], df_resultados['crecimiento_demanda'], df_resultados['NPV_final'],
-                        c=df_resultados['NPV_final'], marker='o', cmap='viridis', vmin=npv_min, vmax=npv_max)
 
-    ax.set_xlabel('Tasa de Descuento')
-    ax.set_ylabel('Crecimiento Demanda')
-    ax.set_zlabel('NPV Final')
-    ax.set_title('Gráfica de Dispersión 3D: Tasa de Descuento, Crecimiento Demanda y NPV Final')
-    cbar = fig.colorbar(scatter, ax=ax, shrink=0.5, aspect=5)
-    cbar.set_label('NPV Final')
-    plt.savefig("VPN_3D.png")
+    # Crear el gráfico de dispersión con puntos más grandes, transparencia y bordes
+    scatter = ax.scatter(df_resultados['tasa_descuento'], df_resultados['crecimiento_demanda'], df_resultados['NPV_final'],
+                        c=df_resultados['NPV_final'], marker='o', cmap='viridis', vmin=npv_min, vmax=npv_max,
+                        s=80,  # Tamaño de los puntos
+                        alpha=0.8,  # Transparencia
+                        edgecolors='k')  # Borde negro para cada punto
+
+    # Etiquetas de los ejes con títulos más grandes y en negrita
+    ax.set_xlabel('Tasa de Descuento', fontsize=16, fontweight='bold')
+    ax.set_ylabel('Crecimiento Demanda', fontsize=16, fontweight='bold')
+    ax.set_zlabel('NPV Final', fontsize=16, fontweight='bold')
+
+    # Título del gráfico
+    ax.set_title('Relación entre Tasa de Descuento, Crecimiento de Demanda y NPV Final', fontsize=18, fontweight='bold')
+
+    # Configuración de la barra de color
+    cbar = fig.colorbar(scatter, ax=ax, shrink=0.6, aspect=8)  # Ajuste del tamaño de la barra de color
+    cbar.set_label('NPV Final', fontsize=14, fontweight='bold')
+
+    # Guardar el gráfico
+    plt.savefig("VPN_3D_mejorado_puntos_intensos.png", bbox_inches='tight')
+
+    # Mostrar el gráfico
     plt.show()
+
+
 
     # # Gráfico de dispersión entre tasa_descuento y NPV_final
     # plt.figure(figsize=(10, 6))
@@ -153,9 +175,9 @@ def graficar(df_resultados):
         # ax.plot(row['vida_util'], row['NPV'], label=f"Tasa Desc. {row['tasa_descuento']:.0%}, Costos Oper. {row['costos_operativos']} USD, Crec. Demanda {row['crecimiento_demanda']:.0%}, Inv. Inicial {row['inversion_inicial']} USD")
         ax.plot(row['vida_util'], row['NPV'], label=f"Crec. Demanda {row['crecimiento_demanda']:.0%}, Tasa Desc. {row['tasa_descuento']:.0%}")
 
-    ax.set_xlabel('Vida Útil (años)')
-    ax.set_ylabel('Valor Presente Neto (NPV) (USD)')
-    ax.set_title('Análisis de Sensibilidad - NPV vs Vida Útil')
+    ax.set_xlabel('Vida Útil (años)', fontsize=14, fontweight='bold')
+    ax.set_ylabel('Valor Presente Neto (NPV) (USD)', fontsize=14, fontweight='bold')
+    ax.set_title('Análisis de Sensibilidad - NPV vs Vida Útil', fontsize=16, fontweight='bold')
     ax.legend()
     ax.grid()
     plt.savefig("VPN_All_Cases_10_Years.png")
@@ -176,28 +198,42 @@ def graficar(df_resultados):
     # plt.grid(True)
     # plt.show()
     
-    # Graficar
+    # Graficar comparación de flujos de caja - Mejor y Peor NPV_final
     plt.figure(figsize=(12, 6))
 
     # Gráfico de barras para el mejor NPV_final
     plt.bar(range(len(df_resultados['flujos_caja'].iloc[mejor_idx])), 
             df_resultados['flujos_caja'].iloc[mejor_idx], 
-            label=f'Mejor NPV_final: {df_resultados["NPV_final"].iloc[mejor_idx]}', 
-            alpha=0.7)
+            label=f'Mejor NPV_final: {df_resultados["NPV_final"].iloc[mejor_idx]:.2f}', 
+            alpha=0.7, width=0.4, align='center', color='green')
 
     # Gráfico de barras para el peor NPV_final
     plt.bar(range(len(df_resultados['flujos_caja'].iloc[peor_idx])), 
             df_resultados['flujos_caja'].iloc[peor_idx], 
-            label=f'Peor NPV_final: {df_resultados["NPV_final"].iloc[peor_idx]}', 
-            alpha=0.7)
+            label=f'Peor NPV_final: {df_resultados["NPV_final"].iloc[peor_idx]:.2f}', 
+            alpha=0.7, width=0.4, align='edge', color='red')
 
-    plt.title('Flujo de Caja - Mejor y Peor NPV_final')
-    plt.xlabel('Periodo')
-    plt.ylabel('Flujo de Caja')
-    plt.legend()
+    # Título y etiquetas de los ejes
+    plt.title('Flujo de Caja - Mejor y Peor NPV_final', fontsize=16, fontweight='bold')
+    plt.xlabel('Periodo', fontsize=14, fontweight='bold')
+    plt.ylabel('Flujo de Caja', fontsize=14, fontweight='bold')
+
+    # Leyenda
+    plt.legend(fontsize=12, title_fontsize='13', title='Leyenda', loc='best', frameon=True)
+
+    # Configurar las etiquetas de los ejes en negrita
+    plt.xticks(fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12, fontweight='bold')
+
+    # Mostrar cuadrícula
     plt.grid(True)
-    plt.savefig("Cash_Flow_Best_Worst.png")
+
+    # Guardar gráfico
+    plt.savefig("Cash_Flow_Best_Worst.png", bbox_inches='tight')
+
+    # Mostrar gráfico
     plt.show()
+
 
 
 if __name__ == '__main__':
@@ -215,6 +251,7 @@ if __name__ == '__main__':
 
     # Toma los diferentes costos de cargadores semirápidos y rápidos, los dos primeros datos son semirápidos. Con esto se generan casos de inversión inicial. Se suma con el costo de instalación de ese cargador específico (no inlcuye obra civil)
     inversion_inicial_rango = df_diferent_costs['Charger'].to_numpy() + df_diferent_costs['Installation'].to_numpy() # USD
+    print(df_diferent_costs['Charger'].to_numpy(), '+', df_diferent_costs['Installation'].to_numpy())
     # Se da el nombre Semifast_Basic al primer dato de inversión inicial, Semifast_Complex al segundo dato y Fast al tercer dato
     inversion_inicial_name = ['Semifast_Basic', 'Semifast_Complex', 'Fast']
 
@@ -226,30 +263,35 @@ if __name__ == '__main__':
     T_C = 3951.65 # promedio dolar durante 2024 --> https://www.dolar-colombia.com/ano/2024 --> consultado el 28/08/2024
 
     tarifa_energia = df_tarifas['Costo_COP/kWh_Nivel_Tension_1'].iloc[-1] / T_C # Costo promedio año 2024 kWh nivel de tensión 1
-    porcentaje_ganancia = 0.5
+    porcentaje_ganancia = 0.5 # esta variable se puede modificar, se tiene control sobre ella (analisis de sensibilidad o mejor optimización)
     tarifa_carga = tarifa_energia * (1 + porcentaje_ganancia)
     ganancia_tarifa = tarifa_carga - tarifa_energia
     print('Tarifa de energía = ', tarifa_energia * T_C, '; Tarifa de venta', tarifa_carga * T_C, '; Ganancia venta', ganancia_tarifa * T_C)
     
-    # Define el porcentaje de inflación promedio anual en Colombia --> https://datosmacro.expansion.com/ipc-paises/colombia
-    inflacion = 0.041
+    # Define el porcentaje de inflación promedio anual en Colombia --> https://datosmacro.expansion.com/ipc-paises/colombia --> 4.1%
+    inflacion = 0 # En algunos casos la inflación esta implicita en la tasa de retorno, pero no siempre 
 
     # Un VE puede cargarse durante 2.5 y 5 horas en una estación semirápida según "Prediction of electric vehicle charging duration time using ensemble machine learning algorithm and Shapley additive explanations"
     cargas_diarias_promedio = 0.28 # --> se sume una promedio de 2 cargas por semana el primer año
-    tiempo_carga_promedio = 2.5
-    potencia_promedio_carga = 10 # --> Tesla S --> Business Case for EV Charging on the Motorway Network in Denmark
+    tiempo_carga_promedio = 2 # --> promedio Short Duration connection, tabla 2 doc --> "A data driven typology of electric vehicle user types and charging sessions"
+    numero_cargas_maximas_dia = 24 / tiempo_carga_promedio # El número de cargas máximas que se puede hacer en un día. Ej. Con 2 horas por carga un cargador puede usarse para 12 cargas máximo en un día
+    potencia_promedio_carga = 5 # Una estación tipo 2 de una fase puede entregar hasta 7.4kW --> Mennekes - IEC 62196
+    '''5kWh promedio de Density transaction volume [kWh] para Short Duration, figure E23 doc --> "A data driven typology of electric vehicle user types and charging sessions"
+    10kWh Tesla S --> Business Case for EV Charging on the Motorway Network in Denmark'''
 
     # Rango de variaciones para el análisis de sensibilidad
-    tasa_descuento_rango = np.arange(0.05, 0.2, 0.05)  # del 5% al 20% --> 9% Colombia 2022 --> https://2022.dnp.gov.co/DNP-Redes/Revista-Juridica/Paginas/Adopci%C3%B3n-de-la-Tasa-Social-de-Descuento-para-la-evaluaci%C3%B3n-de-proyectos-de-inversi%C3%B3n.aspx
+    tasa_descuento_rango = np.arange(0.05, 0.16, 0.05)  # del 5% al 20% --> 9% Colombia 2022 --> https://2022.dnp.gov.co/DNP-Redes/Revista-Juridica/Paginas/Adopci%C3%B3n-de-la-Tasa-Social-de-Descuento-para-la-evaluaci%C3%B3n-de-proyectos-de-inversi%C3%B3n.aspx
 
     costos_mantenimiento_rango = [400, 800]  
-    ''' costos anuales de 400 USD para lenta y semirápida 800 USD para DC rápidas --> https://afdc.energy.gov/fuels/electricity-infrastructure-maintenance-and-operation
+    ''' costos anuales de 400 USD para lenta y semirápida. 800 USD para DC rápidas --> https://afdc.energy.gov/fuels/electricity-infrastructure-maintenance-and-operation
     este costo no incluye costos operacionales por uso o alquiler de software de gestión --> https://driivz.com/blog/operation-maintenance-ev-charging-infrastructure/#:~:text=Charging%20station%20operators%20should%20anticipate,chargers%20costing%20double%20that%20amount.&text=EV%20charging%20stations%20are%20not%20just%20glorified%20electrical%20sockets.'''
 
     # Tomado del trabajo de Nohora. Valores para incremento de taxis VE los porcentajes de incremento son muy variables
     crecimiento_demanda_rango = [0.05, 0.15, 0.25] 
 
-    vida_util_rango = np.arange(1, 11, 1)  # Vida útil de 1 a 10 años
+    maximo_años_crecimiento_demanda = np.round(np.log10(24/(cargas_diarias_promedio*tiempo_carga_promedio))/np.log10(1+crecimiento_demanda_rango[2]))
+
+    vida_util_rango = np.arange(1, 21, 1)  # Vida útil de 1 a 10 años
 
     # Calcula NPV para cada tasa de descuento y cada crecimiento de demanda para costo de mantenimiento semirápido e inversión inicial semirápido communication Basic
     resultados = escenarios_NPV(tasa_descuento_rango, costos_mantenimiento_rango[0], crecimiento_demanda_rango, inversion_inicial_rango[0], inversion_inicial_name[0], vida_util_rango, ganancia_tarifa)
