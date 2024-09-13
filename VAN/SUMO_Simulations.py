@@ -1,22 +1,15 @@
-from operator import le
-import os, sys
-from random import random
+import os
+import sys
 import random
-import json
-import matplotlib.pyplot as plt 
-import numpy as np
 import RouteGenerator as RG
-import os.path as path
-from random import sample
+import traci
+from random import randint
 
-from turtle import clear
 if 'SUMO_HOME' in os.environ:
    tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
    sys.path.append(tools)
 else:
    sys.exit("please declare environment variable 'SUMO_HOME'")
-
-import traci
 
 # sumoCmd = ["sumo", "-c", "TestVan.sumocfg"]
 sumoCmd = ["sumo-gui", "-c", "TestVan.sumocfg"]
@@ -62,13 +55,25 @@ def VehiclesManagement(step, i, chargeFlag, vehicleNames, fleetRoutes, maximumDo
       traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=0)
       traci.vehicle.changeTarget(vehicleNames[i], fleetRoutes[vehicleNames[i]][1])
       # deliveryStops[i] = len(fleetRoutes[vehicleNames[i]])-1
-      stopTime = random.randint(60, 600)
-      traci.vehicle.setStop(vehicleNames[i], fleetRoutes[vehicleNames[i]][1], 0.1, 0, stopTime, 0, 0.0, 2.0)
+      
+      # Validar si el punto de parada está en la ruta
+      current_route = traci.vehicle.getRoute(vehicleNames[i])  # Obtener la ruta actual
+      next_stop = fleetRoutes[vehicleNames[i]][1]  # Próxima parada
+      current_lane = traci.vehicle.getRoadID(vehicleNames[i])
+      current_lane_index = traci.vehicle.getLaneIndex(vehicleNames[i])
+      if vehicleNames[i] == "Delivery_0": print('Ruta ', current_route, 'Next Stop ', next_stop, 'Lane', current_lane, 'Index', current_lane_index)
+      if next_stop in current_route:  # Si la próxima parada está en la ruta
+         stopTime = random.randint(60, 600)
+         traci.vehicle.setStop(vehicleNames[i], next_stop, 0.1, 0, stopTime, 0, 0.0, 2.0)
+      else:
+         print(f"Error: La próxima parada {next_stop} no está en la ruta del vehículo {vehicleNames[i]}")
+
+   # Verificar si el vehículo ya llegó a su parada
    elif traci.vehicle.getRoadID(vehicleNames[i]) == fleetRoutes[vehicleNames[i]][1] and len(fleetRoutes[vehicleNames[i]]) > 1:
       currentEdge = traci.vehicle.getRoadID(vehicleNames[i])
       if currentEdge != "-E0": 
          del fleetRoutes[vehicleNames[i]][1]
-         if vehicleNames[i] == "Delivery_0": print('Fuera', fleetRoutes)
+         # if vehicleNames[i] == "Delivery_0": print('Fuera', fleetRoutes)
          newTarget = fleetRoutes[vehicleNames[i]][1]
          traci.vehicle.changeTarget(vehicleNames[i], newTarget)
          if newTarget != "-E0":
@@ -81,6 +86,8 @@ def VehiclesManagement(step, i, chargeFlag, vehicleNames, fleetRoutes, maximumDo
             # traci.vehicle.setParameter(vehicleNames[i], "device.battery.vehicleMass", vehMass - 50.0)
       elif currentEdge == "-E0" and chargeStop == False:
          traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=midnight, until=midnight, flags=1)
+   
+   # Verificar si es necesario hacer una parada de carga
    if chargeStop and traci.vehicle.getRoadID(vehicleNames[i]) == "-E0" and chargeFlag[i] == 0: 
       traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=10, until=eightAM, flags=0)
       chargeFlag[i] = 1
@@ -91,6 +98,10 @@ def VehiclesManagement(step, i, chargeFlag, vehicleNames, fleetRoutes, maximumDo
       traci.vehicle.setChargingStationStop(vehicleNames[i], "cS_2to19_0a", duration=10.0, until=eightAM, flags=chargeFlag[i])
       traci.vehicle.changeTarget(vehicleNames[i], "-E0")
       traci.vehicle.setParkingAreaStop(vehicleNames[i], "ParkAreaA", duration=midnight, until=midnight, flags=1)
+   if step == eightAM + 10 and vehicleNames[i] == "Delivery_0": 
+      current_lane = traci.vehicle.getRoadID(vehicleNames[i])
+      current_lane_index = traci.vehicle.getLaneIndex(vehicleNames[i])
+      print('Lane', current_lane, 'Index', current_lane_index)
 
 def DataCalculate(route, norm_in):
    

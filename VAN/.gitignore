@@ -18,4 +18,5 @@ Battery5Days.out.xml
 *.csv
 OUTCOMES/
 B_C_Assesment/*.png
+B_C_Assesment/Semifast/*.png
 *.pdf

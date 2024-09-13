@@ -263,7 +263,9 @@ if __name__ == '__main__':
     T_C = 3951.65 # promedio dolar durante 2024 --> https://www.dolar-colombia.com/ano/2024 --> consultado el 28/08/2024
 
     tarifa_energia = df_tarifas['Costo_COP/kWh_Nivel_Tension_1'].iloc[-1] / T_C # Costo promedio año 2024 kWh nivel de tensión 1
-    porcentaje_ganancia = 0.5 # esta variable se puede modificar, se tiene control sobre ella (analisis de sensibilidad o mejor optimización)
+    porcentaje_ganancia = 3
+    '''Esta variable se puede modificar, se tiene control sobre ella (analisis de sensibilidad o mejor optimización)
+    Se asume un porcentaje de ganancia del 50% para estaciones semirápidas y de 300% para estaciones DC rápidas'''
     tarifa_carga = tarifa_energia * (1 + porcentaje_ganancia)
     ganancia_tarifa = tarifa_carga - tarifa_energia
     print('Tarifa de energía = ', tarifa_energia * T_C, '; Tarifa de venta', tarifa_carga * T_C, '; Ganancia venta', ganancia_tarifa * T_C)
@@ -272,12 +274,17 @@ if __name__ == '__main__':
     inflacion = 0 # En algunos casos la inflación esta implicita en la tasa de retorno, pero no siempre 
 
     # Un VE puede cargarse durante 2.5 y 5 horas en una estación semirápida según "Prediction of electric vehicle charging duration time using ensemble machine learning algorithm and Shapley additive explanations"
-    cargas_diarias_promedio = 0.28 # --> se sume una promedio de 2 cargas por semana el primer año
-    tiempo_carga_promedio = 2 # --> promedio Short Duration connection, tabla 2 doc --> "A data driven typology of electric vehicle user types and charging sessions"
+    cargas_diarias_promedio = 0.14 
+    '''Se asume una promedio de 2 cargas por semana el primer año para estaciones semirápidas y 1 carga por semana para estaciones DC rápidas'''
+    tiempo_carga_promedio = 0.5
+    '''promedio Short Duration connection, tabla 2 doc --> "A data driven typology of electric vehicle user types and charging sessions" para estaciones tipo 2
+    para estaciones rápidas se asume 30 min de tiempo de carga'''
     numero_cargas_maximas_dia = 24 / tiempo_carga_promedio # El número de cargas máximas que se puede hacer en un día. Ej. Con 2 horas por carga un cargador puede usarse para 12 cargas máximo en un día
-    potencia_promedio_carga = 5 # Una estación tipo 2 de una fase puede entregar hasta 7.4kW --> Mennekes - IEC 62196
-    '''5kWh promedio de Density transaction volume [kWh] para Short Duration, figure E23 doc --> "A data driven typology of electric vehicle user types and charging sessions"
-    10kWh Tesla S --> Business Case for EV Charging on the Motorway Network in Denmark'''
+    potencia_promedio_carga = 42
+    '''Una estación tipo 2 de una fase puede entregar hasta 7.4kW --> Mennekes - IEC 62196. 5kWh promedio de Density transaction volume [kWh] para Short Duration, figure E23 doc --> "A data driven typology of electric vehicle user types and charging sessions"
+    10kWh Tesla S --> Business Case for EV Charging on the Motorway Network in Denmark.
+    una estación de carga CCS combo 2 puede entregar 50kW o 150kW para este caso se considera un VE Renault Megane E-Tech EV40 130hp que 
+     carga con 42kW en promedio con una estación de 50kW.'''
 
     # Rango de variaciones para el análisis de sensibilidad
     tasa_descuento_rango = np.arange(0.05, 0.16, 0.05)  # del 5% al 20% --> 9% Colombia 2022 --> https://2022.dnp.gov.co/DNP-Redes/Revista-Juridica/Paginas/Adopci%C3%B3n-de-la-Tasa-Social-de-Descuento-para-la-evaluaci%C3%B3n-de-proyectos-de-inversi%C3%B3n.aspx
@@ -290,8 +297,9 @@ if __name__ == '__main__':
     crecimiento_demanda_rango = [0.05, 0.15, 0.25] 
 
     maximo_años_crecimiento_demanda = np.round(np.log10(24/(cargas_diarias_promedio*tiempo_carga_promedio))/np.log10(1+crecimiento_demanda_rango[2]))
+    print(maximo_años_crecimiento_demanda)
 
-    vida_util_rango = np.arange(1, 21, 1)  # Vida útil de 1 a 10 años
+    vida_util_rango = np.arange(1, 26, 1)  # Vida útil de 1 a 10 años
 
     # Calcula NPV para cada tasa de descuento y cada crecimiento de demanda para costo de mantenimiento semirápido e inversión inicial semirápido communication Basic
     resultados = escenarios_NPV(tasa_descuento_rango, costos_mantenimiento_rango[0], crecimiento_demanda_rango, inversion_inicial_rango[0], inversion_inicial_name[0], vida_util_rango, ganancia_tarifa)
@@ -301,12 +309,12 @@ if __name__ == '__main__':
     # Calcula NPV para cada tasa de descuento y cada crecimiento de demanda para costo de mantenimiento semirápido e inversión inicial semirápido communication Complex
     resultados = escenarios_NPV(tasa_descuento_rango, costos_mantenimiento_rango[0], crecimiento_demanda_rango, inversion_inicial_rango[1], inversion_inicial_name[1], vida_util_rango, ganancia_tarifa)
     df_semifast_Complex = pd.DataFrame(resultados)
-    graficar(df_semifast_Complex)
+    # graficar(df_semifast_Complex)
 
     # Calcula NPV para cada tasa de descuento y cada crecimiento de demanda para costo de mantenimiento e inversión inicial estación rápida
     resultados = escenarios_NPV(tasa_descuento_rango, costos_mantenimiento_rango[1], crecimiento_demanda_rango, inversion_inicial_rango[2], inversion_inicial_name[2], vida_util_rango, ganancia_tarifa)
     df_fast = pd.DataFrame(resultados)
-    # graficar(df_fast)
+    graficar(df_fast)
 
     # Concatena los 3 dataframes ingresados [df_semifast_Basic, df_semifast_Complex, df_fast]
     df_resultados = pd.concat([df_semifast_Basic, df_semifast_Complex, df_fast], ignore_index=True)
