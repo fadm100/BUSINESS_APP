@@ -9,37 +9,62 @@ def calcular_NPV_por_año(tasa_descuento, costos_mantenimiento, crecimiento_dema
     cargas_diarias_promedio = 0.28
     tiempo_carga_promedio = 2
     potencia_promedio_carga = 5
-    maximo_años_crecimiento_demanda = np.round(np.log10(24/(cargas_diarias_promedio*tiempo_carga_promedio))/np.log10(1+crecimiento_demanda))
-    inflacion = 0
-    upgrade_percentage = 0.5
+    
+    # Calcular máximo años de crecimiento de la demanda
+    maximo_años_crecimiento_demanda = np.round(
+        np.log10(24 / (cargas_diarias_promedio * tiempo_carga_promedio)) / 
+        np.log10(1 + crecimiento_demanda)
+    )
+    
     for año in range(vida_util):
         flujos_caja = [-inversion_inicial]
+        
         for t in range(año + 1):
-            ingresos_anuales = tarifa * cargas_diarias_promedio * tiempo_carga_promedio * potencia_promedio_carga * 365
-            if t> maximo_años_crecimiento_demanda and crecimiento_demanda >= 0.25:
+            # Calcular ingresos anuales
+            ingresos_anuales = (tarifa * cargas_diarias_promedio * 
+                                tiempo_carga_promedio * potencia_promedio_carga * 365)
+
+            # Ajustar ingresos según el crecimiento de la demanda
+            if t > maximo_años_crecimiento_demanda and crecimiento_demanda >= 0.25:
                 ingresos_anuales *= (1 + crecimiento_demanda) ** maximo_años_crecimiento_demanda
             else:
                 ingresos_anuales *= (1 + crecimiento_demanda) ** t
-            ingresos_anuales *= (1 + inflacion) ** t
-            gastos = costos_mantenimiento * (1 + inflacion) ** t
+            
+            # Aplicar inflación a ingresos y costos
+            ingresos_anuales *= (1) ** t  # Inflación es 0 en este caso
+            gastos = costos_mantenimiento * (1) ** t  # Inflación es 0 en este caso
+
+            # Calcular flujo de caja
+            flujo_caja = ingresos_anuales - gastos
             if t == 9:
-                flujo_caja = ingresos_anuales - gastos - inversion_inicial * upgrade_percentage
-            else:
-                flujo_caja = ingresos_anuales - gastos
+                flujo_caja -= inversion_inicial * 0.5  # Upgrade percentage
+            
             flujos_caja.append(flujo_caja)
         
-        IRR = npf.irr(flujos_caja)
+        # Calcular NPV e IRR
         NPV = npf.npv(tasa_descuento, flujos_caja)
         npv_por_año.append(NPV)
+    
     return npv_por_año, flujos_caja
 
-def escenarios_NPV(tasa_descuento_rango, costos_mantenimiento, crecimiento_demanda_rango, inversion_inicial, inversion_name, vida_util_rango, tarifa):
-        # Crear un DataFrame para almacenar los resultados
+def escenarios_NPV(tasa_descuento_rango, costos_mantenimiento, crecimiento_demanda_rango, 
+                   inversion_inicial, inversion_name, vida_util_rango, tarifa):
+    # Crear una lista para almacenar los resultados
     resultados = []
 
+    # Iterar sobre tasas de descuento y crecimiento de demanda
     for tasa_descuento in tasa_descuento_rango:
         for crecimiento_demanda in crecimiento_demanda_rango:
-            NPV_por_año, flujos_caja = calcular_NPV_por_año(tasa_descuento, costos_mantenimiento, crecimiento_demanda, inversion_inicial, vida_util_rango[-1], tarifa)
+            # Calcular NPV por año y flujos de caja
+            NPV_por_año, flujos_caja = calcular_NPV_por_año(
+                tasa_descuento, 
+                costos_mantenimiento, 
+                crecimiento_demanda, 
+                inversion_inicial, 
+                vida_util_rango[-1], 
+                tarifa
+            )
+            # Almacenar los resultados en un diccionario
             resultados.append({
                 'tasa_descuento': tasa_descuento,
                 'costos_mantenimiento': costos_mantenimiento,
@@ -51,7 +76,9 @@ def escenarios_NPV(tasa_descuento_rango, costos_mantenimiento, crecimiento_deman
                 'NPV': NPV_por_año,
                 'NPV_final': NPV_por_año[-1]
             })
+
     return resultados
+
 
 def graficar(df_resultados):
     # Análisis de sensibilidad - Graficar NPV por vida útil
