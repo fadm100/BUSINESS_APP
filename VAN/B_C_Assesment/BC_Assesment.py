@@ -1,3 +1,5 @@
+## optimiza este código para que sea más legible y simple
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,6 +8,12 @@ import numpy_financial as npf
 # Función para calcular el NPV a lo largo de la vida útil
 def calcular_NPV_por_año(tasa_descuento, costos_mantenimiento, crecimiento_demanda, inversion_inicial, vida_util, tarifa):
     npv_por_año = []
+    cargas_diarias_promedio = 0.28
+    tiempo_carga_promedio = 2
+    potencia_promedio_carga = 5
+    maximo_años_crecimiento_demanda = np.round(np.log10(24/(cargas_diarias_promedio*tiempo_carga_promedio))/np.log10(1+crecimiento_demanda))
+    inflacion = 0
+    upgrade_percentage = 0.5
     for año in range(vida_util):
         flujos_caja = [-inversion_inicial]
         for t in range(año + 1):
@@ -16,7 +24,10 @@ def calcular_NPV_por_año(tasa_descuento, costos_mantenimiento, crecimiento_dema
                 ingresos_anuales *= (1 + crecimiento_demanda) ** t
             ingresos_anuales *= (1 + inflacion) ** t
             gastos = costos_mantenimiento * (1 + inflacion) ** t
-            flujo_caja = ingresos_anuales - gastos
+            if t == 9:
+                flujo_caja = ingresos_anuales - gastos - inversion_inicial * upgrade_percentage
+            else:
+                flujo_caja = ingresos_anuales - gastos
             flujos_caja.append(flujo_caja)
         
         IRR = npf.irr(flujos_caja)
@@ -45,50 +56,7 @@ def escenarios_NPV(tasa_descuento_rango, costos_mantenimiento, crecimiento_deman
     return resultados
 
 def graficar(df_resultados):
-    # Listado de columnas a graficar
-    columnas = ['NPV_final']
-    # Crear histogramas para cada columna
-    df_resultados[columnas].hist(bins=15, figsize=(15, 10), layout=(1, 1), edgecolor='black')
-    plt.suptitle('Histogramas de Variables', fontsize=20, fontweight='bold')
-    # Configurar las etiquetas de los ejes en negrita
-    plt.xticks(fontsize=12, fontweight='bold')
-    plt.yticks(fontsize=12, fontweight='bold')
-    plt.savefig("VPN_Histogram.png")
-    plt.show()
-
-    # Crear gráfico de dispersión 3D con colores basado en tasa_descuento, crecimiento_demanda y NPV
-    fig = plt.figure(figsize=(12, 10))
-    ax = fig.add_subplot(111, projection='3d')
-
-    # Definir los límites de color
-    npv_min = df_resultados['NPV_final'].min()
-    npv_max = df_resultados['NPV_final'].max()
-
-    # Crear el gráfico de dispersión con puntos más grandes, transparencia y bordes
-    scatter = ax.scatter(df_resultados['tasa_descuento'], df_resultados['crecimiento_demanda'], df_resultados['NPV_final'],
-                        c=df_resultados['NPV_final'], marker='o', cmap='viridis', vmin=npv_min, vmax=npv_max,
-                        s=80,  # Tamaño de los puntos
-                        alpha=0.8,  # Transparencia
-                        edgecolors='k')  # Borde negro para cada punto
-
-    # Etiquetas de los ejes con títulos más grandes y en negrita
-    ax.set_xlabel('Tasa de Descuento', fontsize=16, fontweight='bold')
-    ax.set_ylabel('Crecimiento Demanda', fontsize=16, fontweight='bold')
-    ax.set_zlabel('NPV Final', fontsize=16, fontweight='bold')
-
-    # Título del gráfico
-    ax.set_title('Relación entre Tasa de Descuento, Crecimiento de Demanda y NPV Final', fontsize=18, fontweight='bold')
-
-    # Configuración de la barra de color
-    cbar = fig.colorbar(scatter, ax=ax, shrink=0.6, aspect=8)  # Ajuste del tamaño de la barra de color
-    cbar.set_label('NPV Final', fontsize=14, fontweight='bold')
-
-    # Guardar el gráfico
-    plt.savefig("VPN_3D_mejorado_puntos_intensos.png", bbox_inches='tight')
-
-    # Mostrar el gráfico
-    plt.show()
-
+    
     # Análisis de sensibilidad - Graficar NPV por vida útil
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -176,6 +144,8 @@ if __name__ == '__main__':
     # Se da el nombre Semifast_Basic al primer dato de inversión inicial, Semifast_Complex al segundo dato y Fast al tercer dato
     inversion_inicial_name = ['Semifast_Basic', 'Semifast_Complex', 'Fast']
 
+    # upgrade_percentage = 0.5
+
     # Leer el DataFrame de tarifas de energía de CEDENAR
     filePath = 'H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Tarifas_energia.csv' 
     # filePath = 'H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Tarifas_energia.csv' 
@@ -193,16 +163,16 @@ if __name__ == '__main__':
     print('Tarifa de energía = ', tarifa_energia * T_C, '; Tarifa de venta', tarifa_carga * T_C, '; Ganancia venta', ganancia_tarifa * T_C)
     
     # Define el porcentaje de inflación promedio anual en Colombia --> https://datosmacro.expansion.com/ipc-paises/colombia --> 4.1%
-    inflacion = 0 # En algunos casos la inflación esta implicita en la tasa de retorno, pero no siempre 
+    # inflacion = 0 # En algunos casos la inflación esta implicita en la tasa de retorno, pero no siempre 
 
     # Un VE puede cargarse durante 2.5 y 5 horas en una estación semirápida según "Prediction of electric vehicle charging duration time using ensemble machine learning algorithm and Shapley additive explanations"
-    cargas_diarias_promedio = 0.28
+    # cargas_diarias_promedio = 0.28
     '''Se asume una promedio de 2 cargas por semana el primer año para estaciones semirápidas y 1 carga por semana para estaciones DC rápidas'''
-    tiempo_carga_promedio = 2
+    # tiempo_carga_promedio = 2
     '''promedio Short Duration connection, tabla 2 doc --> "A data driven typology of electric vehicle user types and charging sessions" para estaciones tipo 2 se asume 2 horas
     para estaciones rápidas se asume 30 min de tiempo de carga'''
-    numero_cargas_maximas_dia = 24 / tiempo_carga_promedio # El número de cargas máximas que se puede hacer en un día. Ej. Con 2 horas por carga un cargador puede usarse para 12 cargas máximo en un día
-    potencia_promedio_carga = 5
+    # numero_cargas_maximas_dia = 24 / tiempo_carga_promedio # El número de cargas máximas que se puede hacer en un día. Ej. Con 2 horas por carga un cargador puede usarse para 12 cargas máximo en un día
+    # potencia_promedio_carga = 5
     '''Una estación tipo 2 de una fase puede entregar hasta 7.4kW --> Mennekes - IEC 62196. 5kWh promedio de Density transaction volume [kWh] para Short Duration, figure E23 doc --> "A data driven typology of electric vehicle user types and charging sessions"
     10kWh Tesla S --> Business Case for EV Charging on the Motorway Network in Denmark.
     una estación de carga CCS combo 2 puede entregar 50kW o 150kW para este caso se considera un VE Renault Megane E-Tech EV40 130hp que 
@@ -219,8 +189,8 @@ if __name__ == '__main__':
     # Tomado del trabajo de Nohora. Valores para incremento de taxis VE los porcentajes de incremento son muy variables
     crecimiento_demanda_rango = [0.05, 0.15, 0.25] 
 
-    maximo_años_crecimiento_demanda = np.round(np.log10(24/(cargas_diarias_promedio*tiempo_carga_promedio))/np.log10(1+crecimiento_demanda_rango[2]))
-    print(maximo_años_crecimiento_demanda)
+    # maximo_años_crecimiento_demanda = np.round(np.log10(24/(cargas_diarias_promedio*tiempo_carga_promedio))/np.log10(1+crecimiento_demanda_rango[2]))
+    # print(maximo_años_crecimiento_demanda)
 
     vida_util_rango = np.arange(1, 21, 1)  # Vida útil de 1 a 10 años
 
@@ -244,4 +214,3 @@ if __name__ == '__main__':
     # Exportar el DataFrame a CSV
     df_resultados.to_csv('H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\Economic_results.csv', index=False)
     # df_resultados.to_csv('H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\Economic_results.csv', index=False)
-
