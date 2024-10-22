@@ -56,38 +56,6 @@ def graficar(df_resultados):
     plt.savefig("VPN_Histogram.png")
     plt.show()
 
-    # # Crear gráfico de dispersión 3D con cambio de colores tasa_descuento, costos_operativos y NPV
-    # fig = plt.figure(figsize=(10, 8))
-    # ax = fig.add_subplot(111, projection='3d')
-    # npv_min = df_resultados['NPV_final'].min()
-    # npv_max = df_resultados['NPV_final'].max()
-    # scatter = ax.scatter(df_resultados['tasa_descuento'], df_resultados['costos_mantenimiento'], df_resultados['NPV_final'],
-    #                     c=df_resultados['NPV_final'], marker='o', cmap='viridis', vmin=npv_min, vmax=npv_max)
-
-    # ax.set_xlabel('Tasa de Descuento')
-    # ax.set_ylabel('Costos Mantenimiento')
-    # ax.set_zlabel('NPV Final')
-    # ax.set_title('Gráfica de Dispersión 3D: Tasa de Descuento, Costos Mantenimiento y NPV Final')
-    # cbar = fig.colorbar(scatter, ax=ax, shrink=0.5, aspect=5)
-    # cbar.set_label('NPV Final')
-    # plt.show()
-
-    # # Crear gráfico de dispersión 3D con cambio de colores tasa_descuento, inversion_inicial y NPV
-    # fig = plt.figure(figsize=(10, 8))
-    # ax = fig.add_subplot(111, projection='3d')
-    # npv_min = df_resultados['NPV_final'].min()
-    # npv_max = df_resultados['NPV_final'].max()
-    # scatter = ax.scatter(df_resultados['tasa_descuento'], df_resultados['inversion_inicial'], df_resultados['NPV_final'],
-    #                     c=df_resultados['NPV_final'], marker='o', cmap='viridis', vmin=npv_min, vmax=npv_max)
-
-    # ax.set_xlabel('Tasa de Descuento')
-    # ax.set_ylabel('Inversión Inicial')
-    # ax.set_zlabel('NPV Final')
-    # ax.set_title('Gráfica de Dispersión 3D: Tasa de Descuento, Inversión Inicial y NPV Final')
-    # cbar = fig.colorbar(scatter, ax=ax, shrink=0.5, aspect=5)
-    # cbar.set_label('NPV Final')
-    # plt.show()
-
     # Crear gráfico de dispersión 3D con colores basado en tasa_descuento, crecimiento_demanda y NPV
     fig = plt.figure(figsize=(12, 10))
     ax = fig.add_subplot(111, projection='3d')
@@ -121,63 +89,16 @@ def graficar(df_resultados):
     # Mostrar el gráfico
     plt.show()
 
-
-
-    # # Gráfico de dispersión entre tasa_descuento y NPV_final
-    # plt.figure(figsize=(10, 6))
-    # sns.scatterplot(x='tasa_descuento', y='NPV_final', data=df_resultados)
-    # plt.title('Relación entre Tasa de Descuento y NPV Final')
-    # plt.show()
-
-    # # Gráfico de dispersión entre inversion_inicial y NPV_final
-    # plt.figure(figsize=(10, 6))
-    # sns.scatterplot(x='inversion_inicial', y='NPV_final', data=df_resultados)
-    # plt.title('Relación entre Inversión Inicial y NPV Final')
-    # plt.show()
-
-    # # Gráfico de barras para NPV_final en diferentes escenarios de tasa_descuento
-    # plt.figure(figsize=(10, 6))
-    # sns.barplot(x='tasa_descuento', y='NPV_final', data=df_resultados)
-    # plt.title('NPV Final por Tasa de Descuento')
-    # plt.show()
-
-    # # Gráfico de barras para NPV_final en diferentes escenarios de crecimiento_demanda
-    # plt.figure(figsize=(10, 6))
-    # sns.barplot(x='crecimiento_demanda', y='NPV_final', data=df_resultados)
-    # plt.title('NPV Final por Crecimiento de Demanda')
-    # plt.show()
-
-    # # Listado de columnas a graficar
-    # columnas = ['tasa_descuento', 'costos_operativos', 'crecimiento_demanda', 'inversion_inicial', 'NPV_final']
-    # # Matriz de correlación
-    # plt.figure(figsize=(10, 8))
-    # sns.heatmap(df_resultados[columnas].corr(), annot=True, cmap='coolwarm', fmt='.2f')
-    # plt.title('Matriz de Correlación entre Variables')
-    # plt.show()
-
-    # # Gráfico de línea para ver cómo varía NPV_final con el cambio de tasa_descuento
-    # plt.figure(figsize=(10, 6))
-    # sns.lineplot(x='tasa_descuento', y='NPV_final', data=df_resultados)
-    # plt.title('NPV Final vs Tasa de Descuento')
-    # plt.show()
-
-    # # Gráfico de línea para ver cómo varía NPV_final con el cambio de crecimiento_demanda
-    # plt.figure(figsize=(10, 6))
-    # sns.lineplot(x='crecimiento_demanda', y='NPV_final', data=df_resultados)
-    # plt.title('NPV Final vs Crecimiento de Demanda')
-    # plt.show()
-
-
     # Análisis de sensibilidad - Graficar NPV por vida útil
     fig, ax = plt.subplots(figsize=(10, 6))
 
     for index, row in df_resultados.iterrows():
         # ax.plot(row['vida_util'], row['NPV'], label=f"Tasa Desc. {row['tasa_descuento']:.0%}, Costos Oper. {row['costos_operativos']} USD, Crec. Demanda {row['crecimiento_demanda']:.0%}, Inv. Inicial {row['inversion_inicial']} USD")
-        ax.plot(row['vida_util'], row['NPV'], label=f"Crec. Demanda {row['crecimiento_demanda']:.0%}, Tasa Desc. {row['tasa_descuento']:.0%}")
+        ax.plot(row['vida_util'], row['NPV'], label=f"Demand inc. {row['crecimiento_demanda']:.0%}, IRR {row['tasa_descuento']:.0%}")
 
-    ax.set_xlabel('Vida Útil (años)', fontsize=14, fontweight='bold')
-    ax.set_ylabel('Valor Presente Neto (NPV) (USD)', fontsize=14, fontweight='bold')
-    ax.set_title('Análisis de Sensibilidad - NPV vs Vida Útil', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Service life (years)', fontsize=14, fontweight='bold')
+    ax.set_ylabel('Net Present Value (NPV) (USD)', fontsize=14, fontweight='bold')
+    ax.set_title('Fast CS Sensitivity Analysis - NPV vs. service Life', fontsize=16, fontweight='bold')
     ax.legend()
     ax.grid()
     plt.savefig("VPN_All_Cases_10_Years.png")
@@ -186,17 +107,6 @@ def graficar(df_resultados):
     # Encontrar el mejor y peor NPV_final
     mejor_idx = df_resultados['NPV_final'].idxmax()
     peor_idx = df_resultados['NPV_final'].idxmin()
-
-    # # Graficar
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(df_resultados['flujos_caja'].iloc[mejor_idx], label=f'Mejor NPV_final: {df_resultados["NPV_final"].iloc[mejor_idx]}', marker='o')
-    # plt.plot(df_resultados['flujos_caja'].iloc[peor_idx], label=f'Peor NPV_final: {df_resultados["NPV_final"].iloc[peor_idx]}', marker='o')
-    # plt.title('Flujo de Caja - Mejor y Peor NPV_final')
-    # plt.xlabel('Periodo')
-    # plt.ylabel('Flujo de Caja')
-    # plt.legend()
-    # plt.grid(True)
-    # plt.show()
     
     # Graficar comparación de flujos de caja - Mejor y Peor NPV_final
     plt.figure(figsize=(12, 6))
@@ -204,22 +114,22 @@ def graficar(df_resultados):
     # Gráfico de barras para el mejor NPV_final
     plt.bar(range(len(df_resultados['flujos_caja'].iloc[mejor_idx])), 
             df_resultados['flujos_caja'].iloc[mejor_idx], 
-            label=f'Mejor NPV_final: {df_resultados["NPV_final"].iloc[mejor_idx]:.2f}', 
+            label=f'Best NPV_final: {df_resultados["NPV_final"].iloc[mejor_idx]:.2f}', 
             alpha=0.7, width=0.4, align='center', color='green')
 
     # Gráfico de barras para el peor NPV_final
     plt.bar(range(len(df_resultados['flujos_caja'].iloc[peor_idx])), 
             df_resultados['flujos_caja'].iloc[peor_idx], 
-            label=f'Peor NPV_final: {df_resultados["NPV_final"].iloc[peor_idx]:.2f}', 
+            label=f'Worst NPV_final: {df_resultados["NPV_final"].iloc[peor_idx]:.2f}', 
             alpha=0.7, width=0.4, align='edge', color='red')
 
     # Título y etiquetas de los ejes
-    plt.title('Flujo de Caja - Mejor y Peor NPV_final', fontsize=16, fontweight='bold')
-    plt.xlabel('Periodo', fontsize=14, fontweight='bold')
-    plt.ylabel('Flujo de Caja', fontsize=14, fontweight='bold')
+    plt.title('Fast CS Cash Flow - Best and Worst NPV_final', fontsize=16, fontweight='bold')
+    plt.xlabel('Year', fontsize=14, fontweight='bold')
+    plt.ylabel('Cash Flow', fontsize=14, fontweight='bold')
 
     # Leyenda
-    plt.legend(fontsize=12, title_fontsize='13', title='Leyenda', loc='best', frameon=True)
+    plt.legend(fontsize=12, title_fontsize='13', title='Legend', loc='best', frameon=True)
 
     # Configurar las etiquetas de los ejes en negrita
     plt.xticks(fontsize=12, fontweight='bold')
@@ -239,8 +149,18 @@ def graficar(df_resultados):
 if __name__ == '__main__':
 
     # Leer el DataFrame de costos de cargadores
-    filePath = 'Total_costs_CS.csv'  # Costos de un solo cargador, la tabla contiene varios tipos de cargadores divididos entre lentos, semirápidos y rapídos
+    filePath = 'H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS.csv'  # Costos de un solo cargador, la tabla contiene varios tipos de cargadores divididos entre lentos, semirápidos y rapídos
+    # filePath = 'H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS.csv'  # Costos de un solo cargador, la tabla contiene varios tipos de cargadores divididos entre lentos, semirápidos y rapídos
     df_costs = pd.read_csv(filePath, sep=';')
+    
+    # Define una tasa de cambio
+    T_C = 3951.65 # promedio dolar durante 2024 --> https://www.dolar-colombia.com/ano/2024 --> consultado el 28/08/2024
+    
+    # Adición de costos del sistema PV de 2.7kW; 3.5HPS; 9.45kWh/día
+    # PV_costs = 3060000 / T_C # --> https://articulo.mercadolibre.com.co/MCO-1474396115-panel-solar-300w-6000lm-ecosun-_JM#polycard_client=search-nordic&position=25&search_layout=grid&type=item&tracking_id=2cc4c4ba-44f7-4324-93b7-6aecd2a125ae
+    PV_costs = 0
+    # PV_install_Cost = 13500000 / T_C # --> https://autosolar.co/paneles-solares/paneles-solares-colombia ; https://greentech.net.co/costo-de-instalacion-de-paneles-solares/
+    PV_install_Cost = 0
 
     # Se filtran los costos de las estaciones lentas porque no son útiles para estaciones de carga públicas o electrolineras
     df_costs = df_costs[df_costs['Charge_type'] != 'Slow']
@@ -250,23 +170,25 @@ if __name__ == '__main__':
     df_diferent_costs = df_diferent_costs[df_diferent_costs['Charger'].notnull()]
 
     # Toma los diferentes costos de cargadores semirápidos y rápidos, los dos primeros datos son semirápidos. Con esto se generan casos de inversión inicial. Se suma con el costo de instalación de ese cargador específico (no inlcuye obra civil)
-    inversion_inicial_rango = df_diferent_costs['Charger'].to_numpy() + df_diferent_costs['Installation'].to_numpy() # USD
+    # inversion_inicial_rango = df_diferent_costs['Charger'].to_numpy() + df_diferent_costs['Installation'].to_numpy() # USD Sin paneles PV
+    inversion_inicial_rango = df_diferent_costs['Charger'].to_numpy() + df_diferent_costs['Installation'].to_numpy() + PV_costs + PV_install_Cost # USD con paneles PV
     print(df_diferent_costs['Charger'].to_numpy(), '+', df_diferent_costs['Installation'].to_numpy())
     # Se da el nombre Semifast_Basic al primer dato de inversión inicial, Semifast_Complex al segundo dato y Fast al tercer dato
     inversion_inicial_name = ['Semifast_Basic', 'Semifast_Complex', 'Fast']
 
     # Leer el DataFrame de tarifas de energía de CEDENAR
-    filePath = 'Tarifas_energia.csv' 
+    filePath = 'H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Tarifas_energia.csv' 
+    # filePath = 'H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Tarifas_energia.csv' 
     df_tarifas = pd.read_csv(filePath, sep=',')
 
-    # Define una tasa de cambio
-    T_C = 3951.65 # promedio dolar durante 2024 --> https://www.dolar-colombia.com/ano/2024 --> consultado el 28/08/2024
-
-    tarifa_energia = df_tarifas['Costo_COP/kWh_Nivel_Tension_1'].iloc[-1] / T_C # Costo promedio año 2024 kWh nivel de tensión 1
-    porcentaje_ganancia = 3
+    # tarifa_energia = df_tarifas['Costo_COP/kWh_Nivel_Tension_1'].iloc[-1] / T_C # Costo promedio año 2024 kWh nivel de tensión 1
+    tarifa_energia = 500 / T_C # Costo promedio año 2024 kWh nivel de tensión 1
+    # porcentaje_ganancia = 3
     '''Esta variable se puede modificar, se tiene control sobre ella (analisis de sensibilidad o mejor optimización)
     Se asume un porcentaje de ganancia del 50% para estaciones semirápidas y de 300% para estaciones DC rápidas'''
-    tarifa_carga = tarifa_energia * (1 + porcentaje_ganancia)
+    # tarifa_carga = tarifa_energia * (1 + porcentaje_ganancia)
+    tarifa_carga = 1250 / T_C # Para carga semirápida Enel X (https://www.elespectador.com/autos/cuanto-cuesta-cargar-un-carro-electrico-en-colombia/)
+    # tarifa_carga = 1450 / T_C # Para carga rápida Enel X (https://www.elespectador.com/autos/cuanto-cuesta-cargar-un-carro-electrico-en-colombia/)
     ganancia_tarifa = tarifa_carga - tarifa_energia
     print('Tarifa de energía = ', tarifa_energia * T_C, '; Tarifa de venta', tarifa_carga * T_C, '; Ganancia venta', ganancia_tarifa * T_C)
     
@@ -274,13 +196,13 @@ if __name__ == '__main__':
     inflacion = 0 # En algunos casos la inflación esta implicita en la tasa de retorno, pero no siempre 
 
     # Un VE puede cargarse durante 2.5 y 5 horas en una estación semirápida según "Prediction of electric vehicle charging duration time using ensemble machine learning algorithm and Shapley additive explanations"
-    cargas_diarias_promedio = 0.14 
+    cargas_diarias_promedio = 0.28
     '''Se asume una promedio de 2 cargas por semana el primer año para estaciones semirápidas y 1 carga por semana para estaciones DC rápidas'''
-    tiempo_carga_promedio = 0.5
-    '''promedio Short Duration connection, tabla 2 doc --> "A data driven typology of electric vehicle user types and charging sessions" para estaciones tipo 2
+    tiempo_carga_promedio = 2
+    '''promedio Short Duration connection, tabla 2 doc --> "A data driven typology of electric vehicle user types and charging sessions" para estaciones tipo 2 se asume 2 horas
     para estaciones rápidas se asume 30 min de tiempo de carga'''
     numero_cargas_maximas_dia = 24 / tiempo_carga_promedio # El número de cargas máximas que se puede hacer en un día. Ej. Con 2 horas por carga un cargador puede usarse para 12 cargas máximo en un día
-    potencia_promedio_carga = 42
+    potencia_promedio_carga = 5
     '''Una estación tipo 2 de una fase puede entregar hasta 7.4kW --> Mennekes - IEC 62196. 5kWh promedio de Density transaction volume [kWh] para Short Duration, figure E23 doc --> "A data driven typology of electric vehicle user types and charging sessions"
     10kWh Tesla S --> Business Case for EV Charging on the Motorway Network in Denmark.
     una estación de carga CCS combo 2 puede entregar 50kW o 150kW para este caso se considera un VE Renault Megane E-Tech EV40 130hp que 
@@ -289,7 +211,8 @@ if __name__ == '__main__':
     # Rango de variaciones para el análisis de sensibilidad
     tasa_descuento_rango = np.arange(0.05, 0.16, 0.05)  # del 5% al 20% --> 9% Colombia 2022 --> https://2022.dnp.gov.co/DNP-Redes/Revista-Juridica/Paginas/Adopci%C3%B3n-de-la-Tasa-Social-de-Descuento-para-la-evaluaci%C3%B3n-de-proyectos-de-inversi%C3%B3n.aspx
 
-    costos_mantenimiento_rango = [400, 800]  
+    costos_mantenimiento_rango = [400, 800]  # Sin PV
+    # costos_mantenimiento_rango = [560, 960]  # Con PV
     ''' costos anuales de 400 USD para lenta y semirápida. 800 USD para DC rápidas --> https://afdc.energy.gov/fuels/electricity-infrastructure-maintenance-and-operation
     este costo no incluye costos operacionales por uso o alquiler de software de gestión --> https://driivz.com/blog/operation-maintenance-ev-charging-infrastructure/#:~:text=Charging%20station%20operators%20should%20anticipate,chargers%20costing%20double%20that%20amount.&text=EV%20charging%20stations%20are%20not%20just%20glorified%20electrical%20sockets.'''
 
@@ -299,7 +222,7 @@ if __name__ == '__main__':
     maximo_años_crecimiento_demanda = np.round(np.log10(24/(cargas_diarias_promedio*tiempo_carga_promedio))/np.log10(1+crecimiento_demanda_rango[2]))
     print(maximo_años_crecimiento_demanda)
 
-    vida_util_rango = np.arange(1, 26, 1)  # Vida útil de 1 a 10 años
+    vida_util_rango = np.arange(1, 21, 1)  # Vida útil de 1 a 10 años
 
     # Calcula NPV para cada tasa de descuento y cada crecimiento de demanda para costo de mantenimiento semirápido e inversión inicial semirápido communication Basic
     resultados = escenarios_NPV(tasa_descuento_rango, costos_mantenimiento_rango[0], crecimiento_demanda_rango, inversion_inicial_rango[0], inversion_inicial_name[0], vida_util_rango, ganancia_tarifa)
@@ -309,15 +232,16 @@ if __name__ == '__main__':
     # Calcula NPV para cada tasa de descuento y cada crecimiento de demanda para costo de mantenimiento semirápido e inversión inicial semirápido communication Complex
     resultados = escenarios_NPV(tasa_descuento_rango, costos_mantenimiento_rango[0], crecimiento_demanda_rango, inversion_inicial_rango[1], inversion_inicial_name[1], vida_util_rango, ganancia_tarifa)
     df_semifast_Complex = pd.DataFrame(resultados)
-    # graficar(df_semifast_Complex)
+    graficar(df_semifast_Complex)
 
     # Calcula NPV para cada tasa de descuento y cada crecimiento de demanda para costo de mantenimiento e inversión inicial estación rápida
     resultados = escenarios_NPV(tasa_descuento_rango, costos_mantenimiento_rango[1], crecimiento_demanda_rango, inversion_inicial_rango[2], inversion_inicial_name[2], vida_util_rango, ganancia_tarifa)
     df_fast = pd.DataFrame(resultados)
-    graficar(df_fast)
+    # graficar(df_fast)
 
     # Concatena los 3 dataframes ingresados [df_semifast_Basic, df_semifast_Complex, df_fast]
     df_resultados = pd.concat([df_semifast_Basic, df_semifast_Complex, df_fast], ignore_index=True)
     # Exportar el DataFrame a CSV
-    df_resultados.to_csv('Economic_results.csv', index=False)
+    df_resultados.to_csv('H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\Economic_results.csv', index=False)
+    # df_resultados.to_csv('H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\Economic_results.csv', index=False)
 
