@@ -4,40 +4,33 @@ import matplotlib.pyplot as plt
 import numpy_financial as npf
 
 # Función para calcular el NPV a lo largo de la vida útil
-def calcular_NPV_por_año(tasa_descuento, costos_mantenimiento, crecimiento_demanda, inversion_inicial, vida_util, tarifa):
+def calcular_NPV_por_año(tasa_descuento, crecimiento_demanda, vida_util, station_info):
     npv_por_año = []
-    cargas_diarias_promedio = 0.28
-    tiempo_carga_promedio = 2
-    potencia_promedio_carga = 5
     
     # Calcular máximo años de crecimiento de la demanda
     maximo_años_crecimiento_demanda = np.round(
-        np.log10(24 / (cargas_diarias_promedio * tiempo_carga_promedio)) / 
+        np.log10(24 / (station_info[4] * station_info[5])) / 
         np.log10(1 + crecimiento_demanda)
     )
     
     for año in range(vida_util):
-        flujos_caja = [-inversion_inicial]
+        flujos_caja = [-station_info[1]]
         
         for t in range(año + 1):
             # Calcular ingresos anuales
-            ingresos_anuales = (tarifa * cargas_diarias_promedio * 
-                                tiempo_carga_promedio * potencia_promedio_carga * 365)
+            ingresos_anuales = (station_info[3] * station_info[4] * 
+                                station_info[5] * station_info[6] * 365)
 
             # Ajustar ingresos según el crecimiento de la demanda
             if t > maximo_años_crecimiento_demanda and crecimiento_demanda >= 0.25:
                 ingresos_anuales *= (1 + crecimiento_demanda) ** maximo_años_crecimiento_demanda
             else:
                 ingresos_anuales *= (1 + crecimiento_demanda) ** t
-            
-            # Aplicar inflación a ingresos y costos
-            ingresos_anuales *= (1) ** t  # Inflación es 0 en este caso
-            gastos = costos_mantenimiento * (1) ** t  # Inflación es 0 en este caso
 
             # Calcular flujo de caja
-            flujo_caja = ingresos_anuales - gastos
+            flujo_caja = ingresos_anuales - station_info[0]
             if t == 9:
-                flujo_caja -= inversion_inicial * 0.5  # Upgrade percentage
+                flujo_caja -= station_info[1] * station_info[7]  # Upgrade percentage
             
             flujos_caja.append(flujo_caja)
         
@@ -47,8 +40,8 @@ def calcular_NPV_por_año(tasa_descuento, costos_mantenimiento, crecimiento_dema
     
     return npv_por_año, flujos_caja
 
-def escenarios_NPV(tasa_descuento_rango, costos_mantenimiento, crecimiento_demanda_rango, 
-                   inversion_inicial, inversion_name, vida_util_rango, tarifa):
+def escenarios_NPV(tasa_descuento_rango, crecimiento_demanda_rango, 
+                   vida_util_rango, station_info):
     # Crear una lista para almacenar los resultados
     resultados = []
 
@@ -57,20 +50,18 @@ def escenarios_NPV(tasa_descuento_rango, costos_mantenimiento, crecimiento_deman
         for crecimiento_demanda in crecimiento_demanda_rango:
             # Calcular NPV por año y flujos de caja
             NPV_por_año, flujos_caja = calcular_NPV_por_año(
-                tasa_descuento, 
-                costos_mantenimiento, 
-                crecimiento_demanda, 
-                inversion_inicial, 
+                tasa_descuento,
+                crecimiento_demanda,
                 vida_util_rango[-1], 
-                tarifa
+                station_info
             )
             # Almacenar los resultados en un diccionario
             resultados.append({
                 'tasa_descuento': tasa_descuento,
-                'costos_mantenimiento': costos_mantenimiento,
+                'costos_mantenimiento': station_info[0],
                 'crecimiento_demanda': crecimiento_demanda,
-                'inversion_inicial': inversion_inicial,
-                'tipo_cargador': inversion_name,
+                'inversion_inicial': station_info[1],
+                'tipo_cargador': station_info[2],
                 'vida_util': vida_util_rango,
                 'flujos_caja': flujos_caja,
                 'NPV': NPV_por_año,
@@ -91,10 +82,10 @@ def graficar(df_resultados):
     # Configurar etiquetas y título
     plt.xlabel('Service life (years)', fontsize=14, fontweight='bold')
     plt.ylabel('Net Present Value (NPV) (USD)', fontsize=14, fontweight='bold')
-    plt.title('Fast CS Sensitivity Analysis - NPV vs. Service Life', fontsize=16, fontweight='bold')
+    plt.title(df_resultados['tipo_cargador'][0] + ' CS Sensitivity Analysis - NPV vs. Service Life', fontsize=16, fontweight='bold')
     plt.legend()
     plt.grid()
-    plt.savefig("VPN_All_Cases_10_Years.png")
+    plt.savefig(df_resultados['tipo_cargador'][0] + " VPN_All_Cases_10_Years.png")
     plt.show()
 
     # Encontrar índices de mejor y peor NPV_final
@@ -112,7 +103,7 @@ def graficar(df_resultados):
                 alpha=0.7, width=0.4, align='center' if idx == mejor_idx else 'edge', color=color)
 
     # Configurar título y etiquetas
-    plt.title('Fast CS Cash Flow - Best and Worst NPV_final', fontsize=16, fontweight='bold')
+    plt.title(df_resultados['tipo_cargador'][0] + ' CS Cash Flow - Best and Worst NPV_final', fontsize=16, fontweight='bold')
     plt.xlabel('Year', fontsize=14, fontweight='bold')
     plt.ylabel('Cash Flow', fontsize=14, fontweight='bold')
     plt.legend(fontsize=12, title_fontsize='13', title='Legend', loc='best', frameon=True)
@@ -122,12 +113,12 @@ def graficar(df_resultados):
     plt.yticks(fontsize=12, fontweight='bold')
 
     plt.grid(True)
-    plt.savefig("Cash_Flow_Best_Worst.png", bbox_inches='tight')
+    plt.savefig(df_resultados['tipo_cargador'][0] + " Cash_Flow_Best_Worst.png", bbox_inches='tight')
     plt.show()
 
 if __name__ == '__main__':
     # Leer el DataFrame de costos de cargadores
-    filePath = 'H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS.csv'
+    filePath = 'H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS.csv'
     df_costs = pd.read_csv(filePath, sep=';')
     
     # Define una tasa de cambio
@@ -148,57 +139,83 @@ if __name__ == '__main__':
                                 PV_costs + PV_install_Cost)
 
     # Asignar nombres a las inversiones iniciales
-    inversion_inicial_name = ['Semifast_Basic', 'Semifast_Complex', 'Fast']
+    inversion_inicial_name = ['Semifast_Basic', 'Semifast', 'Fast']
 
     # Leer el DataFrame de tarifas de energía de CEDENAR
-    filePath = 'H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Tarifas_energia.csv'
+    filePath = 'H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Tarifas_energia.csv'
     df_tarifas = pd.read_csv(filePath, sep=',')
     
     # Tarifas de energía y carga
     tarifa_energia = 500 / T_C  # Costo promedio año 2024 kWh nivel de tensión 1
-    tarifa_carga = 1250 / T_C    # Para carga semirápida Enel X
-    ganancia_tarifa = tarifa_carga - tarifa_energia
-    
-    print('Tarifa de energía = ', tarifa_energia * T_C, 
-          '; Tarifa de venta', tarifa_carga * T_C, 
-          '; Ganancia venta', ganancia_tarifa * T_C)
+    tarifa_carga_semi = 1250 / T_C    # Para carga semirápida Enel X
+    tarifa_carga_fast = 1450 / T_C    # Para carga semirápida Enel X
+    ganancia_tarifa = [tarifa_carga_semi - tarifa_energia, tarifa_carga_fast - tarifa_energia]
 
     # Rango de variaciones para el análisis de sensibilidad
     tasa_descuento_rango = np.arange(0.05, 0.16, 0.05)  # del 5% al 20%
     costos_mantenimiento_rango = [400, 800]  # Sin PV
     crecimiento_demanda_rango = [0.05, 0.15, 0.25] 
-    vida_util_rango = np.arange(1, 21, 1)  # Vida útil de 1 a 20 años
+    vida_util_rango = np.arange(1, 36, 1)  # Vida útil de 1 a 20 años
+    
+    # Información sobre cargas
+    cargas_diarias_promedio_semi = 0.28 # dos cargas a la semana
+    cargas_diarias_promedio_fast = 0.14 # una carga a la semana
+    tiempo_carga_promedio_semi = 2 # dos horas
+    tiempo_carga_promedio_fast = 0.5 # 30 min
+    potencia_promedio_carga_semi = 5
+    potencia_promedio_carga_fast = 42
+    
+    # Upgrade percentage
+    
+    upgrade_semi = 0.5
+    upgrade_fast = 0.2
+
+    # Groups input information by station type
+    semi_fast_basic = [costos_mantenimiento_rango[0], 
+                         inversion_inicial_rango[0], 
+                         inversion_inicial_name[0], 
+                         ganancia_tarifa[0], 
+                         cargas_diarias_promedio_semi, 
+                         tiempo_carga_promedio_semi, 
+                         potencia_promedio_carga_semi, 
+                         upgrade_semi] 
+    semi_fast_complex = [costos_mantenimiento_rango[0], 
+                         inversion_inicial_rango[1], 
+                         inversion_inicial_name[1], 
+                         ganancia_tarifa[0], 
+                         cargas_diarias_promedio_semi, 
+                         tiempo_carga_promedio_semi, 
+                         potencia_promedio_carga_semi, 
+                         upgrade_semi]
+    fast = [costos_mantenimiento_rango[1], 
+                         inversion_inicial_rango[2], 
+                         inversion_inicial_name[2], 
+                         ganancia_tarifa[1], 
+                         cargas_diarias_promedio_fast, 
+                         tiempo_carga_promedio_fast, 
+                         potencia_promedio_carga_fast, 
+                         upgrade_fast]
 
     # Calcular NPV para cada configuración
     df_semifast_Basic = pd.DataFrame(escenarios_NPV(tasa_descuento_rango, 
-                                                    costos_mantenimiento_rango[0], 
-                                                    crecimiento_demanda_rango, 
-                                                    inversion_inicial_rango[0], 
-                                                    inversion_inicial_name[0], 
-                                                    vida_util_rango, 
-                                                    ganancia_tarifa))
-    # graficar(df_semifast_Basic)
-
-    df_semifast_Complex = pd.DataFrame(escenarios_NPV(tasa_descuento_rango, 
-                                                      costos_mantenimiento_rango[0], 
                                                       crecimiento_demanda_rango, 
-                                                      inversion_inicial_rango[1], 
-                                                      inversion_inicial_name[1], 
-                                                      vida_util_rango, 
-                                                      ganancia_tarifa))
-    graficar(df_semifast_Complex)
-
+                                                      vida_util_rango,
+                                                      semi_fast_basic))
+    
+    # Calcular NPV para cada configuración
+    df_semifast_Complex = pd.DataFrame(escenarios_NPV(tasa_descuento_rango, 
+                                                      crecimiento_demanda_rango, 
+                                                      vida_util_rango,
+                                                      semi_fast_complex))
+    
+    # Calcular NPV para cada configuración
     df_fast = pd.DataFrame(escenarios_NPV(tasa_descuento_rango, 
-                                           costos_mantenimiento_rango[1], 
-                                           crecimiento_demanda_rango, 
-                                           inversion_inicial_rango[2], 
-                                           inversion_inicial_name[2], 
-                                           vida_util_rango, 
-                                           ganancia_tarifa))
-    # graficar(df_fast)
+                                                      crecimiento_demanda_rango, 
+                                                      vida_util_rango,
+                                                      fast))
+    graficar(df_semifast_Complex)
+    graficar(df_fast)
 
     # Concatenar los dataframes y exportar resultados
     df_resultados = pd.concat([df_semifast_Basic, df_semifast_Complex, df_fast], ignore_index=True)
-    df_resultados.to_csv('H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\Economic_results.csv', index=False)
-    # df_resultados.to_csv('H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\Economic_results.csv', index=False)
-
+    df_resultados.to_csv('H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\Economic_results.csv', index=False)
