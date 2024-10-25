@@ -94,8 +94,6 @@ def escenarios_NPV(tasa_descuento_rango, crecimiento_demanda_rango,
             NPV_por_año, flujos_caja = calcular_NPV_por_año(
                 tasa_descuento,
                 crecimiento_demanda,
-                tasa_descuento,
-                crecimiento_demanda,
                 vida_util_rango[-1], 
                 station_info, 
                 PV_data,
@@ -194,7 +192,7 @@ def rebates_taxCredit(condicion ,inversion_data):
 
 if __name__ == '__main__':
     # Leer el DataFrame de costos de cargadores
-    filePath = 'H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS.csv'
+    filePath = 'H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS.csv'
     df_costs = pd.read_csv(filePath, sep=';')
     
     # Leer arcuivo Json con información de generacion solar y costos
@@ -225,7 +223,7 @@ if __name__ == '__main__':
     inversion_inicial_name = ['Semifast_Basic', 'Semifast', 'Fast']
 
     # Leer el DataFrame de tarifas de energía de CEDENAR
-    filePath = 'H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Tarifas_energia.csv'
+    filePath = 'H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Tarifas_energia.csv'
     df_tarifas = pd.read_csv(filePath, sep=',')
     
     # Tarifas de energía y carga
