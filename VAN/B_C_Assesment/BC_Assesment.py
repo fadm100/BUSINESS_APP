@@ -18,24 +18,32 @@ def calcular_NPV_por_año(tasa_descuento, crecimiento_demanda, vida_util, statio
         flujos_caja = [-station_info[1] - PV_data['Costo compra'] / T_C - PV_data['Costo instalación'] / T_C]
         
         for t in range(año + 1):
-            if t < 40:
+            if t < 8:
                 # cargas_diarias_promedio * tiempo_carga_promedio * potencia_promedio_carga
                 consumo = station_info[5] * station_info[6] * station_info[7]
 
                 # Ajustar ingresos según el crecimiento de la demanda
-                if t > maximo_años_crecimiento_demanda and crecimiento_demanda >= 0.25:
+                if t > maximo_años_crecimiento_demanda:# and crecimiento_demanda >= 0.25:
                     consumo *= (1 + crecimiento_demanda) ** maximo_años_crecimiento_demanda
                 else:
                     consumo *= (1 + crecimiento_demanda) ** t
 
-                generacion_consumo = PV_data['Promedio kWh/dia'] - consumo
-
-                if generacion_consumo > 0:
-                    # Ingreso = consumo * tarifa de venta COP/kWh  --> 1250 COP  y 1450 COP enel x
-                    ingresos_diarios = consumo * station_info[3] + generacion_consumo * station_info[9]
+                bolsa_cost = station_info[9] * (1 + 0.1) ** t # 11/07/2024 asumi un aumento del 10% anual
+                station_fee = bolsa_cost + station_info[4] # bolsa_cost + ganancia
+                
+                if t >= 9:
+                    generation = PV_data['Promedio kWh/dia'] * (1 + 0)# ** t # 11/07/2024 asumi un aumento del 10% anual
                 else:
-                    # Ingreso = sonsumo * tarifa de venta COP/kWh estación semirápida --> 1250COP enel x
-                    ingresos_diarios = (-1) * generacion_consumo * station_info[4] + PV_data['Promedio kWh/dia'] * station_info[3]
+                    generation = PV_data['Promedio kWh/dia']
+                
+                generacion_consumo = generation - consumo
+                
+                if generacion_consumo > 0:
+                    # Ingreso = consumo * tarifa de venta (COP/kWh1250 COP  y 1450 COP enel x) + (generacion-consumo) * precio bolsa
+                    ingresos_diarios = consumo * station_fee + generacion_consumo * bolsa_cost
+                else:
+                    # Ingreso = consumo * ganancia + generacion * tarifa de venta COP/kWh (COP/kWh1250 COP  y 1450 COP enel x)
+                    ingresos_diarios = (-1) * generacion_consumo * station_info[4] + generation * station_fee
 
                 # Calcular ingresos anuales --> ganancia_tarifa * cargas_diarias_promedio * tiempo_carga_promedio * potencia_promedio_carga * 365
                 ingresos_anuales = ingresos_diarios * 365
@@ -72,7 +80,7 @@ def calcular_NPV_por_año(tasa_descuento, crecimiento_demanda, vida_util, statio
 
                 # Calcular flujo de caja
                 flujo_caja = ingresos_anuales - fast_info[0] - PV_data['Costo mantenimiento'] / T_C
-                if t == 19: flujo_caja -= (fast_info[1] * fast_info[8] + PV_data['Costo compra'] / T_C * 0.2)  # Upgrade percentage, 20% por actualizacion del inversor solar
+                if t == 9: flujo_caja -= (fast_info[1] * fast_info[8] + PV_data['Costo compra'] / T_C * 0.2)  # Upgrade percentage, 20% por actualizacion del inversor solar
             
             flujos_caja.append(flujo_caja)
         
@@ -132,7 +140,7 @@ def graficar(df_resultados):
     plt.title(df_resultados['tipo_cargador'][0] + ' to Fast CS Sensitivity Analysis - NPV vs. Service Life', fontsize=16, fontweight='bold')
     plt.legend()
     plt.grid()
-    plt.savefig(df_resultados['tipo_cargador'][0] + " to Fast VPN_All_Cases_10_Years.png")
+    plt.savefig(df_resultados['tipo_cargador'][0] + " VPN_All_Cases_10_Years.png")
     plt.show()
 
     # Encontrar índices de mejor y peor NPV_final
@@ -165,38 +173,39 @@ def graficar(df_resultados):
 
 def PV_inclusion(condicion, PV_data):
 
+    escalar = 10 # ejemplo: multiplicar por 2
     if not condicion:
         # Escalar por el que quieres multiplicar
-        escalar = 0  # ejemplo: multiplicar por 1.2
+        escalar = 0  # elimina PV system
 
-        # Multiplicar cada valor numérico por el escalar
-        for key, value in PV_data.items():
-            if isinstance(value, (int, float)):  # Verifica si es un número
-                PV_data[key] = value * escalar
+    # Multiplicar cada valor numérico por el escalar
+    for key, value in PV_data.items():
+        if isinstance(value, (int, float)):  # Verifica si es un número
+            PV_data[key] = value * escalar
     
     return PV_data
 
 def rebates_taxCredit(condicion ,inversion_data):
     if condicion:
         # Escalar por el que quieres multiplicar
-        level2 = 6500 # The California Electric Vehicle Infrastructure Project (CALeVIP)
-        DC_fast = 80000 # The California Electric Vehicle Infrastructure Project (CALeVIP)
+        level2 = 0#6500 # The California Electric Vehicle Infrastructure Project (CALeVIP)
+        DC_fast = 0#80000 # The California Electric Vehicle Infrastructure Project (CALeVIP)
 
         # Multiplicar cada valor numérico por el escalar
         inversion_data -= [level2, level2, DC_fast]
 
         # reducción del 30% como apoyo federal tax
-        inversion_data *= [0.7, 0.7, 1]
+        inversion_data *= [0.2, 0.2, 0.2] # España subsidia hasta el 80% de los costos iniciales https://www.idae.es/ayudas-y-financiacion/para-movilidad-y-vehiculos/programa-moves-iii
     
     return inversion_data
 
 if __name__ == '__main__':
     # Leer el DataFrame de costos de cargadores
-    filePath = 'H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS.csv'
+    filePath = 'H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS_update.csv'
     df_costs = pd.read_csv(filePath, sep=';')
     
     # Leer arcuivo Json con información de generacion solar y costos
-    with open("H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\promedios.json") as archivo:
+    with open("H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\promedios.json") as archivo:
         # Cargar su contenido y crear un diccionario con 'Promedio kWh/dia' y 'Promedio kWh/mes'
         info_PV_gen = json.load(archivo)
 
@@ -223,7 +232,7 @@ if __name__ == '__main__':
     inversion_inicial_name = ['Semifast_Basic', 'Semifast', 'Fast']
 
     # Leer el DataFrame de tarifas de energía de CEDENAR
-    filePath = 'H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Tarifas_energia.csv'
+    filePath = 'H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Tarifas_energia.csv'
     df_tarifas = pd.read_csv(filePath, sep=',')
     
     # Tarifas de energía y carga
@@ -237,7 +246,7 @@ if __name__ == '__main__':
     tasa_descuento_rango = np.arange(0.05, 0.16, 0.05)  # del 5% al 20%
     costos_mantenimiento_rango = [400, 800]  # Sin PV
     crecimiento_demanda_rango = [0.05, 0.15, 0.25] 
-    vida_util_rango = np.arange(1, 36, 1)  # Vida útil de 1 a 20 años
+    vida_util_rango = np.arange(1, 21, 1)  # Vida útil de 1 a 20 años
     
     # Información sobre cargas
     cargas_diarias_promedio_semi = 0.28 # dos cargas a la semana
@@ -249,8 +258,8 @@ if __name__ == '__main__':
     
     # Upgrade percentage
     
-    upgrade_semi = 0.9
-    upgrade_fast = 0.2
+    upgrade_semi = 0.5
+    upgrade_fast = 0.5
 
     # Groups input information by station type
     semi_fast_basic = [costos_mantenimiento_rango[0], 
@@ -300,12 +309,12 @@ if __name__ == '__main__':
                                                       fast))
     
     # Calcular NPV para cada configuración
-    df_fast = pd.DataFrame(escenarios_NPV(tasa_descuento_rango, 
-                                                      crecimiento_demanda_rango, 
-                                                      vida_util_rango,
-                                                      fast,
-                                                      info_PV_gen,
-                                                      fast))
+    # df_fast = pd.DataFrame(escenarios_NPV(tasa_descuento_rango, 
+    #                                                   crecimiento_demanda_rango, 
+    #                                                   vida_util_rango,
+    #                                                   fast,
+    #                                                   info_PV_gen,
+    #                                                   fast))
     graficar(df_semifast_Complex)
     graficar(df_fast)
 

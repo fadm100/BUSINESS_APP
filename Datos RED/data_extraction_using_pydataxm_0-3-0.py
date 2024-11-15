@@ -20,13 +20,13 @@ objetoAPI = pydataxm.ReadDB()                    #Se almacena el servicio en el 
 df_variable = objetoAPI.request_data(
                     "PrecBolsNaci",                    #Se indica el nombre de la métrica tal como se llama en el campo metricId
                     "Sistema",                      #Se indica el nombre de la entidad tal como se llama en el campo Entity
-                    dt.date(2024, 1, 1),           #Corresponde a la fecha inicial de la consulta
-                    dt.date(2024, 9, 24),          #Corresponde a la fecha final de la consulta
+                    dt.date(2000, 1, 1),           #Corresponde a la fecha inicial de la consulta
+                    dt.date(2024, 10, 29),          #Corresponde a la fecha final de la consulta
                     filtros =['No aplica'])     #Se indican los códigos SIC de plantas dentro de una lista
 
 print(df_variable)
 
-df_variable.to_csv('H:\Mi unidad\Artículos tesis\DESARROLLO\Ob2\OUTCOMES\PrecBolsNaci_Enero_Septiembre.csv', index=False)
+df_variable.to_csv('H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\PrecBolsNaci_2000_2024.csv', index=False)
 # plt.plot(df_variable[0])
 
 # df_variable = df_variable.to_json()
