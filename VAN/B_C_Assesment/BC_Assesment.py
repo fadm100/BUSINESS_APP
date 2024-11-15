@@ -18,7 +18,7 @@ def calcular_NPV_por_año(tasa_descuento, crecimiento_demanda, vida_util, statio
         flujos_caja = [-station_info[1] - PV_data['Costo compra'] / T_C - PV_data['Costo instalación'] / T_C]
         
         for t in range(año + 1):
-            if t < 8:
+            if t < 40:
                 # cargas_diarias_promedio * tiempo_carga_promedio * potencia_promedio_carga
                 consumo = station_info[5] * station_info[6] * station_info[7]
 
@@ -137,7 +137,7 @@ def graficar(df_resultados):
     # Configurar etiquetas y título
     plt.xlabel('Service life (years)', fontsize=14, fontweight='bold')
     plt.ylabel('Net Present Value (NPV) (USD)', fontsize=14, fontweight='bold')
-    plt.title(df_resultados['tipo_cargador'][0] + ' to Fast CS Sensitivity Analysis - NPV vs. Service Life', fontsize=16, fontweight='bold')
+    plt.title(df_resultados['tipo_cargador'][0] + ' CS Sensitivity Analysis - NPV vs. Service Life', fontsize=16, fontweight='bold')
     plt.legend()
     plt.grid()
     plt.savefig(df_resultados['tipo_cargador'][0] + " VPN_All_Cases_10_Years.png")
@@ -158,7 +158,7 @@ def graficar(df_resultados):
                 alpha=0.7, width=0.4, align='center' if idx == mejor_idx else 'edge', color=color)
 
     # Configurar título y etiquetas
-    plt.title(df_resultados['tipo_cargador'][0] + ' to Fast CS Cash Flow - Best and Worst NPV_final', fontsize=16, fontweight='bold')
+    plt.title(df_resultados['tipo_cargador'][0] + ' CS Cash Flow - Best and Worst NPV_final', fontsize=16, fontweight='bold')
     plt.xlabel('Year', fontsize=14, fontweight='bold')
     plt.ylabel('Cash Flow', fontsize=14, fontweight='bold')
     plt.legend(fontsize=12, title_fontsize='13', title='Legend', loc='best', frameon=True)
@@ -168,12 +168,12 @@ def graficar(df_resultados):
     plt.yticks(fontsize=12, fontweight='bold')
 
     plt.grid(True)
-    plt.savefig(df_resultados['tipo_cargador'][0] + " to Fast Cash_Flow_Best_Worst.png", bbox_inches='tight')
+    plt.savefig(df_resultados['tipo_cargador'][0] + " Cash_Flow_Best_Worst.png", bbox_inches='tight')
     plt.show()
 
 def PV_inclusion(condicion, PV_data):
 
-    escalar = 10 # ejemplo: multiplicar por 2
+    escalar = 1 # ejemplo: multiplicar por 2
     if not condicion:
         # Escalar por el que quieres multiplicar
         escalar = 0  # elimina PV system
@@ -201,7 +201,7 @@ def rebates_taxCredit(condicion ,inversion_data):
 
 if __name__ == '__main__':
     # Leer el DataFrame de costos de cargadores
-    filePath = 'H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS_update.csv'
+    filePath = 'H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS.csv'
     df_costs = pd.read_csv(filePath, sep=';')
     
     # Leer arcuivo Json con información de generacion solar y costos
@@ -210,7 +210,7 @@ if __name__ == '__main__':
         info_PV_gen = json.load(archivo)
 
     # Incluir o excluir PV system, True para incluir, False para excluir
-    info_PV_gen = PV_inclusion(True, info_PV_gen)
+    info_PV_gen = PV_inclusion(False, info_PV_gen)
 
     # Define una tasa de cambio
     T_C = 3951.65  # Promedio dólar durante 2024
@@ -225,7 +225,7 @@ if __name__ == '__main__':
                                df_diferent_costs['Installation'].to_numpy())
 
     # Incluir o excluir rebates and federal tax credit, True para incluir, False para excluir
-    inversion_inicial_rango = rebates_taxCredit(True, inversion_inicial_rango)
+    inversion_inicial_rango = rebates_taxCredit(False, inversion_inicial_rango)
 
     # Asignar nombres a las inversiones iniciales
     inversion_inicial_name = ['Semifast_Basic', 'Semifast', 'Fast']
@@ -246,7 +246,7 @@ if __name__ == '__main__':
     tasa_descuento_rango = np.arange(0.05, 0.16, 0.05)  # del 5% al 20%
     costos_mantenimiento_rango = [400, 800]  # Sin PV
     crecimiento_demanda_rango = [0.05, 0.15, 0.25] 
-    vida_util_rango = np.arange(1, 21, 1)  # Vida útil de 1 a 20 años
+    vida_util_rango = np.arange(1, 36, 1)  # Vida útil de 1 a 20 años
     
     # Información sobre cargas
     cargas_diarias_promedio_semi = 0.28 # dos cargas a la semana
@@ -259,7 +259,7 @@ if __name__ == '__main__':
     # Upgrade percentage
     
     upgrade_semi = 0.5
-    upgrade_fast = 0.5
+    upgrade_fast = .8
 
     # Groups input information by station type
     semi_fast_basic = [costos_mantenimiento_rango[0], 
@@ -307,14 +307,17 @@ if __name__ == '__main__':
                                                       semi_fast_complex,
                                                       info_PV_gen,
                                                       fast))
-    
+    print(df_semifast_Complex['NPV_final'].to_string(index=False))
     # Calcular NPV para cada configuración
-    # df_fast = pd.DataFrame(escenarios_NPV(tasa_descuento_rango, 
-    #                                                   crecimiento_demanda_rango, 
-    #                                                   vida_util_rango,
-    #                                                   fast,
-    #                                                   info_PV_gen,
-    #                                                   fast))
+    df_fast = pd.DataFrame(escenarios_NPV(tasa_descuento_rango, 
+                                                      crecimiento_demanda_rango, 
+                                                      vida_util_rango,
+                                                      fast,
+                                                      info_PV_gen,
+                                                      fast))
+    print('Fast')
+    print(df_fast['NPV_final'].to_string(index=False))
+
     graficar(df_semifast_Complex)
     graficar(df_fast)
 
