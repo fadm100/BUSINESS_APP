@@ -70,7 +70,7 @@ def HeatMap_subplot(data1, data2, name, scale1, scale2, variable1, variable2, fm
     plt.savefig(name, bbox_inches='tight')
     plt.show()
 
-def HeatMap(data, name, scale, variable, vmin=None, vmax=None, color='white', fmt=".1f"):
+def HeatMap(data, name, scale, variable, vmin=None, vmax=None, color='white', fmt=".1f", cmap='viridis'):
     """
     Genera un heatmap con la escala de colores 'viridis' y permite ajustar los límites de la escala.
 
@@ -96,7 +96,7 @@ def HeatMap(data, name, scale, variable, vmin=None, vmax=None, color='white', fm
         data_numeric,
         annot=True,
         annot_kws={"size": 12, "weight": "bold"},  # Personalizar tamaño y estilo de los números
-        cmap='viridis',
+        cmap=cmap,
         fmt=fmt,
         linewidths=0.5,
         linecolor='black',
@@ -159,10 +159,14 @@ df_row_normalized = normalize_row(data2)
 df_row_weighted = (1 - df1_normalized) * 0.6 +  df_row_normalized * 0.4
 df_row_weighted = df_row_weighted.fillna(data1)
 
-HeatMap(data1, 'Years_HeatMap', scale=1, variable='Payback period', vmin=0, vmax=20, color='black')
-# HeatMap(data2, 'NPV_HeatMap', scale=1000, variable='NPV')
-# HeatMap(df_weighted, 'Weighted_HeatMap', scale=1, variable='')
-HeatMap(df_row_weighted, 'Row_Weighted_HeatMap', scale=1, variable='', vmin=-0.5, vmax=1, color='black', fmt=".2f")
+# HeatMap(data1, 'Years_HeatMap', scale=1, variable='Payback period', vmin=0, vmax=20, color='black', cmap='RdBu_r')
+custom_cmap = LinearSegmentedColormap.from_list(
+    "CustomMultiColor",
+    ["#FF2300", "#ff745e", "#35B779", "#FDE725"]  # Lista de colores
+)
+HeatMap(data2, 'NPV_HeatMap', scale=1000, variable='NPV', vmin=-350.0, vmax=180, color='black', fmt=".1f", cmap=custom_cmap)
+# HeatMap(df_weighted, 'Weighted_HeatMap', scale=1, variable='', vmin=0.0, vmax=0.8, color='black', fmt=".2f", cmap=sns.diverging_palette(0, 120, as_cmap=True))
+# HeatMap(df_row_weighted, 'Row_Weighted_HeatMap', scale=1, variable='', vmin=-0.5, vmax=1, color='black', fmt=".2f")
 
 # # Usar las nuevas funciones
 # HeatMap_subplot(data1, data2, 'Years_and_NPV_HeatMap', scale1=1, scale2=1000, variable1='Payback period', variable2='NPV', fmt=".1f")

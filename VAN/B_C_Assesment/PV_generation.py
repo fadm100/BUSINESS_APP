@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import json
 
 # Cargar datos de irradiancia y temperatura estación Davis
-filePath = 'H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Datos_davis.csv'
+filePath = 'H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Datos_davis.csv'
 df_davis = pd.read_csv(filePath, sep=';')
 
 irradiancia = df_davis['Solar rad.']
@@ -16,7 +16,7 @@ parametros_modulo = {
     'gamma_pdc': -0.004,  # Coeficiente de temperatura de la potencia (1/°C)
 }
 
-numero_paneles = 8
+numero_paneles = 80
 
 # Crear el sistema fotovoltaico
 sistema_pv = pvlib.pvsystem.PVSystem(module_parameters=parametros_modulo)
@@ -33,21 +33,35 @@ df_davis['DateTime'] = pd.to_datetime(df_davis['Date'] + ' ' + df_davis['Time'],
 # Configurar la columna DateTime como índice
 df_davis.set_index('DateTime', inplace=True)
 
-# Graficar Solar rad. vs. Time
-plt.figure(figsize=(10,6))
-plt.plot(df_davis.index, df_davis['Power_Gen'], label='Generated power [kW]', color='orange')
+# Crear la figura y el primer eje
+fig, ax1 = plt.subplots()
 
-# Personalizar la gráfica
-plt.title('PV power')
-plt.xlabel('Time')
-plt.ylabel('Generated power [kW]')
-plt.grid(True)
-plt.legend()
+# Graficar la potencia generada en el primer eje (izquierda)
+ax1.plot(df_davis.index, df_davis['Power_Gen'], label='Generated power [kW]', color='green')
+ax1.plot(df_davis.index, irradiancia / 1000, label='Solar radiation [kW/m^2]', color='orange')
+
+# Etiquetas y título para el primer eje
+# ax1.set_xlabel('Time')
+ax1.tick_params(axis='y', labelcolor='black', labelsize=12)
+
+# Cambiar el tamaño de la fuente de las etiquetas del eje X usando plt.xticks
+plt.xticks(fontsize=12)  # Cambia 12 por el tamaño que prefieras
+
+# Crear el segundo eje
+ax2 = ax1.twinx()
+
+# Graficar la temperatura externa en el segundo eje (derecha)
+ax2.plot(df_davis.index, temperatura_celda, label='Temperature [°C]', color='blue')
+
+# Etiquetas para el segundo eje
+ax2.tick_params(axis='y', labelcolor='blue', labelsize=12)
+ax2.set_ylim(0, 30)
+
+# Agregar título y leyenda
+ax1.legend(loc='upper left', fontsize=12)
+ax2.legend(loc='upper right', fontsize=12)
 
 # Mostrar la gráfica
-plt.xticks(rotation=45)
-plt.tight_layout()
-plt.savefig("Power_Generated.png", bbox_inches='tight')
 plt.show()
 
 ############# Calcular la energía en kWh
@@ -58,6 +72,7 @@ df_davis['Date'] = pd.to_datetime(df_davis['Date'], format='%d/%m/%Y')
 daily_solar_energy = df_davis.groupby('Date')['Power_Gen'].sum().reset_index()
 # Pasa de min a horas para tener kWh cada intervalo de 5min corresponde a 5/60 horas
 daily_solar_energy['Power_Gen'] = daily_solar_energy['Power_Gen'] * 1 / 12 
+# se filtra el primer y ultimo día ya que estan incompletos, ambos generan menos de 5 kWh en el día
 promedio = daily_solar_energy['Power_Gen'][daily_solar_energy['Power_Gen']>5].mean()
 
 # Guardar el promedio en kWh/día, kWh/mes y el costo de inversión en en un archivo JSON
@@ -76,5 +91,7 @@ datos_PV_syst = {
     'Promedio kWh/mes': promedio * 30
 }
 
-with open('H:\\Mi unidad\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\promedios.json', 'w') as file:
+print(datos_PV_syst)
+
+with open('H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\promedios.json', 'w') as file:
     json.dump(datos_PV_syst, file, indent=4)

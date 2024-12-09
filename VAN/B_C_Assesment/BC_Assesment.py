@@ -29,7 +29,8 @@ def calcular_NPV_por_año(tasa_descuento, crecimiento_demanda, vida_util, statio
                     consumo *= (1 + crecimiento_demanda) ** t
 
                 bolsa_cost = station_info[9] * (1 + 0.1) ** t # 11/07/2024 asumi un aumento del 10% anual
-                station_fee = bolsa_cost + station_info[4] # bolsa_cost + ganancia
+                # station_fee = bolsa_cost + station_info[4] # bolsa_cost + ganancia
+                station_fee = station_info[4] * (1 + 0.1) ** t # 
                 
                 if t >= 9:
                     generation = PV_data['Promedio kWh/dia'] * (1 + 0)# ** t # 11/07/2024 asumi un aumento del 10% anual
@@ -43,7 +44,8 @@ def calcular_NPV_por_año(tasa_descuento, crecimiento_demanda, vida_util, statio
                     ingresos_diarios = consumo * station_fee + generacion_consumo * bolsa_cost
                 else:
                     # Ingreso = consumo * ganancia + generacion * tarifa de venta COP/kWh (COP/kWh1250 COP  y 1450 COP enel x)
-                    ingresos_diarios = (-1) * generacion_consumo * station_info[4] + generation * station_fee
+                    # ingresos_diarios = (-1) * generacion_consumo * station_info[4] + generation * station_fee
+                    ingresos_diarios = (-1) * generacion_consumo * (station_fee - bolsa_cost) + generation * station_fee
 
                 # Calcular ingresos anuales --> ganancia_tarifa * cargas_diarias_promedio * tiempo_carga_promedio * potencia_promedio_carga * 365
                 ingresos_anuales = ingresos_diarios * 365
@@ -201,7 +203,7 @@ def rebates_taxCredit(condicion ,inversion_data):
 
 if __name__ == '__main__':
     # Leer el DataFrame de costos de cargadores
-    filePath = 'H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS_update.csv'
+    filePath = 'H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS.csv'
     df_costs = pd.read_csv(filePath, sep=';')
     
     # Leer arcuivo Json con información de generacion solar y costos
@@ -210,7 +212,7 @@ if __name__ == '__main__':
         info_PV_gen = json.load(archivo)
 
     # Incluir o excluir PV system, True para incluir, False para excluir
-    info_PV_gen = PV_inclusion(True, info_PV_gen)
+    info_PV_gen = PV_inclusion(False, info_PV_gen)
 
     # Define una tasa de cambio
     T_C = 3951.65  # Promedio dólar durante 2024
@@ -225,7 +227,7 @@ if __name__ == '__main__':
                                df_diferent_costs['Installation'].to_numpy())
 
     # Incluir o excluir rebates and federal tax credit, True para incluir, False para excluir
-    inversion_inicial_rango = rebates_taxCredit(True, inversion_inicial_rango)
+    inversion_inicial_rango = rebates_taxCredit(False, inversion_inicial_rango)
 
     # Asignar nombres a las inversiones iniciales
     inversion_inicial_name = ['Semifast_Basic', 'Semifast', 'Fast']
@@ -238,7 +240,7 @@ if __name__ == '__main__':
     # Tarifas de energía y carga
     tarifa_energia = 500 / T_C  # Costo promedio año 2024 kWh nivel de tensión 1
     tarifa_carga_semi = 1250 / T_C    # Para carga semirápida Enel X
-    tarifa_carga_fast = 1450 / T_C * 2   # Para carga semirápida Enel X
+    tarifa_carga_fast = 1450 / T_C * 1   # Para carga semirápida Enel X
     ganancia_semi = tarifa_carga_semi - tarifa_energia
     ganancia_fast = tarifa_carga_fast - tarifa_energia
 
