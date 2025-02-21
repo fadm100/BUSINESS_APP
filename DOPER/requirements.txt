@@ -1,0 +1,6 @@
+numpy
+pandas
+pyomo>6.0
+matplotlib
+fmlc
+pyutilib
