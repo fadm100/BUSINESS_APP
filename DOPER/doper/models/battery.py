@@ -318,7 +318,6 @@ def add_battery(model, inputs, parameter):
                                                             - model.battery_discharge_power[ts-model.timestep[ts], battery] \
                                                             - model.battery_selfdischarge_power[ts, battery] \
                                                             - model.battery_demand_ext[ts-model.timestep[ts], battery]) \
-                                                        * model.battery_available[ts, battery] \
                                                         / model.timestep_scale[ts] # * model.battery_available[ts, battery] \ no estaba originalmente, se agrego el 30-01-2025
 
 

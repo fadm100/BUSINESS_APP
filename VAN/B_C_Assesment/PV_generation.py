@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import json
 
 # Cargar datos de irradiancia y temperatura estación Davis
-filePath = 'H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Datos_davis.csv'
+filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Datos_davis.csv'
 df_davis = pd.read_csv(filePath, sep=';')
 
 irradiancia = df_davis['Solar rad.']
@@ -93,5 +93,19 @@ datos_PV_syst = {
 
 print(datos_PV_syst)
 
-with open('H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\promedios.json', 'w') as file:
+with open('H:\\My drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\promedios.json', 'w') as file:
     json.dump(datos_PV_syst, file, indent=4)
+
+###############################################################################################################################################
+
+# Cargar el archivo con el separador correcto
+
+# Renombrar la columna de fecha correctamente
+df_davis.rename(columns={df_davis.columns[0]: "Date"}, inplace=True)
+
+# Filtrar los datos para el 14 de marzo de 2024 y seleccionar la columna "Solar rad."
+df_filtered = df_davis[df_davis["Date"] == "14/03/2024"][["Time", "Solar rad."]]
+
+lista_datos = df_filtered["Solar rad."].values.tolist()
+print(lista_datos)
+print(len(lista_datos))

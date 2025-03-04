@@ -213,8 +213,8 @@ def parameter_add_evfleet(parameter=None):
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
          'soc_initial': 0.75,
-         'soc_max': 0.8,
-         'soc_min': 0.2
+         'soc_max': 0.9,
+         'soc_min': 0.3
         },
         {
         'name': 'EV1',
@@ -227,8 +227,8 @@ def parameter_add_evfleet(parameter=None):
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
          'soc_initial': 0.80,
-         'soc_max': 0.8,
-         'soc_min': 0.2
+         'soc_max': 0.9,
+         'soc_min': 0.3
         },
         {
         'name': 'EV2',
@@ -241,8 +241,8 @@ def parameter_add_evfleet(parameter=None):
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
          'soc_initial': 0.75,
-         'soc_max': 0.8,
-         'soc_min': 0.2
+         'soc_max': 0.9,
+         'soc_min': 0.3
         }
     ]
     # Se debe nombrar a los EV desde EV0 en adelante para no tener errores con el schedule
@@ -810,7 +810,7 @@ def test_default_parameter():
         parameter['tariff']['demand_coincident'] = 0.5 # $/kW for coincident
         parameter['tariff']['export'] = {0:0} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
     else:
-        parameter['tariff']['energy'] = {0:0.08671, 1:0.11613, 2:0.16055} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
+        parameter['tariff']['energy'] = {0:0.125, 1:0.1875, 2:0.25} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
         parameter['tariff']['demand'] = {0:0, 1:5.40, 2:19.65} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
         parameter['tariff']['demand_coincident'] = 17.74 # $/kW for coincident
         parameter['tariff']['export'] = {0:0.01, 1:0.1} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
@@ -1331,9 +1331,12 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
         data['load_demand'] = data['load_demand']/data['load_demand'].max()
     elif load =='B90':
         data = pd.DataFrame(index=pd.date_range(start='2019-01-01 00:00', end='2019-01-01 23:00', freq='h'))
-        data['load_demand'] = [2.8,  2.8,  2.9,  2.9,  3. ,  3.3,  4. ,  4.8,  4.9,  5.1,  5.3,
-                               5.4,  5.4,  5.4,  5.3,  5.3,  5.2,  4.8,  3.9,  3.1,  2.9,  2.8,
-                               2.8,  2.8]
+        data['load_demand'] = [ 0.56, 0.50, 0.49, 0.48, 
+            0.53, 0.67, 0.71, 0.71, 
+            0.76, 0.80, 0.82, 0.84, 
+            0.80, 0.79, 0.80, 0.79, 
+            0.79, 0.96, 1.00, 0.95, 
+            0.88, 0.78, 0.69, 0.63]
         data['load_demand'] = data['load_demand']/data['load_demand'].max()
     # Scale Load data
     data['load_demand'] = data['load_demand'] * scale_load
@@ -1341,13 +1344,13 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
     data['oat'] = np.sin(data.index.view(np.int64)/(1e12*np.pi*4))*3 + 22
     # Makeup Tariff
     data['tariff_energy_map'] = 0
-    data['tariff_energy_map'] = data['tariff_energy_map'].mask((data.index.hour>=8) & (data.index.hour<22), 1)
-    data['tariff_energy_map'] = data['tariff_energy_map'].mask((data.index.hour>=12) & (data.index.hour<18), 2)
+    data['tariff_energy_map'] = data['tariff_energy_map'].mask((data.index.hour>=10) & (data.index.hour<13), 1)
+    data['tariff_energy_map'] = data['tariff_energy_map'].mask((data.index.hour>=16) & (data.index.hour<21), 2)
     data['tariff_power_map'] = data['tariff_energy_map'] # Apply same periods to demand charge
     data['tariff_energy_export_map'] = 0
-    data['generation_pv'] = 0.0
-    data.loc[data.index[8:19], 'generation_pv'] = [np.sin(i/(10/(np.pi))) for i in range(11)]
-    data['generation_pv'] = data['generation_pv'] * scale_pv
+    # data['generation_pv'] = 0.0
+    # data.loc[data.index[8:19], 'generation_pv'] = [np.sin(i/(10/(np.pi))) for i in range(11)]
+    # data['generation_pv'] = data['generation_pv'] * scale_pv
     data['tariff_regup'] = data['tariff_power_map'] * 0.05 + 0.01
     data['tariff_regdn'] = data['tariff_power_map'] * 0.01 + 0.01
     data['battery_reg'] = 0
@@ -1366,6 +1369,27 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
     #data.index = data.index.astype(int)/1000000000
     #data = data.reset_index(drop=True)
 
+    # data['generation_pv'] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+    #                          0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+    #                          0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0, 4.0, 9.0, 
+    #                          20.0, 40.0, 31.0, 26.0, 61.0, 72.0, 74.0, 74.0, 73.0, 66.0, 78.0, 66.0, 58.0, 100.0, 115.0, 99.0, 93.0, 82.0, 68.0, 57.0, 
+    #                          60.0, 76.0, 118.0, 97.0, 135.0, 81.0, 113.0, 69.0, 146.0, 152.0, 113.0, 137.0, 188.0, 196.0, 226.0, 122.0, 133.0, 
+    #                          228.0, 115.0, 118.0, 176.0, 253.0, 233.0, 234.0, 227.0, 184.0, 265.0, 246.0, 311.0, 226.0, 326.0, 269.0, 281.0, 
+    #                          250.0, 193.0, 243.0, 343.0, 622.0, 526.0, 714.0, 294.0, 392.0, 352.0, 452.0, 512.0, 339.0, 374.0, 427.0, 474.0, 
+    #                          530.0, 1007.0, 717.0, 874.0, 372.0, 315.0, 294.0, 201.0, 232.0, 251.0, 357.0, 467.0, 346.0, 348.0, 405.0, 307.0, 
+    #                          417.0, 305.0, 335.0, 310.0, 281.0, 252.0, 226.0, 545.0, 392.0, 297.0, 316.0, 401.0, 279.0, 292.0, 276.0, 261.0, 
+    #                          215.0, 224.0, 218.0, 187.0, 227.0, 202.0, 187.0, 161.0, 132.0, 100.0, 95.0, 102.0, 104.0, 116.0, 102.0, 98.0, 95.0, 
+    #                          102.0, 80.0, 85.0, 72.0, 64.0, 53.0, 50.0, 49.0, 42.0, 38.0, 31.0, 23.0, 20.0, 23.0, 15.0, 8.0, 5.0, 5.0, 0.0, 0.0, 0.0, 0.0, 
+    #                          0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+    #                          0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+    #                          0.0, 0.0]
+    
+    var = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\pv_norm_pasto.csv') * scale_pv
+    
+    var_single_column = var.iloc[5:282, 0]
+    
+    data['generation_pv'] = var_single_column.values
+    
     # input timeseries indicating grid availability
     data['grid_available'] = 1
     data['fuel_available'] = 1
@@ -1381,28 +1405,52 @@ def ts_inputs_ev_schedule(parameter, data):
     # Antes se creaba battery_0_available en adelante, ERROR debe ser battery_EV0_available en adelante
 
     for b in range(len(parameter['batteries'])):
-        # np.random.seed(b)
-        # data['battery_{!s}_avail'.format(b)] = np.random.choice(2, len(data.index), p=[0.25, 0.75])
         
-        # Generar la secuencia personalizada
-        battery_avail = np.concatenate([
-            np.zeros(132),  # 9am
-            np.ones(61),   # 9pm
-            np.zeros(84)    # 12am
-        ])
+        # Definir disponibilidad en horas
+        availability_hours = [
+            (12.5, 13.5),  # Desde las 11am hasta las 2pm habilitado
+            (18.5, 24),    # 6:30 pm a 12:00 am
+        ]
+        # Suponiendo que tu DataFrame "data" tiene un índice datetime
+        battery_avail = np.zeros(len(data))
 
-        # Ajustar el tamaño de la secuencia a la longitud de data.index (si es necesario)
-        if len(battery_avail) > len(data.index):
-            battery_avail = battery_avail[:len(data.index)]
-        elif len(battery_avail) < len(data.index):
-            battery_avail = np.pad(battery_avail, (0, len(data.index) - len(battery_avail)), 'constant')
+        current_hours = data.index.hour + data.index.minute / 60  # Esto convierte a horas decimales
+
+        for start_hour, end_hour in availability_hours:
+            
+            mask = (current_hours >= start_hour) & (current_hours < end_hour)
+            battery_avail[mask] = 1
 
         # Asignar la secuencia a la columna correspondiente
         data['battery_EV{!s}_avail'.format(b)] = battery_avail
         
-        np.random.seed(b+15)
-        data['battery_EV{!s}_demand'.format(b)] = -1 * (data['battery_EV{!s}_avail'.format(b)] - 1) \
-                                                * np.random.uniform(low=0.5, high=2.5, size=len(data.index))
+        # np.random.seed(b+15)
+        # data['battery_EV{!s}_demand'.format(b)] = -1 * (data['battery_EV{!s}_avail'.format(b)] - 1) \
+        #                                         * np.random.uniform(low=0.0, high=0.5, size=len(data.index))
+        # data['battery_EV{!s}_demand'.format(b)] = 0
+        # data.loc[(data.index.hour >= 11) & (data.index.hour < 14), 'battery_EV{!s}_demand'.format(b)] = 5
+        # data.loc[(data.index.hour >= 18) & (data.index.hour < 24), 'battery_EV{!s}_demand'.format(b)] = 10
+
+        # Definir horarios y demandas para battery_demand_ext
+        demand_hours = [
+            (2.5, 11.5, 0.1),    # De 2:30 am a 11:30 am con demanda 3 kW
+            (13.5, 18.5, 0.5),       # De 2:00 pm a 5:00 pm con demanda 5 kW
+        ]
+
+        # Crear array inicializado en cero
+        demand_ext = np.zeros(len(data))
+
+        # Convertir index a horas decimales
+        current_hours = data.index.hour + data.index.minute / 60
+
+        # Aplicar demanda por cada rango horario
+        for start_hour, end_hour, demand_value in demand_hours:
+            mask = (current_hours >= start_hour) & (current_hours < end_hour)
+            demand_ext[mask] = demand_value
+
+        # Asignar la secuencia a la columna correspondiente
+        data['battery_EV{!s}_demand'.format(b)] = demand_ext
+
     return data
 
 def ts_inputs_offgrid(parameter):
