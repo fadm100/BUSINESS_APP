@@ -37,7 +37,7 @@ print("parameter 'batteries' object:")
 pprint(parameter['batteries'])
 print('')
 
-data = ts_inputs(parameter, load='B90', scale_load=50, scale_pv=40)
+data = ts_inputs(parameter, load='B90', scale_load=37.5, scale_pv=37.5)
 data = ts_inputs_ev_schedule(parameter, data)
 file_path = r"H:\\My Drive\Articulos tesis\\\DESARROLLO\\Ob2\\Simulations\\DOPER\\Dataframe\\data.csv"
 data.to_csv(file_path, sep=';', index=False, encoding='utf-8')

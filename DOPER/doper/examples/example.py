@@ -1423,32 +1423,29 @@ def ts_inputs_ev_schedule(parameter, data):
 
         # Asignar la secuencia a la columna correspondiente
         data['battery_EV{!s}_avail'.format(b)] = battery_avail
-        
-        # np.random.seed(b+15)
-        # data['battery_EV{!s}_demand'.format(b)] = -1 * (data['battery_EV{!s}_avail'.format(b)] - 1) \
-        #                                         * np.random.uniform(low=0.0, high=0.5, size=len(data.index))
-        # data['battery_EV{!s}_demand'.format(b)] = 0
-        # data.loc[(data.index.hour >= 11) & (data.index.hour < 14), 'battery_EV{!s}_demand'.format(b)] = 5
-        # data.loc[(data.index.hour >= 18) & (data.index.hour < 24), 'battery_EV{!s}_demand'.format(b)] = 10
-
-        # Definir horarios y demandas para battery_demand_ext
-        demand_hours = [
-            (2.5, 11.5, 0.1),    # De 2:30 am a 11:30 am con demanda 3 kW
-            (13.5, 18.5, 0.5),       # De 2:00 pm a 5:00 pm con demanda 5 kW
-        ]
 
         # Crear array inicializado en cero
         demand_ext = np.zeros(len(data))
 
-        # Convertir index a horas decimales
-        current_hours = data.index.hour + data.index.minute / 60
-
-        # Aplicar demanda por cada rango horario
-        for start_hour, end_hour, demand_value in demand_hours:
-            mask = (current_hours >= start_hour) & (current_hours < end_hour)
-            demand_ext[mask] = demand_value
-
         # Asignar la secuencia a la columna correspondiente
+        var = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\29-11-2024\\energia_cada_5min.csv', delimiter=";")
+
+        # Ver el tamaño actual del DataFrame
+        num_filas_actual = var.shape[0]
+        num_filas_deseadas = 277
+
+        # Si faltan filas, agregamos filas con ceros
+        if num_filas_actual < num_filas_deseadas:
+            num_filas_faltantes = num_filas_deseadas - num_filas_actual
+            nuevas_filas = pd.DataFrame(np.zeros((num_filas_faltantes, var.shape[1])), columns=var.columns)
+            
+            # Concatenamos el DataFrame original con las nuevas filas de ceros
+            var = pd.concat([var, nuevas_filas], ignore_index=True)
+
+        # Reemplazar valores negativos con 0
+        var[var < 0] = 0
+
+        demand_ext = var['Delivery_0'].dropna().to_numpy() / 1000
         data['battery_EV{!s}_demand'.format(b)] = demand_ext
 
     return data

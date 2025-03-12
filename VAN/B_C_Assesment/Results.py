@@ -206,27 +206,27 @@ def legend_plot(data):
     plt.show()
 
 # 200kW
-filePath = 'H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\19-09-2024\\Battery.out.csv'  
+filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\19-09-2024\\Battery.out.csv'  
 df200 = pd.read_csv(filePath, sep=';')
 
 # 20kW ?
-filePath = 'H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\20-09-2024\\Battery.out.csv'  
+filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\20-09-2024\\Battery.out.csv'  
 df20 = pd.read_csv(filePath, sep=';')
 
 # 50kW
-filePath = 'H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\28-11-2024\\Battery.out.csv' 
+filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\28-11-2024\\Battery.out.csv' 
 df50 = pd.read_csv(filePath, sep=';')
 
 # 7.4kW
-filePath = 'H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\29-11-2024\\Battery.out.csv' 
+filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\29-11-2024\\Battery.out.csv' 
 df7 = pd.read_csv(filePath, sep=';')
 
 # 200kW 5 days
-filePath = 'H:\\My Drive\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\19-09-2024\\Battery5days.out.csv'  
+filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\19-09-2024\\Battery5days.out.csv'  
 df200_5d = pd.read_csv(filePath, sep=';')
 
 ## figures
-# legend_plot(df7)
+legend_plot(df7)
 # bar_plots(df7)
 # bar_plots(df50)
-bar_subplots(df7, df50)
+# bar_subplots(df7, df50)
