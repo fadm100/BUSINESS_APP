@@ -21,18 +21,18 @@ logging.basicConfig(
 # Append parent directory to import DOPER
 sys.path.append('../src')
 
-from DOPER.wrapper import DOPER
-from DOPER.utility import get_solver, get_root, standard_report
-from DOPER.basemodel import base_model, default_output_list, dev_output_list
+from doper.wrapper import DOPER
+from doper.utility import get_solver, get_root, standard_report
+from doper.models.basemodel import base_model, default_output_list, dev_output_list
 # from DOPER.batterymodel import add_battery, convert_battery, plot_battery1
-from DOPER.battery import add_battery
-from DOPER.genset import add_genset
-from DOPER.loadControl import add_loadControl
-from DOPER.network import add_network, add_network_simple
+from doper.models.battery import add_battery
+from doper.models.genset import add_genset
+from doper.models.loadControl import add_loadControl
+from doper.models.network import add_network, add_network_simple
+from doper.plotting import plot_dynamic
+import doper.examples.example as example
 
-import DOPER.example as example
-
-from DOPER.plotting import plot_dynamic_nodes, formatExternalData
+from doper.plotting import plot_dynamic_nodes, formatExternalData
                             
 
 from pyomo.environ import Objective, minimize
@@ -159,7 +159,7 @@ output_list = dev_output_list(parameter)
 # }]
 
 # Define the path to the solver executable
-solver_path = get_solver('cbc', solver_dir=os.path.join(get_root(), 'solvers'))
+solver_path = 'H:\\My Drive\Articulos tesis\\DESARROLLO\\Ob2\\Simulations\\DOPER\\doper\\solvers\\Windows64\\cbc.exe'
 print(solver_path)
 # Initialize DOPER
 smartDER = DOPER(model=control_model,
@@ -177,13 +177,23 @@ print(standard_report(res))
 # for t in model.ts:
 #     print(model.sum_battery_charge_grid_power[t].value)
 
-df.to_csv('test_results/test_results.csv')
+df.to_csv('Dataframe/test_results.csv')
+
+for column in df.columns:
+    df[column].plot(figsize=(10, 5), title=column)
+    plt.xlabel("Tiempo")
+    plt.ylabel(column)
+    plt.grid()
+    plt.show()
+
+
     
-# plotData = plot_dynamic(df, parameter, plotFile = 'test_results/test_results.png', plot_reg=False)
+# plotData = plot_dynamic(df, parameter, plotFile = None, plot_reg=False)
 # plotData.savefig('test_results.png')
 
 # try:
-#     plotData = plot_dynamic_nodes(df, parameter, plotFile = 'test_results/test_results_NODES.png')
+#     # plotData = plot_dynamic_nodes(df, parameter, plotFile = None)
+#     plotData = plot_dynamic(df, parameter, plotFile = None, plot_reg=False)
 #     # plotData.savefig('test_results.png')
 # except Exception as e:
 #     print(e)

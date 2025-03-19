@@ -811,8 +811,10 @@ def test_default_parameter():
         parameter['tariff']['export'] = {0:0} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
     else:
         parameter['tariff']['energy'] = {0:0.125, 1:0.1875, 2:0.25} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
-        parameter['tariff']['demand'] = {0:0, 1:5.40, 2:19.65} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
-        parameter['tariff']['demand_coincident'] = 17.74 # $/kW for coincident
+        # parameter['tariff']['demand'] = {0:0, 1:5.40, 2:19.65} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
+        parameter['tariff']['demand'] = {0:0, 1:0, 2:0} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
+        # parameter['tariff']['demand_coincident'] = 17.74 # $/kW for coincident
+        parameter['tariff']['demand_coincident'] = 0 # $/kW for coincident
         parameter['tariff']['export'] = {0:0.01, 1:0.1} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
 
     parameter['site'] = {}
@@ -1445,7 +1447,7 @@ def ts_inputs_ev_schedule(parameter, data):
         # Reemplazar valores negativos con 0
         var[var < 0] = 0
 
-        demand_ext = var['Delivery_0'].dropna().to_numpy() / 1000
+        demand_ext = var['Delivery_{!s}'.format(b)].dropna().to_numpy() / 1000
         data['battery_EV{!s}_demand'.format(b)] = demand_ext
 
     return data

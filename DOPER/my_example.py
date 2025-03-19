@@ -20,7 +20,6 @@ def control_model(inputs, parameter):
     
     def objective_function(model):
         return model.sum_energy_cost * parameter['objective']['weight_energy'] \
-               + model.sum_demand_cost * parameter['objective']['weight_demand'] \
                + model.sum_export_revenue * parameter['objective']['weight_export']
               
     model.objective = Objective(rule=objective_function, sense=minimize, doc='objective function')
@@ -41,12 +40,15 @@ data = ts_inputs(parameter, load='B90', scale_load=37.5, scale_pv=37.5)
 data = ts_inputs_ev_schedule(parameter, data)
 file_path = r"H:\\My Drive\Articulos tesis\\\DESARROLLO\\Ob2\\Simulations\\DOPER\\Dataframe\\data.csv"
 data.to_csv(file_path, sep=';', index=False, encoding='utf-8')
-total_demand = data['battery_EV0_demand'].sum()
-print('La suma de battery_EV0_demand es = ', total_demand)
+total_demand_0 = data['battery_EV0_demand'].sum()
+print('La suma de battery_EV0_demand es = ', total_demand_0)
+total_demand_1 = data['battery_EV1_demand'].sum()
+print('La suma de battery_EV1_demand es = ', total_demand_1)
+total_demand_2 = data['battery_EV2_demand'].sum()
+print('La suma de battery_EV2_demand es = ', total_demand_2)
 
 # Define the path to the solver executable
 solver_path = 'H:\\My Drive\Articulos tesis\\DESARROLLO\\Ob2\\Simulations\\DOPER\\doper\\solvers\\Windows64\\cbc.exe'
-print(solver_path)
 # Initialize DOPER
 smartDER = DOPER(model=control_model,
                  parameter=parameter,
