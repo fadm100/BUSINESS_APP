@@ -203,11 +203,11 @@ def rebates_taxCredit(condicion ,inversion_data):
 
 if __name__ == '__main__':
     # Leer el DataFrame de costos de cargadores
-    filePath = 'H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS.csv'
+    filePath = 'H:\\My drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS.csv'
     df_costs = pd.read_csv(filePath, sep=';')
     
     # Leer arcuivo Json con información de generacion solar y costos
-    with open("H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\promedios.json") as archivo:
+    with open("H:\\My drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\promedios.json") as archivo:
         # Cargar su contenido y crear un diccionario con 'Promedio kWh/dia' y 'Promedio kWh/mes'
         info_PV_gen = json.load(archivo)
 
@@ -234,7 +234,7 @@ if __name__ == '__main__':
     inversion_inicial_name = ['Semifast_Basic', 'Semifast', 'Fast']
 
     # Leer el DataFrame de tarifas de energía de CEDENAR
-    filePath = 'H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Tarifas_energia.csv'
+    filePath = 'H:\\My drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Tarifas_energia.csv'
     df_tarifas = pd.read_csv(filePath, sep=',')
     
     # Tarifas de energía y carga
@@ -324,6 +324,6 @@ if __name__ == '__main__':
 
     # # Concatenar los dataframes y exportar resultados
     # df_resultados = pd.concat([df_semifast_Basic, df_semifast_Complex, df_fast], ignore_index=True)
-    # df_semifast_Complex.to_csv('H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\15-11-2024\\L2_L3_PV40k_TF_SB.csv', index=False)
-    df_fast.to_csv('H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\15-11-2024\\fast\\L3_PV40k_TF_SB_DF.csv', index=False)
+    # df_semifast_Complex.to_csv('H:\\My drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\15-11-2024\\L2_L3_PV40k_TF_SB.csv', index=False)
+    df_fast.to_csv('H:\\My drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\15-11-2024\\fast\\L3_PV40k_TF_SB_DF.csv', index=False)
     
