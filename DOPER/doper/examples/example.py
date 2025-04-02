@@ -1333,12 +1333,13 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
         data['load_demand'] = data['load_demand']/data['load_demand'].max()
     elif load =='B90':
         data = pd.DataFrame(index=pd.date_range(start='2019-01-01 00:00', end='2019-01-01 23:00', freq='h'))
-        data['load_demand'] = [ 0.56, 0.50, 0.49, 0.48, 
+        data['load_demand'] = [ 0.56, 0.50, 0.49, 0.48,
             0.53, 0.67, 0.71, 0.71, 
             0.76, 0.80, 0.82, 0.84, 
             0.80, 0.79, 0.80, 0.79, 
             0.79, 0.96, 1.00, 0.95, 
             0.88, 0.78, 0.69, 0.63]
+        # data['load_demand'] = [30.6, 21, 12.5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 9.5, 18, 27.5, 30.6]
         data['load_demand'] = data['load_demand']/data['load_demand'].max()
     # Scale Load data
     data['load_demand'] = data['load_demand'] * scale_load
