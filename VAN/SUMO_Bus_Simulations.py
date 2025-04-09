@@ -11,7 +11,7 @@ TWO_PM = 50400
 SIX_PM = 64800
 MIDNIGHT = 86400
 SIMULATION_DAYS = 5
-MAXIMUM_CHARGE = 0.8  # 80% carga máxima
+MAXIMUM_CHARGE = 0.9  # 90% carga máxima
 MAXIMUM_DOD = 0.8  # 80% descarga máxima (Depth of Discharge)
 INITIAL_MASS = 4989.5161
 EMISSION_CLASS = "MMPEVEM"  # Modelo de emisiones https://sumo.dlr.de/docs/Models/MMPEVEM.html
@@ -24,35 +24,7 @@ TOOLS_PATH = os.path.join(os.environ["SUMO_HOME"], "tools")
 sys.path.append(TOOLS_PATH)
 
 # Configuración del comando de simulación
-SUMO_CMD = ["sumo", "-c", "Pasto_Ruta_E2.sumocfg"]
-
-# Rutas de los archivos JSON
-MORNING_ROUTES_JSON = [
-    "MorningRoutesJSON/DE_520001_Route.json",
-    "MorningRoutesJSON/DE_520002_Route.json",
-    "MorningRoutesJSON/DE_520003_Route.json",
-    "MorningRoutesJSON/DE_520004_Route.json",
-    "MorningRoutesJSON/DE_520006_Route.json",
-    "MorningRoutesJSON/DE_520010_Route.json",
-]
-
-AFTERNOON_ROUTES_JSON = [
-    "AfternoonRoutesJSON/DE_520001_Route.json",
-    "AfternoonRoutesJSON/DE_520002_Route.json",
-    "AfternoonRoutesJSON/DE_520003_Route.json",
-    "AfternoonRoutesJSON/DE_520004_Route.json",
-    "AfternoonRoutesJSON/DE_520006_Route.json",
-    "AfternoonRoutesJSON/DE_520010_Route.json",
-]
-
-def load_fleet_routes(session):
-    """Carga las rutas de la flota según la sesión (AM o PM)."""
-    if session == "AM":
-        return RG.DeliveryRoutes(MORNING_ROUTES_JSON, session)
-    elif session == "PM":
-        return RG.DeliveryRoutes(AFTERNOON_ROUTES_JSON, session)
-    else:
-        raise ValueError("Sesión no válida. Usa 'AM' o 'PM'.")
+SUMO_CMD = ["sumo-gui", "-c", "Pasto_Ruta_E2.sumocfg"]
 
 def manage_vehicle(step, vehicle_index, charge_flags, vehicle_names, fleet_routes):
     """Gestiona el estado y operaciones de un vehículo durante la simulación."""
@@ -88,40 +60,75 @@ def handle_next_delivery(vehicle_id, fleet_routes):
     stop_time = random.randint(60, 600)
     traci.vehicle.setStop(vehicle_id, new_target, 0.1, stop_time=stop_time)
 
-def handle_charging(vehicle_id, charge_flags, vehicle_index, battery_full):
+def handle_charging(vehicle_id):
     """Gestiona la lógica de carga de los vehículos."""
-    if not battery_full:
-        traci.vehicle.setChargingStationStop(vehicle_id, "cS_2to19_0a", duration=10)
-        charge_flags[vehicle_index] = 1
+    current_capacity = float(traci.vehicle.getParameter(vehicle_id, "device.battery.actualBatteryCapacity"))
+    max_capacity = float(traci.vehicle.getParameter(vehicle_id, "device.battery.maximumBatteryCapacity"))
+    charge_stop = current_capacity < max_capacity * (1 - MAXIMUM_DOD)
+    battery_full = current_capacity > max_capacity * MAXIMUM_CHARGE
+    charging_station = traci.vehicle.getParameter(vehicle_id, "device.battery.chargingStationId")
+    if charge_stop:
+        print(vehicle_id, current_capacity)
+        # traci.vehicle.setParameter(vehicle_id, "device.battery.actualBatteryCapacity", battery_full)
+        traci.vehicle.setChargingStationStop(vehicle_id, "Bus_CS_200kW", duration=1000000)
+        output = True
     elif battery_full:
-        traci.vehicle.setParkingAreaStop(vehicle_id, "ParkAreaA", duration=MIDNIGHT)
-        charge_flags[vehicle_index] = 0
+        traci.vehicle.setParkingAreaStop(vehicle_id, "Bus_ParkArea", duration=10000)
+        output = False
+    elif charging_station == "Bus_CS_200kW":
+        output = True
+    else:
+        output = False
+
+    return output
+    # if not battery_full:
+    #     traci.vehicle.setChargingStationStop(vehicle_id, "cS_2to19_0a", duration=10)
+    #     charge_flags[vehicle_index] = 1
+    # elif battery_full:
+    #     traci.vehicle.setParkingAreaStop(vehicle_id, "ParkAreaA", duration=MIDNIGHT)
+    #     charge_flags[vehicle_index] = 0
 
 def run_simulation(sumo_cmd, emission_class):
     """Ejecuta la simulación de vehículos eléctricos."""
-    # charge_flags = [0] * len(MORNING_ROUTES_JSON)
-    # fleet_routes_am = load_fleet_routes("AM")
-    # fleet_routes_pm = load_fleet_routes("PM")
-    # vehicle_names = list(fleet_routes_am.keys())
+
     step = 0
     day = 1
+    finish = {}
 
     traci.start(sumo_cmd)
-    
+    for i in range(15):  # Del 0 al 14
+        vehicle = f"Bus_{i+1:02d}"
+        traci.vehicle.setEmissionClass(vehicle, emission_class)
+        finish[vehicle] = False
 
     while day <= SIMULATION_DAYS:
         traci.simulationStep()
-        # current_routes = fleet_routes_am if step < MIDDAY else fleet_routes_pm
 
-        # for i, _ in enumerate(vehicle_names):
-        #     manage_vehicle(step, i, charge_flags, vehicle_names, current_routes)
+        five_am = 18000
+        nine_am = 32400
+        eleven_am = 39600
+        twelve_am = 43200
+        ten_min = 600
 
-        if step == 32400:
-        # for vehicle in vehicle_names:
-            vehicle = "Bus_08"
-            traci.vehicle.add(vehicle, "Ruta_E2", "SETP_Bus_E2_Electric")
-            traci.vehicle.setEmissionClass(vehicle, emission_class)
-            # traci.vehicle.setParkingAreaStop(vehicle, "ParkAreaA", duration=MIDNIGHT)
+        for i in range(5): 
+            vehicle = f"Bus_{i+1:02d}"  # Nombres Bus_01, Bus_02, ..., Bus_06
+            if i < 6 and step == five_am + i * ten_min:
+                traci.vehicle.resume(vehicle)
+            elif i < 8 and step == nine_am + (i-6) * ten_min:
+                traci.vehicle.resume(vehicle)
+            elif i < 12 and step == eleven_am + (i-8) * ten_min:
+                traci.vehicle.resume(vehicle)
+            elif i <= 14 and step == twelve_am + (i-12) * ten_min:
+                traci.vehicle.resume(vehicle)
+            
+            current_edge = traci.vehicle.getRoadID(vehicle)
+            if current_edge == "735027154":#"-48268326#1": 
+                finish[vehicle] = True
+                traci.vehicle.setParkingAreaStop(vehicle, "Bus_ParkArea", duration=10000)
+            if finish[vehicle] and traci.vehicle.isStoppedParking(vehicle) and not handle_charging(vehicle):
+                traci.vehicle.setRouteID(vehicle, "Ruta_E2")
+                traci.vehicle.resume(vehicle)
+                finish[vehicle] = False
 
         step += 1
         if step >= MIDNIGHT:
