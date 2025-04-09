@@ -1555,9 +1555,9 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
     #                          0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
     #                          0.0, 0.0]
     
-    var = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\pv_norm_pasto.csv') * scale_pv
+    energy_gen = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\pv_norm_pasto.csv') * scale_pv
     
-    var_single_column = var.iloc[5:282, 0]
+    var_single_column = energy_gen.iloc[5:282, 0]
     
     data['generation_pv'] = var_single_column.values
     
@@ -1603,24 +1603,27 @@ def ts_inputs_ev_schedule(parameter, data):
         demand_ext = np.zeros(len(data))
 
         # Asignar la secuencia a la columna correspondiente
-        var = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\29-11-2024\\energia_cada_5min.csv', delimiter=";")
+        energy_con= pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\29-11-2024\\energia_cada_5min.csv', delimiter=";")
 
         # Ver el tamaño actual del DataFrame
-        num_filas_actual = var.shape[0]
+        num_filas_actual = energy_con.shape[0]
         num_filas_deseadas = 277
 
         # Si faltan filas, agregamos filas con ceros
         if num_filas_actual < num_filas_deseadas:
             num_filas_faltantes = num_filas_deseadas - num_filas_actual
-            nuevas_filas = pd.DataFrame(np.zeros((num_filas_faltantes, var.shape[1])), columns=var.columns)
+            nuevas_filas = pd.DataFrame(np.zeros((num_filas_faltantes, energy_con.shape[1])), columns=energy_con.columns)
             
             # Concatenamos el DataFrame original con las nuevas filas de ceros
-            var = pd.concat([var, nuevas_filas], ignore_index=True)
+            energy_con= pd.concat([energy_con, nuevas_filas], ignore_index=True)
+        else:
+            # Si hay más filas, tomamos solo las primeras 277
+            energy_con = energy_con.iloc[:num_filas_deseadas].reset_index(drop=True)
 
         # Reemplazar valores negativos con 0
-        var[var < 0] = 0
+        energy_con[energy_con< 0] = 0
 
-        demand_ext = var['Delivery_{!s}'.format(b)].dropna().to_numpy() / 1000
+        demand_ext = energy_con['Delivery_{!s}'.format(b)].dropna().to_numpy() / 1000
         data['battery_EV{!s}_demand'.format(b)] = demand_ext
 
     return data
