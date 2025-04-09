@@ -65,6 +65,40 @@ print(standard_report(res))
 
 plotData = plot_dynamic(df, parameter, plotFile = None, plot_reg=False)
 
+total_charge = df['Battery Charging Power [kW]'].sum()
+print('La carga total de las baterias es = ', total_charge)
+print('El costo total de carga de las baterias es = ', total_charge * 0.08)
+
+# Seleccionar la columna de interés
+discharge_column = 'Battery Discharging Power [kW]'
+
+# Crear una máscara booleana: True si el valor es mayor a 0
+mask = df[discharge_column] > 0
+
+# Crear un grupo único cada vez que comienza una nueva secuencia de valores > 0
+group = (mask != mask.shift()).cumsum()
+
+# Filtrar solo los grupos donde mask es True (i.e., valores > 0)
+df['group'] = group.where(mask)
+
+# Agrupar por los grupos válidos y sumar
+group_sums = df.groupby('group')[discharge_column].sum().dropna()
+print('Los grupos de descarga son = ', group_sums)
+
+total_discharge = group_sums.tolist()
+print('La descarga en el primer pico es = ', total_discharge[0])
+print('El costo total de descarga en el primer pico es = ', total_discharge[0] * 0.48)
+print('La descarga en el segundo pico es = ', total_discharge[1])
+print('El costo total de descarga en el segundo pico es = ', total_discharge[1] * 0.48)
+print('La descarga en el valle es = ', total_discharge[2])
+print('El costo total de descarga en el valle es = ', total_discharge[2] * 0.48)
+
+print('La descarga total de las baterias es = ', group_sums.sum())
+print('El costo total de descarga de las baterias es = ', total_discharge[0] * 0.48 + total_discharge[1] * 0.48 + total_discharge[2] * 0.48)
+
+
+
+
 ##############################################################################################################################
 
 # # Crear el gráfico

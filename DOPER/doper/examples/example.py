@@ -212,7 +212,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 15,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.75,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
@@ -226,7 +226,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 15,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.8,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
@@ -240,7 +240,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 30,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.75,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
@@ -254,7 +254,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 15,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.75,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
@@ -268,7 +268,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 15,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.8,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
@@ -282,7 +282,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 30,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.75,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
@@ -296,7 +296,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 15,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.75,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
@@ -310,7 +310,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 15,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.8,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
@@ -324,7 +324,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 30,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.75,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
@@ -338,7 +338,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 15,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.75,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
@@ -352,7 +352,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 15,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.8,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
@@ -366,7 +366,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 30,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.75,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
@@ -380,7 +380,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 15,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.75,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
@@ -394,7 +394,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 15,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.8,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
@@ -408,7 +408,7 @@ def parameter_add_evfleet(parameter=None):
          'maxS': 30,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.75,
+         'soc_initial': 0.2,
          'soc_max': 0.9,
          'soc_min': 0.2
         }
@@ -1593,7 +1593,7 @@ def ts_inputs_ev_schedule(parameter, data):
         # #     battery_avail[mask] = 1
 
         # Asignar la secuencia a la columna correspondiente
-        var_avail = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\buses_availability_5min.csv', delimiter=",")
+        var_avail = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\buses_availability_5min_inverted.csv', delimiter=",")
         print('Estos son los encabezados ', var_avail.head())
         battery_avail = var_avail['battery_EV{!s}_avail'.format(b)].dropna().to_numpy()
         # Asignar la secuencia a la columna correspondiente
@@ -1623,7 +1623,7 @@ def ts_inputs_ev_schedule(parameter, data):
         # Reemplazar valores negativos con 0
         energy_con[energy_con< 0] = 0
 
-        demand_ext = energy_con['Delivery_{!s}'.format(b)].dropna().to_numpy() / 1000
+        demand_ext = energy_con['Delivery_{!s}'.format(b)].dropna().to_numpy() / 50
         data['battery_EV{!s}_demand'.format(b)] = demand_ext
 
     return data
