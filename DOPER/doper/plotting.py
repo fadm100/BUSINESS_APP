@@ -222,6 +222,67 @@ def plot_dynamic(df, parameter, plot=True,  plotFile = None,
         plt.show()
     return fig, axs
 
+def my_plot_dynamic(df, parameter, plot=True,  plotFile = None,
+                 tight=True, plot_reg=None, times=[8,12,18,22]):
+    '''
+        A standard plotting template to present results.
+
+        Input
+        -----
+            df (pandas.DataFrame): The resulting dataframe with the optimization result.
+            plot (bool): Flag to plot or return the figure. (default=True)
+            plot_times (bool): Flag if time separation should be plotted. (default=True)
+            tight (bool): Flag to use tight_layout. (default=True)
+            
+        Returns
+        -------
+            None if plot == True.
+            else:
+                fig (matplotlib figure): Figure of the plot.
+                axs (numpy.ndarray of matplotlib.axes._subplots.AxesSubplot): Axis of the plot.
+    '''
+
+    # number of subplots. eventually dynamically determined
+    n = 3
+
+    if parameter['system']['battery']:
+        # if batteries are enabled, add plot for SOC
+        n += 1
+
+    fig, axs = plt.subplots(n,1, figsize=(12, 3*n), sharex=True, sharey=False,
+                            gridspec_kw={'width_ratios':[1]})
+    axs = axs.ravel()
+    # plot_streams(axs[0], df[['Import Power [kW]','Export Power [kW]']], times=times)
+    df[['Import Power [kW]','Load Power [kW]']].plot(ax=axs[0], title = 'Import/Load at PCC')
+
+    # create energy provision plot
+
+    # list of provision columns in results df
+    provision_cols = ['Import Power [kW]']
+    battery_cols = []
+    if parameter['system']['pv']:
+        provision_cols += ['PV Power [kW]']
+    if parameter['system']['genset']:
+        provision_cols += ['Genset Power [kW]']
+    if parameter['system']['battery']:
+        battery_cols += ['Battery Discharging Power [kW]']
+        battery_cols += ['Battery Charging Power [kW]']
+    if parameter['system']['load_control']:
+        provision_cols += ['Total Shed Load [kW]']
+
+    df[battery_cols].plot(ax=axs[1], title='Battery Energy').legend(loc='upper right')
+    if parameter['system']['battery']:
+        df[['Battery Aggregate SOC [-]']].plot(ax=axs[2], title='Battery SOC')
+    df[['Tariff Energy [$/kWh]']].plot(ax=axs[n-1], title='Tariff Energy Price')
+
+    if plotFile:
+        plt.savefig(plotFile, dpi=300)
+    if plot:
+        if tight:
+            plt.tight_layout()
+        plt.show()
+    return fig, axs
+
 def formatExternalData(df):
     '''
     Parameters

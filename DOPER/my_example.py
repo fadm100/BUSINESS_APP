@@ -10,7 +10,7 @@ from doper import DOPER, get_solver, get_root, standard_report
 from doper.models.basemodel import base_model
 from doper.models.battery import add_battery, plot_battery1
 from doper.examples.example import parameter_add_evfleet, ts_inputs, test_default_parameter, ts_inputs_ev_schedule
-from doper.plotting import plot_dynamic
+from doper.plotting import my_plot_dynamic
 
 from pyomo.environ import Objective, minimize
 
@@ -63,7 +63,7 @@ file_path = r"H:\\My Drive\Articulos tesis\\DESARROLLO\\Ob2\\Simulations\\DOPER\
 df.to_csv(file_path, sep=';', index=False, encoding='utf-8')
 print(standard_report(res))
 
-plotData = plot_dynamic(df, parameter, plotFile = None, plot_reg=False)
+plotData = my_plot_dynamic(df, parameter, plotFile = None, plot_reg=False)
 
 total_charge = df['Battery Charging Power [kW]'].sum()
 print('La carga total de las baterias es = ', total_charge)
