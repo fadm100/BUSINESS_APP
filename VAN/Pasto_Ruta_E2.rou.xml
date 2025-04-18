@@ -16,9 +16,11 @@ ____________________________________________________
 
         <vType id="SETP_Bus_E2_Electric" guiShape="bus" maxSpeed="16.67" accel="1.0" decel="3.7" length="9.4" width="2.4" color="255,12,0" emissionClass="Energy">
 		  <param key="has.battery.device" value="true"/>
-		  <param key="actualBatteryCapacity" value="292000"/>
-		  <param key="maximumBatteryCapacity" value="324000"/>
+		  <param key="device.battery.chargeLevel" value="280000"/>
+		  <param key="device.battery.capacity" value="324000"/>
 		  <param key="maximumPower" value="150000"/>
+		  <param key="device.battery.maximumChargeRate" value="200"/>
+		  <!-- <param key="device.battery.chargingPower" value="150000"/> -->
 		  <param key="vehicleMass" value="19500"/>
 		  <param key="frontSurfaceArea" value="15"/>
 		  <param key="airDragCoefficient" value="0.6"/>
@@ -28,7 +30,7 @@ ____________________________________________________
 		  <param key="constantPowerIntake" value="100"/>
 		  <param key="propulsionEfficiency" value="0.9"/>
 		  <param key="recuperationEfficiency" value="0.12"/>
-		  <param key="stoppingTreshold" value="0.1"/> 
+		  <param key="device.battery.stoppingThreshold" value="0.1"/> 
 	    </vType>
          
 			 
