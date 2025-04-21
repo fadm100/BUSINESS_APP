@@ -10,9 +10,11 @@ EIGHT_AM = 28800
 NINE_AM = 32400
 ELEVEN_AM = 39600
 MIDDAY = 43200
+ONE_PM = 46800
 TWO_PM = 50400
 FIVE_PM = 61200
 SIX_PM = 64800
+SEVEN_PM = 68400
 NINE_PM = 75600
 MIDNIGHT = 86400
 TEN_MIN = 600
@@ -60,21 +62,32 @@ def Handle_Charging(vehicle_id):
         return 'Charged', current_capacity / max_capacity
 
 def Bus_Schedulling(step, vehicle_id):
-    if vehicle_id == 'Bus_001' or vehicle_id == 'Bus_002':
-        if step >= FIVE_AM + THIRTY_MIN and step < MIDDAY:
-            return True
-        elif step >= MIDDAY and step < FIVE_PM:
-            current_time = traci.simulation.getTime()
-            print(vehicle_id, 'step = ', step, ' TraCI time = ', current_time)
-            return False
-        elif step >= FIVE_PM and step < NINE_PM:
-            return True
-        else:
-            return False
-    else:
-        return True
-        
+    schedule = {
+        'Bus_01': [(FIVE_AM + THIRTY_MIN, MIDDAY), (FIVE_PM, NINE_PM)],
+        'Bus_02': [(FIVE_AM + THIRTY_MIN, MIDDAY), (FIVE_PM, NINE_PM)],
+        'Bus_03': [(FIVE_AM + THIRTY_MIN, MIDDAY), (SEVEN_PM, NINE_PM)],
+        'Bus_04': [(FIVE_AM + THIRTY_MIN, ONE_PM + THIRTY_MIN), (SEVEN_PM, NINE_PM)],
+        'Bus_05': [(FIVE_AM + THIRTY_MIN, ONE_PM + THIRTY_MIN), (SEVEN_PM, NINE_PM)],
+        'Bus_06': [(FIVE_AM + THIRTY_MIN, ONE_PM + THIRTY_MIN), (SEVEN_PM, NINE_PM)],
+        'Bus_07': [(NINE_AM, ONE_PM + THIRTY_MIN), (SEVEN_PM, NINE_PM)],
+        'Bus_08': [(NINE_AM, ONE_PM + THIRTY_MIN)],
+        'Bus_09': [(ELEVEN_AM, SIX_PM + THIRTY_MIN)],
+        'Bus_10': [(ELEVEN_AM, SIX_PM + THIRTY_MIN)],
+        'Bus_11': [(ELEVEN_AM, SIX_PM + THIRTY_MIN)],
+        'Bus_12': [(ELEVEN_AM, SIX_PM + THIRTY_MIN)],
+        'Bus_13': [(MIDDAY, SIX_PM + THIRTY_MIN)],
+        'Bus_14': [(MIDDAY, SEVEN_PM + THIRTY_MIN)],
+        'Bus_15': [(MIDDAY, SEVEN_PM + THIRTY_MIN)],
+    }
 
+    intervals = schedule.get(vehicle_id)
+    
+    if intervals is None:
+        return True  # Valor por defecto si el bus no tiene programación definida
+    
+    return any(start <= step < end for start, end in intervals)
+
+        
 def Run_Simulation(sumo_cmd, emission_class):
     """Ejecuta la simulación de vehículos eléctricos."""
 

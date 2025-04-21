@@ -4,7 +4,7 @@ import datetime
 import matplotlib.dates as mdates
 
 # Cargar el DataFrame desde un archivo CSV usando el separador correcto (;)
-filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\18-04-2025\\Battery.out.csv'
+filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\18-04-2025\\BatteryOut_Bus_CS_150kW_B01_B02_3.csv'
 df = pd.read_csv(filePath, sep=';')
 
 # Asegurarse de que los valores son numéricos
@@ -72,7 +72,7 @@ plt.show()
 ################
 
 # Filtrar solo Bus_01
-df_bus01 = df[df['vehicle_id'] == 'Bus_15'].copy()
+df_bus01 = df[df['vehicle_id'] == 'Bus_01'].copy()
 
 # Convertir tiempo a datetime
 start_time = datetime.datetime(2023, 1, 1, 0, 0, 0)  # Fecha base cualquiera
