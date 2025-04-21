@@ -62,6 +62,20 @@ def Handle_Charging(vehicle_id):
         return 'Charged', current_capacity / max_capacity
 
 def Bus_Schedulling(step, vehicle_id):
+    """
+    Determina si un autobús específico debe estar activo (en operación) en un instante dado de la simulación.
+    
+    Cada autobús tiene asignados uno o más intervalos de tiempo durante los cuales está programado para operar.
+    La función consulta una tabla de horarios predefinida y verifica si el tiempo actual (`step`) cae dentro de 
+    alguno de esos intervalos. Si el autobús no está en la tabla, se asume que siempre está activo.
+    
+    Parámetros:
+        step (int): Tiempo actual de la simulación en segundos.
+        vehicle_id (str): Identificador del vehículo (e.g., 'Bus_01').
+
+    Retorna:
+        bool: True si el bus debe estar activo, False en caso contrario.
+    """
     schedule = {
         'Bus_01': [(FIVE_AM + THIRTY_MIN, MIDDAY), (FIVE_PM, NINE_PM)],
         'Bus_02': [(FIVE_AM + THIRTY_MIN, MIDDAY), (FIVE_PM, NINE_PM)],
