@@ -5,14 +5,21 @@ import traci
 import RouteGenerator as RG
 
 # Definir constantes descriptivas
+FIVE_AM = 18000
 EIGHT_AM = 28800
+NINE_AM = 32400
+ELEVEN_AM = 39600
 MIDDAY = 43200
 TWO_PM = 50400
+FIVE_PM = 61200
 SIX_PM = 64800
+NINE_PM = 75600
 MIDNIGHT = 86400
+TEN_MIN = 600
+THIRTY_MIN = 1800
 SIMULATION_DAYS = 5
 MAXIMUM_CHARGE = 0.9  # 90% carga máxima
-MAXIMUM_DOD = 0.8  # 80% descarga máxima (Depth of Discharge)
+MAXIMUM_DOD = 0.7  # 80% descarga máxima (Depth of Discharge)
 INITIAL_MASS = 4989.5161
 EMISSION_CLASS = "MMPEVEM"  # Modelo de emisiones https://sumo.dlr.de/docs/Models/MMPEVEM.html
 
@@ -26,48 +33,18 @@ sys.path.append(TOOLS_PATH)
 # Configuración del comando de simulación
 SUMO_CMD = ["sumo", "-c", "Pasto_Ruta_E2.sumocfg"]
 
-def manage_vehicle(step, vehicle_index, charge_flags, vehicle_names, fleet_routes):
-    """Gestiona el estado y operaciones de un vehículo durante la simulación."""
-    vehicle_id = vehicle_names[vehicle_index]
-    try:
-        current_capacity = float(traci.vehicle.getParameter(vehicle_id, "device.battery.actualBatteryCapacity"))
-        max_capacity = float(traci.vehicle.getParameter(vehicle_id, "device.battery.maximumBatteryCapacity"))
-        charge_stop = current_capacity < max_capacity * (1 - MAXIMUM_DOD)
-        battery_full = current_capacity > max_capacity * MAXIMUM_CHARGE
-
-        if traci.vehicle.isStoppedParking(vehicle_id) and step in [EIGHT_AM, TWO_PM]:
-            handle_delivery_start(vehicle_id, fleet_routes)
-        
-        elif traci.vehicle.getRoadID(vehicle_id) == fleet_routes[vehicle_id][1] and len(fleet_routes[vehicle_id]) > 1:
-            handle_next_delivery(vehicle_id, fleet_routes)
-
-        if charge_stop:
-            handle_charging(vehicle_id, charge_flags, vehicle_index, battery_full)
-
-    except Exception as e:
-        print(f"Error gestionando el vehículo {vehicle_id}: {e}")
-
-def handle_delivery_start(vehicle_id, fleet_routes):
-    """Inicia la entrega desde el área de estacionamiento."""
-    traci.vehicle.setParkingAreaStop(vehicle_id, "ParkAreaA", duration=10, until=EIGHT_AM)
-    traci.vehicle.changeTarget(vehicle_id, fleet_routes[vehicle_id][1])
-
-def handle_next_delivery(vehicle_id, fleet_routes):
-    """Avanza al siguiente punto de entrega."""
-    del fleet_routes[vehicle_id][1]
-    new_target = fleet_routes[vehicle_id][1]
-    traci.vehicle.changeTarget(vehicle_id, new_target)
-    stop_time = random.randint(60, 600)
-    traci.vehicle.setStop(vehicle_id, new_target, 0.1, stop_time=stop_time)
-
-def handle_charging(vehicle_id):
+def Handle_Charging(vehicle_id):
     """
     Gestiona la lógica de carga de los vehículos.
 
-    Retorna:
-        'ChargingNeeded' si la batería está por debajo del umbral y necesita recarga.
-        'ChargingFull' si la batería está completamente cargada.
-        'Charged' si la batería está en un estado intermedio.
+    Args:
+        vehicle_id (str): ID del vehículo a evaluar.
+
+    Returns:
+        tuple: (estado de carga, capacidad actual de batería)
+            - 'ChargingNeeded' si la batería está por debajo del umbral.
+            - 'ChargingFull' si está completamente cargada.
+            - 'Charged' si está en un estado intermedio.
     """
     current_capacity = float(traci.vehicle.getParameter(vehicle_id, "device.battery.actualBatteryCapacity"))
     max_capacity = float(traci.vehicle.getParameter(vehicle_id, "device.battery.maximumBatteryCapacity"))
@@ -76,16 +53,32 @@ def handle_charging(vehicle_id):
     full_threshold = max_capacity * MAXIMUM_CHARGE
 
     if current_capacity < dod_threshold:
-        return 'ChargingNeeded'
+        return 'ChargingNeeded', current_capacity / max_capacity
     elif current_capacity > full_threshold:
-        return 'ChargingFull'
+        return 'ChargingFull', current_capacity / max_capacity
     else:
-        return 'Charged'
+        return 'Charged', current_capacity / max_capacity
 
-def run_simulation(sumo_cmd, emission_class):
+def Bus_Schedulling(step, vehicle_id):
+    if vehicle_id == 'Bus_001' or vehicle_id == 'Bus_002':
+        if step >= FIVE_AM + THIRTY_MIN and step < MIDDAY:
+            return True
+        elif step >= MIDDAY and step < FIVE_PM:
+            current_time = traci.simulation.getTime()
+            print(vehicle_id, 'step = ', step, ' TraCI time = ', current_time)
+            return False
+        elif step >= FIVE_PM and step < NINE_PM:
+            return True
+        else:
+            return False
+    else:
+        return True
+        
+
+def Run_Simulation(sumo_cmd, emission_class):
     """Ejecuta la simulación de vehículos eléctricos."""
 
-    step = 0
+    step = FIVE_AM
     day = 1
     finish = {}
 
@@ -94,53 +87,49 @@ def run_simulation(sumo_cmd, emission_class):
         vehicle = f"Bus_{i+1:02d}"
         traci.vehicle.setEmissionClass(vehicle, emission_class)
         finish[vehicle] = False
-
+    traci.simulationStep(FIVE_AM)
     while day <= SIMULATION_DAYS:
         traci.simulationStep()
 
-        five_am = 18000
-        nine_am = 32400
-        eleven_am = 39600
-        twelve_am = 43200
-        ten_min = 600
-
         for i in range(15): 
             vehicle = f"Bus_{i+1:02d}"  # Nombres Bus_01, Bus_02, ..., Bus_06
-            if i < 6 and step == five_am + i * ten_min:
+            if i < 6 and step == FIVE_AM + i * TEN_MIN:
                 traci.vehicle.resume(vehicle)
-            elif i >= 6 and i < 8 and step == nine_am + (i-6) * ten_min:
+            elif i >= 6 and i < 8 and step == NINE_AM + (i-6) * TEN_MIN:
                 traci.vehicle.resume(vehicle)
-            elif i >= 8 and i < 12 and step == eleven_am + (i-8) * ten_min:
+            elif i >= 8 and i < 12 and step == ELEVEN_AM + (i-8) * TEN_MIN:
                 traci.vehicle.resume(vehicle)
-            elif i >= 12 and i <= 14 and step == twelve_am + (i-12) * ten_min:
+            elif i >= 12 and i <= 14 and step == MIDDAY + (i-12) * TEN_MIN:
                 traci.vehicle.resume(vehicle)
             
             current_edge = traci.vehicle.getRoadID(vehicle)
-            charge = handle_charging(vehicle)
-            # print(charge)
-            if current_edge == "735027154":#"-48268326#1": 
-                finish[vehicle] = True
-                if charge == 'Charged': 
+            charge, SoC = Handle_Charging(vehicle)
+            bus_available = Bus_Schedulling(step=step, vehicle_id=vehicle)
+            if current_edge == "735027154":
+                if charge == 'Charged' and not finish[vehicle]: 
                     traci.vehicle.setParkingAreaStop(vehicle, "Bus_ParkArea", duration=10, flags=1)
+                finish[vehicle] = True
             if charge == 'ChargingNeeded':
-                if traci.vehicle.getStopState(vehicle) != 67:
+                if traci.vehicle.getStopState(vehicle) != 67 and current_edge != '-48268326#1' and current_edge != '-48268326#0':
                     traci.vehicle.setChargingStationStop(vehicle, "Bus_CS_150kW", duration=10000, flags=1)
-                    # print(step, vehicle, traci.vehicle.getStopState(vehicle), traci.vehicle.getStops(vehicle), float(traci.vehicle.getParameter(vehicle, "device.battery.actualBatteryCapacity")))
             elif charge == 'ChargingFull': 
-                # print(step, vehicle, 'stop state= ', traci.vehicle.getStopState(vehicle))
                 if traci.vehicle.getStopState(vehicle) == 67:
                     traci.vehicle.changeTarget(vehicle, '-48268326#0')
                     traci.vehicle.resume(vehicle)
                     traci.vehicle.setParkingAreaStop(vehicle, "Bus_ParkArea", duration=1000, flags=1)
-            # if step > 25000 and vehicle == 'Bus_01' and traci.vehicle.isStoppedParking(vehicle):
-                # print(finish[vehicle])
-            if finish[vehicle] and traci.vehicle.getStopState(vehicle) == 131:
-                # print(step, vehicle, 'stop state= ', traci.vehicle.getStopState(vehicle), 'is stopped parking = ', traci.vehicle.isStoppedParking(vehicle))
+            if finish[vehicle] and traci.vehicle.getStopState(vehicle) == 131 and charge != 'ChargingNeeded' and bus_available:
                 traci.vehicle.setRouteID(vehicle, "Ruta_E2")
-                finish[vehicle] = False
-            # elif finish[vehicle] and not handle_charging(vehicle):
-            #     print(vehicle, ' Entro en el elif')
-            #     traci.vehicle.setParkingAreaStop(vehicle, "Bus_ParkArea", duration=10)                
+                finish[vehicle] = False   
+            elif finish[vehicle] and traci.vehicle.getStopState(vehicle) == 131 and charge == 'ChargingNeeded':
+                traci.vehicle.changeTarget(vehicle, '-735027154')
+                traci.vehicle.resume(vehicle)  
+            elif finish[vehicle] and traci.vehicle.getStopState(vehicle) == 131 and charge != 'ChargingNeeded' and not bus_available:      
+                if SoC >= 0.8: 
+                    traci.vehicle.setParkingAreaStop(vehicle, "Bus_ParkArea", duration=3600, flags=1)
+                else:
+                    traci.vehicle.changeTarget(vehicle, '-735027154')
+                    traci.vehicle.resume(vehicle)
+                    traci.vehicle.setChargingStationStop(vehicle, "Bus_CS_150kW", duration=10000, flags=1)
 
         step += 1
         if step >= MIDNIGHT:
@@ -161,4 +150,4 @@ def clean_up_files():
 
 # Ejecución principal
 if __name__ == "__main__":
-    run_simulation(SUMO_CMD, EMISSION_CLASS)
+    Run_Simulation(SUMO_CMD, EMISSION_CLASS)

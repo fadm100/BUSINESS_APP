@@ -25,7 +25,7 @@ if n == 1:
 # Graficar en cada subplot
 for i, vehicle_id in enumerate(vehicle_ids):
     subset = df[df['vehicle_id'] == vehicle_id]
-    axs1[i].plot(subset['timestep_time'], subset['vehicle_energyConsumed'], marker='o')
+    axs1[i].plot(subset['timestep_time'], subset['vehicle_energyConsumed'])
     axs1[i].set_title(f'Vehículo: {vehicle_id}')
     axs1[i].set_ylabel('Energía consumida (W)')
     axs1[i].grid(True)
@@ -45,7 +45,7 @@ if n == 1:
 # Graficar en cada subplot
 for i, vehicle_id in enumerate(vehicle_ids):
     subset = df[df['vehicle_id'] == vehicle_id]
-    axs2[i].plot(subset['timestep_time'], subset['vehicle_energyCharged'], marker='o')
+    axs2[i].plot(subset['timestep_time'], subset['vehicle_energyCharged'])
     axs2[i].set_title(f'Vehículo: {vehicle_id}')
     axs2[i].set_ylabel('Energía consumida (W)')
     axs2[i].grid(True)
@@ -59,8 +59,8 @@ plt.show()
 bus01 = df[df['vehicle_id'] == 'Bus_01']
 
 plt.figure(figsize=(12, 6))
-plt.plot(bus01['timestep_time'], bus01['vehicle_energyConsumed'], marker='o', label='Energía consumida')
-plt.plot(bus01['timestep_time'], bus01['vehicle_energyCharged'], marker='s', label='Energía cargada')
+plt.plot(bus01['timestep_time'], bus01['vehicle_energyConsumed'], label='Energía consumida')
+plt.plot(bus01['timestep_time'], bus01['vehicle_energyCharged'], label='Energía cargada')
 plt.title('Energía consumida y cargada - Bus_01')
 plt.xlabel('Tiempo (s)')
 plt.ylabel('Energía (W)')
@@ -72,7 +72,7 @@ plt.show()
 ################
 
 # Filtrar solo Bus_01
-df_bus01 = df[df['vehicle_id'] == 'Bus_01'].copy()
+df_bus01 = df[df['vehicle_id'] == 'Bus_15'].copy()
 
 # Convertir tiempo a datetime
 start_time = datetime.datetime(2023, 1, 1, 0, 0, 0)  # Fecha base cualquiera
@@ -101,7 +101,7 @@ for i, col in enumerate(columnas_a_graficar):
     axs[i].set_ylabel(col)
     axs[i].grid(True)
 
-    axs[i].xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%H:%M:%S'))
+    axs[i].xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%H:%M'))
 
 # Rotar etiquetas del eje X
 for ax in axs[:len(columnas_a_graficar)]:
