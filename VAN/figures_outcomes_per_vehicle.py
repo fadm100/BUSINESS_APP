@@ -4,7 +4,7 @@ import datetime
 import matplotlib.dates as mdates
 
 # Cargar el DataFrame desde un archivo CSV usando el separador correcto (;)
-filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\21-04-2025\\Battery.out.csv'
+filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\21-04-2025\\Battery.out_edited.csv'
 df = pd.read_csv(filePath, sep=';')
 
 # Asegurarse de que los valores son numéricos
@@ -56,12 +56,12 @@ plt.tight_layout()
 plt.show()
 
 # Figura especial para Bus_01
-bus01 = df[df['vehicle_id'] == 'Bus_01']
+bus01 = df[df['vehicle_id'] == 'Bus_08']
 
 plt.figure(figsize=(12, 6))
 plt.plot(bus01['timestep_time'], bus01['vehicle_energyConsumed'], label='Energía consumida')
 plt.plot(bus01['timestep_time'], bus01['vehicle_energyCharged'], label='Energía cargada')
-plt.title('Energía consumida y cargada - Bus_01')
+plt.title('Energía consumida y cargada - Bus_08')
 plt.xlabel('Tiempo (s)')
 plt.ylabel('Energía (W)')
 plt.legend()
@@ -72,7 +72,7 @@ plt.show()
 ################
 
 # Filtrar solo Bus_01
-df_bus01 = df[df['vehicle_id'] == 'Bus_06'].copy()
+df_bus01 = df[df['vehicle_id'] == 'Bus_08'].copy()
 
 # Convertir tiempo a datetime
 start_time = datetime.datetime(2023, 1, 1, 0, 0, 0)  # Fecha base cualquiera
@@ -111,5 +111,25 @@ for ax in axs[:len(columnas_a_graficar)]:
 for j in range(len(columnas_a_graficar), filas * columnas):
     fig.delaxes(axs[j])
 
+plt.tight_layout()
+plt.show()
+
+print('La demanda total es = ', df_bus01['vehicle_energyConsumed'].sum(), ' wh')
+
+#######################
+
+df['vehicle_actualBatteryCapacity'] = pd.to_numeric(df['vehicle_actualBatteryCapacity'], errors='coerce')
+
+battery_by_time = df.groupby('timestep_time')['vehicle_actualBatteryCapacity'].sum()
+normalized_battery = battery_by_time / 4860000
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10, 5))
+plt.plot(normalized_battery.index, normalized_battery.values, label='Capacidad relativa de batería')
+plt.xlabel('Tiempo')
+plt.ylabel('Fracción de batería total')
+plt.title('Estado agregado de carga de la flota en el tiempo')
+plt.grid(True)
+plt.legend()
 plt.tight_layout()
 plt.show()
