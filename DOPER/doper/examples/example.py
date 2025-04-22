@@ -204,211 +204,211 @@ def parameter_add_evfleet(parameter=None):
     parameter['batteries'] = [
         {
          'name': 'EV0',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 15,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
         {
         'name': 'EV1',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 15,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
         {
         'name': 'EV2',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 30,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
         {
          'name': 'EV3',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 15,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
         {
         'name': 'EV4',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 15,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
         {
         'name': 'EV5',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 30,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
         {
          'name': 'EV6',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 15,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
         {
         'name': 'EV7',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 15,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
         {
         'name': 'EV8',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 30,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
         {
          'name': 'EV9',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 15,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
         {
         'name': 'EV10',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 15,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
         {
         'name': 'EV11',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 30,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
         {
          'name': 'EV12',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 15,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
         {
         'name': 'EV13',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 15,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         },
         {
         'name': 'EV14',
-        'capacity': 178,
+        'capacity': 324,
          'efficiency_charging': 0.96,
          'efficiency_discharging': 0.96,
-         'power_charge': 150,
-         'power_discharge': 150,
-         'maxS': 30,
+         'power_charge': 200,
+         'power_discharge': 200,
+         'maxS': 200,
          'self_discharging': 0.003,
          # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.2
         }
@@ -997,7 +997,7 @@ def test_default_parameter():
     parameter['site']['regulation_reserved_battery'] = False # Flag to reserve battery capacity for regulation
     parameter['site']['regulation_reserved_variable_battery'] = False # Flag to reserve battery capacity for regulation (variable ts)
     parameter['site']['import_max'] = 10000000 # kW
-    parameter['site']['export_max'] = 20000 # kW
+    parameter['site']['export_max'] = 20000000 # kW
     parameter['site']['demand_periods_prev'] = {0:0,1:0,2:0} # kW peak previously set for periods 0-offpeak, 1-midpeak, 2-onpeak
     parameter['site']['demand_coincident_prev'] = 0 # kW peak previously set for coincident
     parameter['site']['input_timezone'] = -5 # Timezone of inputs (in hourly offset from UTC)
@@ -1593,8 +1593,9 @@ def ts_inputs_ev_schedule(parameter, data):
         # #     battery_avail[mask] = 1
 
         # Asignar la secuencia a la columna correspondiente
-        var_avail = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\buses_availability_5min_inverted.csv', delimiter=",")
-        print('Estos son los encabezados ', var_avail.head())
+        # var_avail = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\buses_availability_5min_inverted.csv', delimiter=",", encoding='utf-8')
+        var_avail = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\21-04-2025\\disponibilidad_cada_5min.csv', delimiter=";", encoding='utf-8')
+        print('Estos son los encabezados ', var_avail.columns)
         battery_avail = var_avail['battery_EV{!s}_avail'.format(b)].dropna().to_numpy()
         # Asignar la secuencia a la columna correspondiente
         data['battery_EV{!s}_avail'.format(b)] = battery_avail
@@ -1603,7 +1604,8 @@ def ts_inputs_ev_schedule(parameter, data):
         demand_ext = np.zeros(len(data))
 
         # Asignar la secuencia a la columna correspondiente
-        energy_con= pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\29-11-2024\\energia_cada_5min.csv', delimiter=";")
+        # energy_con= pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\29-11-2024\\energia_cada_5min_bus.csv', delimiter=";", encoding='utf-8')
+        energy_con= pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\21-04-2025\\energia_cada_5min.csv', delimiter=";", encoding='utf-8')
 
         # Ver el tamaño actual del DataFrame
         num_filas_actual = energy_con.shape[0]
@@ -1623,7 +1625,7 @@ def ts_inputs_ev_schedule(parameter, data):
         # Reemplazar valores negativos con 0
         energy_con[energy_con< 0] = 0
 
-        demand_ext = energy_con['Delivery_{!s}'.format(b)].dropna().to_numpy() / 50
+        demand_ext = energy_con['Bus_{!s}'.format(b)].dropna().to_numpy() * 10
         data['battery_EV{!s}_demand'.format(b)] = demand_ext
 
     return data

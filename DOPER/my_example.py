@@ -36,16 +36,18 @@ print("parameter 'batteries' object:")
 pprint(parameter['batteries'])
 print('')
 
-data = ts_inputs(parameter, load='B90', scale_load=100000, scale_pv=0)
+data = ts_inputs(parameter, load='B90', scale_load=1000000, scale_pv=0)
 data = ts_inputs_ev_schedule(parameter, data)
 file_path = r"H:\\My Drive\Articulos tesis\\\DESARROLLO\\Ob2\\Simulations\\DOPER\\Dataframe\\data.csv"
 data.to_csv(file_path, sep=';', index=False, encoding='utf-8')
-total_demand_0 = data['battery_EV0_demand'].sum()
-print('La suma de battery_EV0_demand es = ', total_demand_0)
-total_demand_1 = data['battery_EV1_demand'].sum()
-print('La suma de battery_EV1_demand es = ', total_demand_1)
-total_demand_2 = data['battery_EV2_demand'].sum()
-print('La suma de battery_EV2_demand es = ', total_demand_2)
+
+cols = [col for col in data.columns if col.startswith('battery_EV') and col.endswith('_demand')]
+total_demand = data[cols].sum().sum()
+
+for col in cols:
+    print(f'La suma de {col} es = {data[col].sum()}')
+
+print('La demanda de todos los buses es =', total_demand)
 
 # Define the path to the solver executable
 solver_path = 'H:\\My Drive\Articulos tesis\\DESARROLLO\\Ob2\\Simulations\\DOPER\\doper\\solvers\\Windows64\\cbc.exe'
