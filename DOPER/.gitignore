@@ -25,3 +25,5 @@ doper/solvers/Windows64/*
 # test result files #
 #####################
 /examples/test_results/*
+
+calculos.m
