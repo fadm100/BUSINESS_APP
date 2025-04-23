@@ -13,9 +13,9 @@ def calcular_NPV_por_año(tasa_descuento, crecimiento_demanda, vida_util, statio
         
         for t in range(año + 1):
                 
-            ingresos_diarios = 1000.0 # se toma de DOPER ejemplo: 1000 USD --> por venta de energía
-            gastos_diarios = 2000.0 # se toma de DOPER ejemplo:2000 USD --> por compra de energía
-            if t == 5: 
+            ingresos_diarios = 930.616 * 3.4132 / 30 # se toma de DOPER ejemplo: 1000 USD --> por venta de energía
+            gastos_diarios = 0.0 # se toma de DOPER ejemplo:2000 USD --> por compra de energía
+            if t >= 10: 
                 gastos_diarios *= (1 + crecimiento_demanda) # se incrementan los gastos por la entrada de buses nuevos a la flota
                 ingresos_diarios *= (1 + crecimiento_demanda) # se incrementan los ingresos por la entrada de buses nuevos a la flota
             
@@ -174,9 +174,9 @@ if __name__ == '__main__':
     # Rango de variaciones para el análisis de sensibilidad
     tasa_descuento = 0.1 # alrededor del 10% para Colombia
     costos_mantenimiento_rango = [400, 800]  # Sin PV
-    crecimiento_demanda = 0.0 # Asumimos una flota ya establecida con un numero fijo de buses o un bajo incremento cada varios años
-    vida_util_short = np.arange(1, 21, 1)  # Vida útil de 1 a 20 años
-    vida_util_large = np.arange(1, 21, 1)  # Vida útil de 1 a 20 años
+    crecimiento_demanda = 0.00 # Asumimos una flota ya establecida con un numero fijo de buses o un bajo incremento cada varios años
+    vida_util_short = np.arange(1, 16, 1)  # Vida útil de 1 a 20 años
+    vida_util_large = np.arange(1, 16, 1)  # Vida útil de 1 a 20 años
     
     # Upgrade percentage
     

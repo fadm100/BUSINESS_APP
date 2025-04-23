@@ -28,15 +28,15 @@ def control_model(inputs, parameter):
 parameter = test_default_parameter()
 parameter = parameter_add_evfleet(parameter)
 
-print("parameter 'system' object:")
-pprint(parameter['system'])
-print('')
+# print("parameter 'system' object:")
+# pprint(parameter['system'])
+# print('')
 
-print("parameter 'batteries' object:")
-pprint(parameter['batteries'])
-print('')
+# print("parameter 'batteries' object:")
+# pprint(parameter['batteries'])
+# print('')
 
-data = ts_inputs(parameter, load='B90', scale_load=1000000, scale_pv=0)
+data = ts_inputs(parameter, load='B90', scale_load=100000, scale_pv=0)
 data = ts_inputs_ev_schedule(parameter, data)
 file_path = r"H:\\My Drive\Articulos tesis\\\DESARROLLO\\Ob2\\Simulations\\DOPER\\Dataframe\\data.csv"
 data.to_csv(file_path, sep=';', index=False, encoding='utf-8')
@@ -44,20 +44,36 @@ data.to_csv(file_path, sep=';', index=False, encoding='utf-8')
 cols = [col for col in data.columns if col.startswith('battery_EV') and col.endswith('_demand')]
 total_demand = data[cols].sum().sum()
 
-for col in cols:
-    print(f'La suma de {col} es = {data[col].sum()}')
+# for col in cols:
+#     print(f'La suma de {col} es = {data[col].sum()}')
+#     print(f'El máximo de {col} es = {data[col].max()}')
 
 print('La demanda de todos los buses es =', total_demand)
 
 # Define the path to the solver executable
 solver_path = 'H:\\My Drive\Articulos tesis\\DESARROLLO\\Ob2\\Simulations\\DOPER\\doper\\solvers\\Windows64\\cbc.exe'
 # Initialize DOPER
+
+# print('DEPURATION')
+# parameter['print_infeasible_constraints'] = True
+
 smartDER = DOPER(model=control_model,
                  parameter=parameter,
                  solver_path=solver_path)
 
 # Conduct optimization
 res = smartDER.do_optimization(data)
+
+# # Configurar logger para permitir impresión de restricciones infactibles
+# import logging
+# for handler in logging.root.handlers[:]:
+#     logging.root.removeHandler(handler)
+# logging.basicConfig(level=logging.INFO)
+
+# from pyomo.util.infeasible import log_infeasible_constraints
+# log_infeasible_constraints(smartDER.model)
+
+
 
 # Get results
 duration, objective, df, model, result, termination, parameter = res
@@ -67,37 +83,13 @@ print(standard_report(res))
 
 plotData = my_plot_dynamic(df, parameter, plotFile = None, plot_reg=False)
 
-total_charge = df['Battery Charging Power [kW]'].sum()
-print('La carga total de las baterias es = ', total_charge)
-print('El costo total de carga de las baterias es = ', total_charge * 0.08)
-
-# Seleccionar la columna de interés
-discharge_column = 'Battery Discharging Power [kW]'
-
-# Crear una máscara booleana: True si el valor es mayor a 0
-mask = df[discharge_column] > 0
-
-# Crear un grupo único cada vez que comienza una nueva secuencia de valores > 0
-group = (mask != mask.shift()).cumsum()
-
-# Filtrar solo los grupos donde mask es True (i.e., valores > 0)
-df['group'] = group.where(mask)
-
-# Agrupar por los grupos válidos y sumar
-group_sums = df.groupby('group')[discharge_column].sum().dropna()
-print('Los grupos de descarga son = ', group_sums)
-
-total_discharge = group_sums.tolist()
-print('La descarga en el primer pico es = ', total_discharge[0])
-print('El costo total de descarga en el primer pico es = ', total_discharge[0] * 0.48)
-print('La descarga en el segundo pico es = ', total_discharge[1])
-print('El costo total de descarga en el segundo pico es = ', total_discharge[1] * 0.48)
-print('La descarga en el valle es = ', total_discharge[2])
-print('El costo total de descarga en el valle es = ', total_discharge[2] * 0.48)
-
-print('La descarga total de las baterias es = ', group_sums.sum())
-print('El costo total de descarga de las baterias es = ', total_discharge[0] * 0.48 + total_discharge[1] * 0.48 + total_discharge[2] * 0.48)
-
+total_charge = df['Battery Charging Power [kW]'].sum() / 12 # en una hora hay 12 paquetes de 5min entonces el resultado son kWh
+print('La carga total de las baterías es = ', total_charge)
+charging_Cost = df['Battery Charging Power [kW]'] * df['Tariff Energy [$/kWh]'] 
+print('El costo total de carga de las baterías es = ', charging_Cost.sum() / 12)
+total_discharge = df['Battery Discharging Power [kW]'].sum() / 12 # en una hora hay 12 paquetes de 5min entonces el resultado son kWh
+print('La descarga total de las baterías es = ', total_discharge)
+print('El costo total de descarga de las baterías es = ', total_discharge * 0.08)
 
 
 

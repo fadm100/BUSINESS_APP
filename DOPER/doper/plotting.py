@@ -272,8 +272,8 @@ def my_plot_dynamic(df, parameter, plot=True,  plotFile = None,
 
     df[battery_cols].plot(ax=axs[1], title='Battery Energy').legend(loc='upper right')
     if parameter['system']['battery']:
-        df[['Battery Aggregate SOC [-]']].plot(ax=axs[2], title='Battery SOC')
-    df[['Tariff Energy [$/kWh]']].plot(ax=axs[n-1], title='Tariff Energy Price')
+        df[['Battery Aggregate SOC [-]']].plot(ax=axs[n-1], title='Battery SOC')
+    df[['Tariff Energy [$/kWh]']].plot(ax=axs[2], title='Tariff Energy Price')
 
     if plotFile:
         plt.savefig(plotFile, dpi=300)
