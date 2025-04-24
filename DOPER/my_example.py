@@ -91,7 +91,41 @@ total_discharge = df['Battery Discharging Power [kW]'].sum() / 12 # en una hora 
 print('La descarga total de las baterías es = ', total_discharge)
 print('El costo total de descarga de las baterías es = ', total_discharge * 0.08)
 
+def availability_matrix_figure(condition):
+    if condition:
+        import seaborn as sns
+        from matplotlib.colors import ListedColormap
+        import numpy as np
 
+
+        # Crear una tabla solo con las columnas de disponibilidad de batería
+        battery_cols = [col for col in data.columns if 'battery_EV' in col and '_avail' in col]
+        battery_matrix = data[battery_cols].T  # transponer para que EVs sean filas y pasos de tiempo columnas
+
+        # Asegurar que la columna date_time sea de tipo datetime
+        data['date_time'] = pd.to_datetime(data['date_time'])
+
+        # Crear etiquetas de tiempo (horas:minutos)
+        time_labels = data['date_time'].dt.strftime('%H:%M')
+
+        # Crear un mapa de colores personalizado: 0 -> blanco, 1 -> verde
+        custom_cmap = ListedColormap(['white', 'green'])
+
+        # Crear heatmap
+        plt.figure(figsize=(12, 6))
+        sns.heatmap(battery_matrix, cmap=custom_cmap, cbar=False, linewidths=0.5, linecolor='lightgray', vmin=0, vmax=1)
+
+        # Personalizar ejes con etiquetas espaciadas
+        step = 12  # Ajusta según la cantidad de etiquetas que quieras mostrar
+        plt.xticks(ticks=range(0, len(time_labels), step), labels=time_labels[::step], rotation=45, ha='right')
+        plt.yticks(ticks=np.arange(len(battery_cols)) + 0.5, labels=battery_cols, rotation=0)
+        plt.xlabel("Hora")
+        plt.ylabel("EV")
+        plt.title("Disponibilidad de batería por EV (1 = verde, 0 = blanco)")
+        plt.tight_layout()
+        plt.show()
+
+availability_matrix_figure(False)
 
 ##############################################################################################################################
 

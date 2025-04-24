@@ -128,8 +128,8 @@ def PV_inclusion(condicion, PV_data):
 def rebates_taxCredit(condicion ,inversion_data):
     if condicion:
         # Escalar por el que quieres multiplicar
-        level2 = 0#6500 # The California Electric Vehicle Infrastructure Project (CALeVIP)
-        DC_fast = 0#80000 # The California Electric Vehicle Infrastructure Project (CALeVIP)
+        level2 = 6500 # The California Electric Vehicle Infrastructure Project (CALeVIP)
+        DC_fast = 80000 # The California Electric Vehicle Infrastructure Project (CALeVIP)
 
         # Multiplicar cada valor numérico por el escalar
         inversion_data -= [level2, level2, DC_fast]
