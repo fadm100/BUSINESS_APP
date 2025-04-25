@@ -20,7 +20,7 @@ NINE_PM = 75600
 MIDNIGHT = 86400
 TEN_MIN = 600
 THIRTY_MIN = 1800
-SIMULATION_DAYS = 5
+SIMULATION_DAYS = 1
 MAXIMUM_CHARGE = 0.9  # 90% carga máxima
 MAXIMUM_DOD = 0.7  # 80% descarga máxima (Depth of Discharge)
 INITIAL_MASS = 4989.5161
@@ -77,12 +77,12 @@ def Bus_Needed(step):
         int: número de buses necesarios en la franja correspondiente.
     """
     schedule = [
-        (FIVE_AM + THIRTY_MIN, NINE_AM, 6),
-        (NINE_AM, ELEVEN_AM, 8),
-        (ELEVEN_AM, TWO_PM, 12),
-        (TWO_PM, FIVE_PM, 7),
-        (FIVE_PM, EIGHT_PM, 9),
-        (EIGHT_PM, NINE_PM + THIRTY_MIN, 7),
+        (FIVE_AM + THIRTY_MIN, NINE_AM, 7),
+        (NINE_AM, ELEVEN_AM, 9),
+        (ELEVEN_AM, TWO_PM, 13),
+        (TWO_PM, FIVE_PM, 8),
+        (FIVE_PM, EIGHT_PM, 10),
+        (EIGHT_PM, NINE_PM + THIRTY_MIN, 8),
     ]
 
     for start, end, buses in schedule:
@@ -212,23 +212,9 @@ def Run_Simulation(sumo_cmd, emission_class):
 
             # Verifica si es momento de asignar buses y si hay menos buses en ruta que los necesarios
             bus_available = (step % TEN_MIN == 0) and (in_route_buses < buses)
-       
 
-            # if i < 6 and step == FIVE_AM + i * TEN_MIN:
-            #     traci.vehicle.resume(vehicle)
-            # elif i >= 6 and i < 8 and step == NINE_AM + (i-6) * TEN_MIN:
-            #     traci.vehicle.resume(vehicle)
-            # elif i >= 8 and i < 12 and step == ELEVEN_AM + (i-8) * TEN_MIN:
-            #     traci.vehicle.resume(vehicle)
-            # elif i >= 12 and i <= 14 and step == MIDDAY + (i-12) * TEN_MIN:
-            #     traci.vehicle.resume(vehicle)
-
-            
-
-            
             current_edge = traci.vehicle.getRoadID(vehicle)
             charge, SoC = Handle_Charging(vehicle)
-            # bus_available = Bus_Schedulling(step=step, vehicle_id=vehicle)
             if current_edge == "735027154":
                 if charge == 'Charged' and not finish[vehicle]: 
                     traci.vehicle.setParkingAreaStop(vehicle, "Bus_ParkArea", duration=10, flags=1)
@@ -242,12 +228,9 @@ def Run_Simulation(sumo_cmd, emission_class):
                     traci.vehicle.resume(vehicle)
                     traci.vehicle.setParkingAreaStop(vehicle, "Bus_ParkArea", duration=1000, flags=1)
             if finish[vehicle] and traci.vehicle.getStopState(vehicle) == 131 and charge != 'ChargingNeeded' and bus_available:
-                print(step, vehicle, traci.vehicle.getStopState(vehicle), in_route_buses, buses)
                 traci.vehicle.setRouteID(vehicle, "Ruta_E2")
                 traci.vehicle.resume(vehicle)  
                 finish[vehicle] = False   
-                print(step, vehicle, traci.vehicle.getStopState(vehicle), in_route_buses, buses)
-                print(finish)
             elif finish[vehicle] and traci.vehicle.getStopState(vehicle) == 131 and charge == 'ChargingNeeded':
                 traci.vehicle.changeTarget(vehicle, '-735027154')
                 traci.vehicle.resume(vehicle)  
