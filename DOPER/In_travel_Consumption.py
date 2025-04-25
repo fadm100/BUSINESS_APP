@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Cargar los datos desde el archivo CSV
-file_path = "H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\21-04-2025\\Battery.out_edited.csv" 
+file_path = "H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\24-04-2025\\Battery.out_edited.csv" 
 df = pd.read_csv(file_path, sep=';')
 
 # Convertir timestep_time a tipo float

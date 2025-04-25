@@ -15,6 +15,7 @@ TWO_PM = 50400
 FIVE_PM = 61200
 SIX_PM = 64800
 SEVEN_PM = 68400
+EIGHT_PM = 72000
 NINE_PM = 75600
 MIDNIGHT = 86400
 TEN_MIN = 600
@@ -61,6 +62,36 @@ def Handle_Charging(vehicle_id):
     else:
         return 'Charged', current_capacity / max_capacity
 
+def Bus_Needed(step):
+    """
+    Determina la cantidad de buses necesarios en función del tiempo actual (step).
+    
+    El tiempo se compara contra intervalos predefinidos que representan distintas franjas horarias del día.
+    Cada franja tiene una demanda específica de buses. Si el paso de tiempo no se encuentra en ninguna franja,
+    se asume que no se requiere ningún bus (retorna 0).
+
+    Parámetros:
+        step: valor que representa el tiempo actual (puede ser un entero o timestamp dependiendo de la implementación).
+
+    Retorna:
+        int: número de buses necesarios en la franja correspondiente.
+    """
+    schedule = [
+        (FIVE_AM + THIRTY_MIN, NINE_AM, 6),
+        (NINE_AM, ELEVEN_AM, 8),
+        (ELEVEN_AM, TWO_PM, 12),
+        (TWO_PM, FIVE_PM, 7),
+        (FIVE_PM, EIGHT_PM, 9),
+        (EIGHT_PM, NINE_PM + THIRTY_MIN, 7),
+    ]
+
+    for start, end, buses in schedule:
+        if start <= step < end:
+            return buses
+
+    return 0
+
+
 def Bus_Schedulling(step, vehicle_id):
     """
     Determina si un autobús específico debe estar activo (en operación) en un instante dado de la simulación.
@@ -76,6 +107,7 @@ def Bus_Schedulling(step, vehicle_id):
     Retorna:
         bool: True si el bus debe estar activo, False en caso contrario.
     """
+
     schedule = {
         'Bus_01': [(FIVE_AM + THIRTY_MIN, MIDDAY), (FIVE_PM, NINE_PM)],
         'Bus_02': [(FIVE_AM + THIRTY_MIN, MIDDAY), (FIVE_PM, NINE_PM)],
@@ -101,37 +133,102 @@ def Bus_Schedulling(step, vehicle_id):
     
     return any(start <= step < end for start, end in intervals)
 
-        
+def Get_Vehicle_Stops():
+    """
+    Obtiene el estado de parada y la carretera actual para una flota de 15 buses simulados en SUMO (vía TraCI).
+
+    Retorna:
+        dict: Diccionario con los estados de parada de cada bus, indexado por el nombre del vehículo.
+              Ejemplo: {'Bus_01': stopState, 'Bus_02': stopState, ...}
+    """
+    stops = {}
+    # edges = {}  # Descomenta si también quieres devolver el ID de carretera para cada bus
+
+    for i in range(15):
+        vehicle_id = f"Bus_{i+1:02d}"  # Bus_01, Bus_02, ..., Bus_15
+        try:
+            stops[vehicle_id] = traci.vehicle.getStopState(vehicle_id)
+            # edges[vehicle_id] = traci.vehicle.getRoadID(vehicle_id)
+        except traci.exceptions.TraCIException:
+            # El vehículo puede no estar presente en el paso actual
+            stops[vehicle_id] = None
+            # edges[vehicle_id] = None
+
+    return stops  # o return stops, edges si quieres devolver ambos
+
+def Count_Buses_in_Route(stops_state, finish):
+    """
+    Cuenta cuántos buses están actualmente en ruta, es decir,
+    no están detenidos y aún no han terminado su operación.
+
+    Parámetros:
+        stops_state (dict): Diccionario con el estado de parada de cada bus (0 significa en ruta).
+        finish (dict): Diccionario booleano que indica si cada bus ha terminado su operación.
+
+    Retorna:
+        int: Número de buses actualmente en ruta.
+    """
+    bus_inRoute_counter = 0
+
+    for i in range(15):
+        vehicle_id = f"Bus_{i+1:02d}"
+        if stops_state.get(vehicle_id) == 0 and not finish.get(vehicle_id, True):
+            bus_inRoute_counter += 1
+
+    return bus_inRoute_counter
+
+
 def Run_Simulation(sumo_cmd, emission_class):
     """Ejecuta la simulación de vehículos eléctricos."""
 
     step = FIVE_AM
     day = 1
     finish = {}
+    current_edges = {}
+    stops_state = {}
+    in_route = {}
 
     traci.start(sumo_cmd)
+
     for i in range(15):  # Del 0 al 14
         vehicle = f"Bus_{i+1:02d}"
         traci.vehicle.setEmissionClass(vehicle, emission_class)
-        finish[vehicle] = False
+        finish[vehicle] = True
     traci.simulationStep(FIVE_AM)
+
     while day <= SIMULATION_DAYS:
         traci.simulationStep()
 
+        
+
+
         for i in range(15): 
-            vehicle = f"Bus_{i+1:02d}"  # Nombres Bus_01, Bus_02, ..., Bus_06
-            if i < 6 and step == FIVE_AM + i * TEN_MIN:
-                traci.vehicle.resume(vehicle)
-            elif i >= 6 and i < 8 and step == NINE_AM + (i-6) * TEN_MIN:
-                traci.vehicle.resume(vehicle)
-            elif i >= 8 and i < 12 and step == ELEVEN_AM + (i-8) * TEN_MIN:
-                traci.vehicle.resume(vehicle)
-            elif i >= 12 and i <= 14 and step == MIDDAY + (i-12) * TEN_MIN:
-                traci.vehicle.resume(vehicle)
+
+            vehicle = f"Bus_{i+1:02d}"  # Nombres Bus_01, Bus_02, ..., Bus_06     
+
+            stops_state = Get_Vehicle_Stops()
+            in_route_buses = Count_Buses_in_Route(stops_state, finish)
+            buses = Bus_Needed(step)
+
+            # Verifica si es momento de asignar buses y si hay menos buses en ruta que los necesarios
+            bus_available = (step % TEN_MIN == 0) and (in_route_buses < buses)
+       
+
+            # if i < 6 and step == FIVE_AM + i * TEN_MIN:
+            #     traci.vehicle.resume(vehicle)
+            # elif i >= 6 and i < 8 and step == NINE_AM + (i-6) * TEN_MIN:
+            #     traci.vehicle.resume(vehicle)
+            # elif i >= 8 and i < 12 and step == ELEVEN_AM + (i-8) * TEN_MIN:
+            #     traci.vehicle.resume(vehicle)
+            # elif i >= 12 and i <= 14 and step == MIDDAY + (i-12) * TEN_MIN:
+            #     traci.vehicle.resume(vehicle)
+
+            
+
             
             current_edge = traci.vehicle.getRoadID(vehicle)
             charge, SoC = Handle_Charging(vehicle)
-            bus_available = Bus_Schedulling(step=step, vehicle_id=vehicle)
+            # bus_available = Bus_Schedulling(step=step, vehicle_id=vehicle)
             if current_edge == "735027154":
                 if charge == 'Charged' and not finish[vehicle]: 
                     traci.vehicle.setParkingAreaStop(vehicle, "Bus_ParkArea", duration=10, flags=1)
@@ -145,8 +242,12 @@ def Run_Simulation(sumo_cmd, emission_class):
                     traci.vehicle.resume(vehicle)
                     traci.vehicle.setParkingAreaStop(vehicle, "Bus_ParkArea", duration=1000, flags=1)
             if finish[vehicle] and traci.vehicle.getStopState(vehicle) == 131 and charge != 'ChargingNeeded' and bus_available:
+                print(step, vehicle, traci.vehicle.getStopState(vehicle), in_route_buses, buses)
                 traci.vehicle.setRouteID(vehicle, "Ruta_E2")
+                traci.vehicle.resume(vehicle)  
                 finish[vehicle] = False   
+                print(step, vehicle, traci.vehicle.getStopState(vehicle), in_route_buses, buses)
+                print(finish)
             elif finish[vehicle] and traci.vehicle.getStopState(vehicle) == 131 and charge == 'ChargingNeeded':
                 traci.vehicle.changeTarget(vehicle, '-735027154')
                 traci.vehicle.resume(vehicle)  

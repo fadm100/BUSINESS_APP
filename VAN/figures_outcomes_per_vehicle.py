@@ -4,7 +4,7 @@ import datetime
 import matplotlib.dates as mdates
 
 # Cargar el DataFrame desde un archivo CSV usando el separador correcto (;)
-filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\21-04-2025\\Battery.out_edited.csv'
+filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\24-04-2025\\Battery.out.csv'
 df = pd.read_csv(filePath, sep=';')
 
 # Asegurarse de que los valores son numéricos
