@@ -1594,8 +1594,9 @@ def ts_inputs_ev_schedule(parameter, data):
 
         # Asignar la secuencia a la columna correspondiente
         # var_avail = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\buses_availability_5min_inverted.csv', delimiter=",", encoding='utf-8')
-        var_avail = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\21-04-2025\\disponibilidad_cada_5min.csv', delimiter=";", encoding='utf-8')
+        var_avail = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\24-04-2025\\disponibilidad_cada_5min.csv', delimiter=";", encoding='utf-8')
         # print('Estos son los encabezados ', var_avail.columns)
+        var_avail = var_avail.iloc[:277]
         battery_avail = var_avail['battery_EV{!s}_avail'.format(b)].dropna().to_numpy()
         # Asignar la secuencia a la columna correspondiente
         data['battery_EV{!s}_avail'.format(b)] = battery_avail
@@ -1605,8 +1606,8 @@ def ts_inputs_ev_schedule(parameter, data):
 
         # Asignar la secuencia a la columna correspondiente
         # energy_con= pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\29-11-2024\\energia_cada_5min_bus.csv', delimiter=";", encoding='utf-8')
-        energy_con= pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\21-04-2025\\energia_cada_5min.csv', delimiter=";", encoding='utf-8')
-
+        energy_con= pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\24-04-2025\\energia_cada_5min.csv', delimiter=";", encoding='utf-8')
+        energy_con = energy_con.iloc[:277]
         # Ver el tamaño actual del DataFrame
         num_filas_actual = energy_con.shape[0]
         num_filas_deseadas = 277
