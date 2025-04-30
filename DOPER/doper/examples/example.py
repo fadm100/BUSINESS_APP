@@ -211,8 +211,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         },
@@ -225,8 +225,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         },
@@ -239,8 +239,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         },
@@ -253,8 +253,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         },
@@ -267,8 +267,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         },
@@ -281,8 +281,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         },
@@ -295,8 +295,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         },
@@ -309,8 +309,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         },
@@ -323,8 +323,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         },
@@ -337,8 +337,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         },
@@ -351,8 +351,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         },
@@ -365,8 +365,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         },
@@ -379,8 +379,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         },
@@ -393,8 +393,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         },
@@ -407,8 +407,8 @@ def parameter_add_evfleet(parameter=None):
          'power_discharge': 300,
          'maxS': 300,
          'self_discharging': 0.003,
-         # 'soc_final': 0.5,
-         'soc_initial': 0.2,
+         'soc_final': 0.86,
+         'soc_initial': 0.86,
          'soc_max': 0.9,
          'soc_min': 0.1
         }
@@ -1594,7 +1594,7 @@ def ts_inputs_ev_schedule(parameter, data):
 
         # Asignar la secuencia a la columna correspondiente
         # var_avail = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\buses_availability_5min_inverted.csv', delimiter=",", encoding='utf-8')
-        var_avail = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\24-04-2025\\disponibilidad_cada_5min.csv', delimiter=";", encoding='utf-8')
+        var_avail = pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\25-04-2025\\disponibilidad_cada_5min.csv', delimiter=";", encoding='utf-8')
         # print('Estos son los encabezados ', var_avail.columns)
         var_avail = var_avail.iloc[:277]
         battery_avail = var_avail['battery_EV{!s}_avail'.format(b)].dropna().to_numpy()
@@ -1606,7 +1606,7 @@ def ts_inputs_ev_schedule(parameter, data):
 
         # Asignar la secuencia a la columna correspondiente
         # energy_con= pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\29-11-2024\\energia_cada_5min_bus.csv', delimiter=";", encoding='utf-8')
-        energy_con= pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\24-04-2025\\energia_cada_5min.csv', delimiter=";", encoding='utf-8')
+        energy_con= pd.read_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\25-04-2025\\energia_cada_5min.csv', delimiter=";", encoding='utf-8')
         energy_con = energy_con.iloc[:277]
         # Ver el tamaño actual del DataFrame
         num_filas_actual = energy_con.shape[0]

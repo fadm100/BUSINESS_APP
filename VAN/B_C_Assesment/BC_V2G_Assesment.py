@@ -13,7 +13,7 @@ def calcular_NPV_por_año(tasa_descuento, crecimiento_demanda, vida_util, statio
         
         for t in range(año + 1):
                 
-            ingresos_diarios = 930.616 * 3.4132 / 30 # se toma de DOPER ejemplo: 1000 USD --> por venta de energía
+            ingresos_diarios = 680.74 * 5 / 30 # se toma de DOPER ejemplo: 1000 USD --> por venta de energía
             gastos_diarios = 0.0 # se toma de DOPER ejemplo:2000 USD --> por compra de energía
             if t >= 10: 
                 gastos_diarios *= (1 + crecimiento_demanda) # se incrementan los gastos por la entrada de buses nuevos a la flota
