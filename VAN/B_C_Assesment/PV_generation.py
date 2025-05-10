@@ -1,6 +1,8 @@
 import pvlib
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from datetime import timedelta
 import json
 
 # Cargar datos de irradiancia y temperatura estación Davis
@@ -16,7 +18,7 @@ parametros_modulo = {
     'gamma_pdc': -0.004,  # Coeficiente de temperatura de la potencia (1/°C)
 }
 
-numero_paneles = 80
+numero_paneles = 8
 
 # Crear el sistema fotovoltaico
 sistema_pv = pvlib.pvsystem.PVSystem(module_parameters=parametros_modulo)
@@ -37,8 +39,8 @@ df_davis.set_index('DateTime', inplace=True)
 fig, ax1 = plt.subplots()
 
 # Graficar la potencia generada en el primer eje (izquierda)
-ax1.plot(df_davis.index, df_davis['Power_Gen'], label='Generated power [kW]', color='green')
-ax1.plot(df_davis.index, irradiancia / 1000, label='Solar radiation [kW/m^2]', color='orange')
+ax1.plot(df_davis.index, df_davis['Power_Gen'], label='Potencia generada [kW]', color='green')
+ax1.plot(df_davis.index, irradiancia / 1000, label='Irradiancia solar [kW/m^2]', color='orange')
 
 # Etiquetas y título para el primer eje
 # ax1.set_xlabel('Time')
@@ -51,7 +53,23 @@ plt.xticks(fontsize=12)  # Cambia 12 por el tamaño que prefieras
 ax2 = ax1.twinx()
 
 # Graficar la temperatura externa en el segundo eje (derecha)
-ax2.plot(df_davis.index, temperatura_celda, label='Temperature [°C]', color='blue')
+ax2.plot(df_davis.index, temperatura_celda, label='Temperatura [°C]', color='blue')
+
+##########################################################################
+
+# --- Aquí va el formateo del eje X ---
+
+# Mostrar solo horas (como 16:00, 22:00, etc.)
+ax2.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+ax2.xaxis.set_major_locator(mdates.HourLocator(interval=12))  # cada 6 horas
+plt.setp(ax2.xaxis.get_majorticklabels(), rotation=45)       # rotar etiquetas
+
+# Forzar que el eje comience desde las 16:00 del primer día
+inicio = df_davis.index[0].replace(hour=14, minute=30, second=0)
+fin = df_davis.index[-1]
+ax2.set_xlim(inicio, fin)
+
+##########################################################################
 
 # Etiquetas para el segundo eje
 ax2.tick_params(axis='y', labelcolor='blue', labelsize=12)

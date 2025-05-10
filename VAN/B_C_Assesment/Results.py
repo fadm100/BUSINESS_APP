@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import seaborn as sns
+import os
 
 def bar_subplots(df1, df2):
     # Define una tasa de cambio
@@ -21,14 +22,23 @@ def bar_subplots(df1, df2):
         chargingRate = energyCharged / chargingTime
         print(chargingRate)
         
+        # metrics = {
+        #     'Initial Charge [kWh]': initialCharge,
+        #     'Charged energy [kWh]': energyCharged,
+        #     'Total energy consumed [kWh]': totalEnergyConsumed,
+        #     'Battery SoC [%]': batterySoC,
+        #     'Total charging time [min]': chargingTime,
+        #     'Cost per charge [USD]': totalEnergyCost,
+        #     'Total distance covered [km]': vehicleSpeed
+        # }
         metrics = {
-            'Initial Charge [kWh]': initialCharge,
-            'Charged energy [kWh]': energyCharged,
-            'Total energy consumed [kWh]': totalEnergyConsumed,
-            'Battery SoC [%]': batterySoC,
-            'Total charging time [min]': chargingTime,
-            'Cost per charge [USD]': totalEnergyCost,
-            'Total distance covered [km]': vehicleSpeed
+            'Carga inicial [kWh]': initialCharge,
+            'Energía cargada [kWh]': energyCharged,
+            'Energía total consumida [kWh]': totalEnergyConsumed,
+            'SoC [%]': batterySoC,
+            'Tiempo total de carga [min]': chargingTime,
+            'Costo por carga [USD]': totalEnergyCost,
+            'Distancia total cubierta [km]': vehicleSpeed
         }
         return metrics, totalEnergyConsumed.index
 
@@ -37,7 +47,7 @@ def bar_subplots(df1, df2):
     metrics2, index2 = calculate_metrics(df2)
 
     # Crear una figura combinada con dos subgráficas (2x1)
-    fig, axes = plt.subplots(2, 1, figsize=(14, 12))
+    fig, axes = plt.subplots(2, 1, figsize=(12, 8))
 
     # Asignar colores a las métricas
     patterns = ['/', '\\', '|', '-', '+', 'x']  # Patrones para las barras
@@ -52,8 +62,8 @@ def bar_subplots(df1, df2):
             data.values,
             width=width,
             label=label,
-            color=colors[i],
-            hatch=patterns[i % len(patterns)]  # Patrón cíclico
+            color=colors[i]#,
+            # hatch=patterns[i % len(patterns)]  # Patrón cíclico
         )
     
     # Configurar ejes y leyendas para el primer subplot
@@ -74,8 +84,8 @@ def bar_subplots(df1, df2):
             data.values,
             width=width,
             label=label,
-            color=colors[i],
-            hatch=patterns[i % len(patterns)]  # Patrón cíclico
+            color=colors[i]#,
+            # hatch=patterns[i % len(patterns)]  # Patrón cíclico
         )
     
     # Configurar ejes y leyendas para el segundo subplot
@@ -146,16 +156,24 @@ def bar_plots(df):
     plt.show()
 
 def create_subplots(data):
+    # Convertir segundos a timedelta
+    data['timedelta'] = pd.to_timedelta(data['timestep_time'], unit='s')
+
+    # Usar una fecha base para calcular tiempos en un día
+    data['time'] = pd.to_datetime('2024-11-28') + data['timedelta']
+
+
+
     # Crear subplots: 6 filas, 1 columna
-    fig, axes = plt.subplots(6, 1, figsize=(10, 18), sharex=True)  # `sharex=True` para compartir el eje X
-    fig.tight_layout(pad=7.5)  # Ajustar espacio entre subplots
+    fig, axes = plt.subplots(6, 1, figsize=(12, 8), sharex=True)  # `sharex=True` para compartir el eje X
+    fig.tight_layout(pad=2)  # Ajustar espacio entre subplots
 
     # Graficar cada vehículo en su subplot
     for i, (vehicle_id, group) in enumerate(data.groupby('vehicle_id')):
         ax = axes[i]  # Seleccionar subplot correspondiente
         ax.plot(group['time'], group['vehicle_energyCharged'], label=vehicle_id)
         ax.set_title(f'{vehicle_id}')  # Título con el nombre del vehículo
-        ax.set_ylabel('Power (kW)')
+        ax.set_ylabel('Potencia (kW)')
         ax.grid()
 
         # Configurar marcas de tiempo en el eje X
@@ -164,16 +182,17 @@ def create_subplots(data):
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))  # Formato HH:MM:SS
 
     # Configurar el último subplot con etiquetas del eje X
-    axes[-1].set_xlabel('Time (HH:MM)')
+    # axes[-1].set_xlabel('Time (HH:MM)')
     plt.xticks(rotation=45)
 
     # Mostrar gráfico
     plt.show()
+    # plt.savefig("H:\\My Drive\\Articulos tesis\\FINAL\\EVCS\\charging.png")
 
 def legend_plot(data):
     
     # Convertir segundos a timedelta
-    data['timedelta'] = pd.to_timedelta(data[',timestep_time'], unit='s')
+    data['timedelta'] = pd.to_timedelta(data['timestep_time'], unit='s')
 
     # Usar una fecha base para calcular tiempos en un día
     data['time'] = pd.to_datetime('2024-11-28') + data['timedelta']
@@ -205,6 +224,19 @@ def legend_plot(data):
     # Mostrar el gráfico
     plt.show()
 
+def Change2spanish(df):
+    
+    # Reemplazar "vehicle" por "vehículo" en todo el DataFrame
+    df = df.applymap(lambda x: x.replace('Vehicle_0', 'Vehículo_0') if isinstance(x, str) else x)
+    df = df.applymap(lambda x: x.replace('Vehicle_1', 'Vehículo_1') if isinstance(x, str) else x)
+    df = df.applymap(lambda x: x.replace('Vehicle_2', 'Vehículo_2') if isinstance(x, str) else x)
+    df = df.applymap(lambda x: x.replace('Vehicle_3', 'Vehículo_3') if isinstance(x, str) else x)
+    df = df.applymap(lambda x: x.replace('Vehicle_4', 'Vehículo_4') if isinstance(x, str) else x)
+    df = df.applymap(lambda x: x.replace('Vehicle_5', 'Vehículo_5') if isinstance(x, str) else x)
+
+    return df
+
+
 # 200kW
 filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\19-09-2024\\Battery.out.csv'  
 df200 = pd.read_csv(filePath, sep=';')
@@ -214,7 +246,7 @@ filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\20-09-2024
 df20 = pd.read_csv(filePath, sep=';')
 
 # 50kW
-filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\28-11-2024\\Battery.out.csv' 
+filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\28-11-2024\\Battery.out_es.csv' 
 df50 = pd.read_csv(filePath, sep=';')
 
 # 7.4kW
@@ -226,7 +258,9 @@ filePath = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\19-09-2024
 df200_5d = pd.read_csv(filePath, sep=';')
 
 ## figures
-legend_plot(df7)
+# legend_plot(df7)
 # bar_plots(df7)
 # bar_plots(df50)
 # bar_subplots(df7, df50)
+Change2spanish(df200_5d)
+create_subplots(Change2spanish(df200_5d))

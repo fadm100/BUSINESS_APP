@@ -90,6 +90,7 @@ def HeatMap(data, name, scale, variable, vmin=None, vmax=None, color=None, fmt="
     data.set_index('Sensitivity', inplace=True)
     data_numeric = data.apply(pd.to_numeric, errors='coerce') / scale  # Convertir todo a numérico
 
+    col_labels = ['680kW\n3USD/kW','680kW\n4USD/kW','680kW\n5USD/kW','810kW\n3USD/kW','810kW\n4USD/kW','810kW\n5USD/kW']
     # Crear el heatmap
     plt.figure(figsize=(12, 8))
     heatmap = sns.heatmap(
@@ -104,7 +105,8 @@ def HeatMap(data, name, scale, variable, vmin=None, vmax=None, color=None, fmt="
         mask=data_numeric.isnull(),  # Enmascarar los valores NaN
         square=True,  # Asegurar celdas cuadradas
         vmin=vmin,  # Límite mínimo de la escala de colores
-        vmax=vmax   # Límite máximo de la escala de colores
+        vmax=vmax,   # Límite máximo de la escala de colores
+        xticklabels=col_labels
     )
 
     # Personalizar fuente de la barra de color
@@ -141,21 +143,21 @@ def normalize_row(df):
     return normalized_df
 
 # Cargar los datos
-file_path = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\15-11-2024\\HeatMapYear.csv'
+file_path = 'H:\\My Drive\\Articulos tesis\\FINAL\\V2G\\HeatMapYear.csv'
 data1 = pd.read_csv(file_path)
 
 # Normalizar los DataFrames
 df1_normalized = normalize_dataframe(data1)
 
 # Cargar los datos
-file_path = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\15-11-2024\\HeatMapNPV_NaN.csv'
+file_path = 'H:\\My Drive\\Articulos tesis\\FINAL\\V2G\\HeatMapNPV.csv'
 data2 = pd.read_csv(file_path)
 
 # Dividir todos los valores numéricos entre 1000
 data2.iloc[:, 1:] = data2.iloc[:, 1:] / 1000
 
-# Cargar los datos
-file_path = 'H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\15-11-2024\\HeatMapROI.csv'
+# # Cargar los datos
+file_path = 'H:\\My Drive\\Articulos tesis\\FINAL\\V2G\\HeatMapROI.csv'
 data3 = pd.read_csv(file_path)
 
 df2_normalized = normalize_dataframe(data2)
@@ -177,7 +179,7 @@ custom_cmap = LinearSegmentedColormap.from_list(
     "CustomMultiColor",
     ["#13638C", "#FFFFFF", "#600F0F"]
 )
-print('data3 max = ', data3.select_dtypes(include='number').max().max())
+# print('data3 max = ', data3.select_dtypes(include='number').max().max())
 HeatMap(data1, 'Years_HeatMap', scale=1, variable='Año', fmt=".1f", cmap=custom_cmap)
 HeatMap(data2, 'NPV_HeatMap', scale=1, variable='VPN', fmt=".1f", cmap='viridis_r')
 HeatMap(data3, 'ROI_HeatMap', scale=1, variable='RI', vmin=0.0, fmt=".1f", cmap='plasma_r')

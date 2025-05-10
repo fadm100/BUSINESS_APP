@@ -4,48 +4,50 @@ import matplotlib.pyplot as plt
 import numpy_financial as npf
 import json
 
+def Flujos_Descontados(arr, inicial):
+    diferencias = [arr[i] - arr[i - 1] for i in range(1, len(arr))]
+    return [-inicial] + diferencias  
+
 # Función para calcular el NPV a lo largo de la vida útil
 def calcular_NPV_por_año(tasa_descuento, crecimiento_demanda, vida_util, station_info, PV_data, fast_info):
     npv_por_año = []
-    
+
     # Calcular máximo años de crecimiento de la demanda
     maximo_años_crecimiento_demanda = np.round(
         np.log10(24 / (station_info[5] * station_info[6])) / 
         np.log10(1 + crecimiento_demanda)
     )
-    
+
     for año in range(vida_util):
         flujos_caja = [-station_info[1] - PV_data['Costo compra'] / T_C - PV_data['Costo instalación'] / T_C]
-        
+
         for t in range(año + 1):
             if t < 40:
                 # cargas_diarias_promedio * tiempo_carga_promedio * potencia_promedio_carga
                 consumo = station_info[5] * station_info[6] * station_info[7]
 
                 # Ajustar ingresos según el crecimiento de la demanda
-                if t > maximo_años_crecimiento_demanda:# and crecimiento_demanda >= 0.25:
+                if t > maximo_años_crecimiento_demanda and crecimiento_demanda >= 0.25:
                     consumo *= (1 + crecimiento_demanda) ** maximo_años_crecimiento_demanda
                 else:
                     consumo *= (1 + crecimiento_demanda) ** t
 
                 bolsa_cost = station_info[9] * (1 + 0.1) ** t # 11/07/2024 asumi un aumento del 10% anual
-                # station_fee = bolsa_cost + station_info[4] # bolsa_cost + ganancia
-                station_fee = station_info[4] * (1 + 0.1) ** t # 
-                
+                station_fee = bolsa_cost + station_info[4] # bolsa_cost + ganancia
+
                 if t >= 9:
                     generation = PV_data['Promedio kWh/dia'] * (1 + 0)# ** t # 11/07/2024 asumi un aumento del 10% anual
                 else:
                     generation = PV_data['Promedio kWh/dia']
-                
+
                 generacion_consumo = generation - consumo
-                
+
                 if generacion_consumo > 0:
                     # Ingreso = consumo * tarifa de venta (COP/kWh1250 COP  y 1450 COP enel x) + (generacion-consumo) * precio bolsa
                     ingresos_diarios = consumo * station_fee + generacion_consumo * bolsa_cost
                 else:
                     # Ingreso = consumo * ganancia + generacion * tarifa de venta COP/kWh (COP/kWh1250 COP  y 1450 COP enel x)
-                    # ingresos_diarios = (-1) * generacion_consumo * station_info[4] + generation * station_fee
-                    ingresos_diarios = (-1) * generacion_consumo * (station_fee - bolsa_cost) + generation * station_fee
+                    ingresos_diarios = (-1) * generacion_consumo * station_info[4] + generation * station_fee
 
                 # Calcular ingresos anuales --> ganancia_tarifa * cargas_diarias_promedio * tiempo_carga_promedio * potencia_promedio_carga * 365
                 ingresos_anuales = ingresos_diarios * 365
@@ -83,14 +85,14 @@ def calcular_NPV_por_año(tasa_descuento, crecimiento_demanda, vida_util, statio
                 # Calcular flujo de caja
                 flujo_caja = ingresos_anuales - fast_info[0] - PV_data['Costo mantenimiento'] / T_C
                 if t == 9: flujo_caja -= (fast_info[1] * fast_info[8] + PV_data['Costo compra'] / T_C * 0.2)  # Upgrade percentage, 20% por actualizacion del inversor solar
-            
+
             flujos_caja.append(flujo_caja)
-        
+
         # Calcular NPV e IRR
         NPV = npf.npv(tasa_descuento, flujos_caja)
         npv_por_año.append(NPV)
-        
-    return npv_por_año, flujos_caja
+    flujos_descon = Flujos_Descontados(npv_por_año, station_info[1])      
+    return npv_por_año, flujos_descon
 
 def escenarios_NPV(tasa_descuento_rango, crecimiento_demanda_rango, 
                    vida_util_rango, station_info, PV_data, fast_info):
@@ -175,7 +177,7 @@ def graficar(df_resultados):
 
 def PV_inclusion(condicion, PV_data):
 
-    escalar = 10 # ejemplo: multiplicar por 2
+    escalar = 1 # ejemplo: multiplicar por 2
     if not condicion:
         # Escalar por el que quieres multiplicar
         escalar = 0  # elimina PV system
@@ -184,13 +186,13 @@ def PV_inclusion(condicion, PV_data):
     for key, value in PV_data.items():
         if isinstance(value, (int, float)):  # Verifica si es un número
             PV_data[key] = value * escalar
-    
+
     return PV_data
 
 def rebates_taxCredit(condicion ,inversion_data):
     if condicion:
         # Escalar por el que quieres multiplicar
-        level2 = 0#6500 # The California Electric Vehicle Infrastructure Project (CALeVIP)
+        level2 = 6500 # The California Electric Vehicle Infrastructure Project (CALeVIP)
         DC_fast = 0#80000 # The California Electric Vehicle Infrastructure Project (CALeVIP)
 
         # Multiplicar cada valor numérico por el escalar
@@ -198,21 +200,21 @@ def rebates_taxCredit(condicion ,inversion_data):
 
         # reducción del 30% como apoyo federal tax
         inversion_data *= [0.2, 0.2, 0.2] # España subsidia hasta el 80% de los costos iniciales https://www.idae.es/ayudas-y-financiacion/para-movilidad-y-vehiculos/programa-moves-iii
-    
+
     return inversion_data
 
 if __name__ == '__main__':
     # Leer el DataFrame de costos de cargadores
     filePath = 'H:\\My drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Total_costs_CS.csv'
     df_costs = pd.read_csv(filePath, sep=';')
-    
+
     # Leer arcuivo Json con información de generacion solar y costos
     with open("H:\\My drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\promedios.json") as archivo:
         # Cargar su contenido y crear un diccionario con 'Promedio kWh/dia' y 'Promedio kWh/mes'
         info_PV_gen = json.load(archivo)
 
     # Incluir o excluir PV system, True para incluir, False para excluir
-    info_PV_gen = PV_inclusion(False, info_PV_gen)
+    info_PV_gen = PV_inclusion(True, info_PV_gen)
 
     # Define una tasa de cambio
     T_C = 3951.65  # Promedio dólar durante 2024
@@ -225,10 +227,10 @@ if __name__ == '__main__':
     # Calcular inversión inicial con costos de instalación y paneles PV
     inversion_inicial_rango = (df_diferent_costs['Charger'].to_numpy() + 
                                df_diferent_costs['Installation'].to_numpy())
-
+    print('Datos inversion', inversion_inicial_rango[2])
     # Incluir o excluir rebates and federal tax credit, True para incluir, False para excluir
-    inversion_inicial_rango = rebates_taxCredit(False, inversion_inicial_rango)
-
+    inversion_inicial_rango = rebates_taxCredit(True, inversion_inicial_rango)
+    print('Datos inversion', inversion_inicial_rango[2])
     # Asignar nombres a las inversiones iniciales
     inversion_inicial_name = ['Semifast_Basic', 'Semifast', 'Fast']
     inversion_inicial_name = ['Semifast_Basic', 'Semifast', 'Fast']
@@ -236,11 +238,11 @@ if __name__ == '__main__':
     # Leer el DataFrame de tarifas de energía de CEDENAR
     filePath = 'H:\\My drive\\Articulos tesis\\DESARROLLO\\Ob2\\Simulation_Files\\Tarifas_energia.csv'
     df_tarifas = pd.read_csv(filePath, sep=',')
-    
+
     # Tarifas de energía y carga
     tarifa_energia = 500 / T_C  # Costo promedio año 2024 kWh nivel de tensión 1
     tarifa_carga_semi = 1250 / T_C    # Para carga semirápida Enel X
-    tarifa_carga_fast = 1450 / T_C * 1   # Para carga semirápida Enel X
+    tarifa_carga_fast = 1450 / T_C * 2   # Para carga semirápida Enel X
     ganancia_semi = tarifa_carga_semi - tarifa_energia
     ganancia_fast = tarifa_carga_fast - tarifa_energia
 
@@ -250,7 +252,7 @@ if __name__ == '__main__':
     crecimiento_demanda_rango = [0.05, 0.15, 0.25] 
     vida_util_short = np.arange(1, 21, 1)  # Vida útil de 1 a 20 años
     vida_util_large = np.arange(1, 21, 1)  # Vida útil de 1 a 20 años
-    
+
     # Información sobre cargas
     cargas_diarias_promedio_semi = 0.28 # dos cargas a la semana
     cargas_diarias_promedio_fast = 0.14 # una carga a la semana
@@ -258,11 +260,11 @@ if __name__ == '__main__':
     tiempo_carga_promedio_fast = 0.5 # 30 min
     potencia_promedio_carga_semi = 5
     potencia_promedio_carga_fast = 42
-    
+
     # Upgrade percentage
-    
+
     upgrade_semi = 0.5
-    upgrade_fast = 0.8
+    upgrade_fast = 0.5
 
     # Groups input information by station type
     semi_fast_basic = [costos_mantenimiento_rango[0], 
@@ -295,14 +297,14 @@ if __name__ == '__main__':
                          potencia_promedio_carga_fast, 
                          upgrade_fast,
                          tarifa_energia]
-
+    print('Datos inversion', inversion_inicial_rango[2])
     # # Calcular NPV para cada configuración
     # df_semifast_Basic = pd.DataFrame(escenarios_NPV(tasa_descuento_rango, 
     #                                                   crecimiento_demanda_rango, 
     #                                                   vida_util_rango,
     #                                                   semi_fast_basic,
     #                                                   info_PV_gen))
-    
+
     # Calcular NPV para cada configuración
     df_semifast_Complex = pd.DataFrame(escenarios_NPV(tasa_descuento_rango, 
                                                       crecimiento_demanda_rango, 
@@ -318,12 +320,13 @@ if __name__ == '__main__':
                                                       fast,
                                                       info_PV_gen,
                                                       fast))
+
     print(df_fast['NPV_final'].to_string(index=False))
     # graficar(df_semifast_Complex)
+
     graficar(df_fast)
 
     # # Concatenar los dataframes y exportar resultados
     # df_resultados = pd.concat([df_semifast_Basic, df_semifast_Complex, df_fast], ignore_index=True)
-    # df_semifast_Complex.to_csv('H:\\My drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\15-11-2024\\L2_L3_PV40k_TF_SB.csv', index=False)
-    df_fast.to_csv('H:\\My drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\15-11-2024\\fast\\L3_PV40k_TF_SB_DF.csv', index=False)
-    
+    # df_semifast_Complex.to_csv('H:\\My drive\\Artículos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\15-11-2024\\L2_L3_PV40k_TF_SB.csv', index=False)
+    df_fast.to_csv('H:\\My drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\15-11-2024\\fast\\L3_PV4k_TF_SB_DF.csv', index=False)

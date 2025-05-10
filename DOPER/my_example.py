@@ -20,7 +20,7 @@ def control_model(inputs, parameter):
     
     def objective_function(model):
         return model.sum_energy_cost * parameter['objective']['weight_energy'] \
-               + model.sum_export_revenue * parameter['objective']['weight_export']
+               + model.sum_export_revenue * parameter['objective']['weight_export'] 
               
     model.objective = Objective(rule=objective_function, sense=minimize, doc='objective function')
     return model
@@ -169,70 +169,70 @@ availability_matrix_figure(False)
 
 # print(f"Variables exportadas a {output_csv}")
 
-# import pandas as pd
-# import matplotlib.pyplot as plt
-# from pyomo.core import Var
-# import os
+import pandas as pd
+import matplotlib.pyplot as plt
+from pyomo.core import Var
+import os
 
-# # Crear una carpeta para guardar las gráficas y archivos CSV
-# output_folder = "H:\\My Drive\Articulos tesis\\DESARROLLO\\Ob2\\Simulations\\DOPER\\Dataframe\\ev_variable_results"
-# os.makedirs(output_folder, exist_ok=True)
+# Crear una carpeta para guardar las gráficas y archivos CSV
+output_folder = "H:\\My Drive\Articulos tesis\\DESARROLLO\\Ob2\\Simulations\\DOPER\\Dataframe\\ev_variable_results"
+os.makedirs(output_folder, exist_ok=True)
 
-# # Procesar las variables relacionadas con los EV
-# for v in model.component_objects(Var, active=True):
-#     variable_name = str(v)
+# Procesar las variables relacionadas con los EV
+for v in model.component_objects(Var, active=True):
+    variable_name = str(v)
 
-#     # Verificar si la variable está relacionada con los EV
-#     if "battery" in variable_name.lower():
-#         # Inicializar un diccionario para almacenar valores por EV
-#         ev_data = {}
+    # Verificar si la variable está relacionada con los EV
+    if "battery" in variable_name.lower():
+        # Inicializar un diccionario para almacenar valores por EV
+        ev_data = {}
 
-#         # Organizar los datos por EV
-#         for index in v:
-#             if isinstance(index, tuple) and len(index) > 1:  # Asegurar que el índice es un tuple
-#                 ev_id = index[1]  # Extraer el ID del EV
-#                 timestamp = index[0]  # Timestamp
-#                 value = v[index].value  # Valor de la variable
+        # Organizar los datos por EV
+        for index in v:
+            if isinstance(index, tuple) and len(index) > 1:  # Asegurar que el índice es un tuple
+                ev_id = index[1]  # Extraer el ID del EV
+                timestamp = index[0]  # Timestamp
+                value = v[index].value  # Valor de la variable
 
-#                 if ev_id not in ev_data:
-#                     ev_data[ev_id] = {"timestamps": [], "values": []}
-#                 ev_data[ev_id]["timestamps"].append(timestamp)
-#                 ev_data[ev_id]["values"].append(value)
+                if ev_id not in ev_data:
+                    ev_data[ev_id] = {"timestamps": [], "values": []}
+                ev_data[ev_id]["timestamps"].append(timestamp)
+                ev_data[ev_id]["values"].append(value)
 
-#         # Convertir datos a DataFrame y guardar como CSV
-#         for ev_id, data in ev_data.items():
-#             df1 = pd.DataFrame({
-#                 "Timestamp": data["timestamps"],
-#                 f"{variable_name}_EV_{ev_id}": data["values"]
-#             })
+        # Convertir datos a DataFrame y guardar como CSV
+        for ev_id, data in ev_data.items():
+            df1 = pd.DataFrame({
+                "Timestamp": data["timestamps"],
+                f"{variable_name}_EV_{ev_id}": data["values"]
+            })
             
-#             # Convertir la columna a formato de fecha y hora en UTC
-#             df1['datetime'] = pd.to_datetime(df1['Timestamp'], unit='s', utc=True)
+            # Convertir la columna a formato de fecha y hora en UTC
+            df1['datetime'] = pd.to_datetime(df1['Timestamp'], unit='s', utc=True)
 
-#             # Guardar DataFrame en un archivo CSV
-#             csv_path = os.path.join(output_folder, f"{variable_name}_EV_{ev_id}.csv")
-#             df1.to_csv(csv_path, index=False)
-#             print(f"Resultados guardados como CSV: {csv_path}")
+            # Guardar DataFrame en un archivo CSV
+            csv_path = os.path.join(output_folder, f"{variable_name}_EV_{ev_id}.csv")
+            df1.to_csv(csv_path, index=False)
+            print(f"Resultados guardados como CSV: {csv_path}")
 
-#             # Graficar los datos
-#             plt.figure(figsize=(10, 6))
-#             plt.plot(df1["datetime"], df1[f"{variable_name}_EV_{ev_id}"], marker="o", linestyle="-", label=f"{variable_name} (EV {ev_id})")
-#             plt.title(f"Variable: {variable_name} - EV {ev_id}")
-#             plt.xlabel("datetime")
-#             plt.ylabel("Value")
-#             plt.xticks(rotation=45, fontsize=8)
-#             plt.legend()
-#             plt.grid(True)
+            # Graficar los datos
+            plt.figure(figsize=(10, 6))
+            plt.plot(df1["datetime"], df1[f"{variable_name}_EV_{ev_id}"], marker="o", linestyle="-", label=f"{variable_name} (EV {ev_id})")
+            plt.title(f"Variable: {variable_name} - EV {ev_id}")
+            plt.xlabel("datetime")
+            plt.ylabel("Value")
+            plt.xticks(rotation=45, fontsize=8)
+            plt.legend()
+            plt.grid(True)
 
-#             # Guardar la gráfica como archivo PNG
-#             plot_path = os.path.join(output_folder, f"{variable_name}_EV_{ev_id}.png")
-#             plt.savefig(plot_path)
-#             plt.close()
-#             print(f"Gráfica guardada: {plot_path}")
+            # Guardar la gráfica como archivo PNG
+            plot_path = os.path.join(output_folder, f"{variable_name}_EV_{ev_id}.png")
+            plt.savefig(plot_path)
+            plt.close()
+            print(f"Gráfica guardada: {plot_path}")
 
-#     else:
-#         # Si la variable no está relacionada con EVs, se ignora
-#         continue
+    else:
+        # Si la variable no está relacionada con EVs, se ignora
+        continue
 
 # # Crear un DataFrame para almacenar los resultados
 # availability_data = []

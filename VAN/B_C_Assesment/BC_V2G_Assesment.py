@@ -4,16 +4,20 @@ import matplotlib.pyplot as plt
 import numpy_financial as npf
 import json
 
+def Flujos_Descontados(arr, inicial):
+    diferencias = [arr[i] - arr[i - 1] for i in range(1, len(arr))]
+    return [-inicial] + diferencias  
+
 # Función para calcular el NPV a lo largo de la vida útil
-def calcular_NPV_por_año(tasa_descuento, crecimiento_demanda, vida_util, station_info, PV_data):
+def calcular_NPV_por_año(tasa_descuento, crecimiento_demanda, vida_util, station_info, PV_data, income):
     npv_por_año = []
     
     for año in range(vida_util):
         flujos_caja = [-station_info[1] - PV_data['Costo compra'] / T_C - PV_data['Costo instalación'] / T_C]
         
         for t in range(año + 1):
-                
-            ingresos_diarios = 680.74 * 5 / 30 # se toma de DOPER ejemplo: 1000 USD --> por venta de energía
+            # USD_kW = 3
+            ingresos_diarios = income / 30 #680.74 * USD_kW / 30 # se toma de DOPER ejemplo: 1000 USD --> por venta de energía
             gastos_diarios = 0.0 # se toma de DOPER ejemplo:2000 USD --> por compra de energía
             if t >= 10: 
                 gastos_diarios *= (1 + crecimiento_demanda) # se incrementan los gastos por la entrada de buses nuevos a la flota
@@ -31,76 +35,75 @@ def calcular_NPV_por_año(tasa_descuento, crecimiento_demanda, vida_util, statio
         # Calcular NPV e IRR
         NPV = npf.npv(tasa_descuento, flujos_caja)
         npv_por_año.append(NPV)
-        
-    return npv_por_año, flujos_caja
+    flujos_descon = Flujos_Descontados(npv_por_año, station_info[1])    
+    return npv_por_año, flujos_descon
 
-def escenarios_NPV(tasa_descuento, crecimiento_demanda, 
-                   vida_util_rango, station_info, PV_data):
-    '''Crear una lista para organzar y almacenar los resultados'''
+def escenarios_NPV(tasa_descuento_rango, crecimiento_demanda, 
+                   vida_util_rango, station_info, PV_data, incomes, income_name):
+    # Crear una lista para almacenar los resultados
     resultados = []
-
-    # Calcular NPV por año y flujos de caja
-    NPV_por_año, flujos_caja = calcular_NPV_por_año(
-        tasa_descuento,
-        crecimiento_demanda,
-        vida_util_rango[-1], 
-        station_info, 
-        PV_data
-    )
-    # Almacenar los resultados en un diccionario
-    resultados.append({
-        'tasa_descuento': tasa_descuento,
-        'costos_mantenimiento': station_info[0],
-        'costos_mantenimiento': station_info[0],
-        'crecimiento_demanda': crecimiento_demanda,
-        'inversion_inicial': station_info[1],
-        'tipo_cargador': station_info[2],
-        'inversion_inicial': station_info[1],
-        'tipo_cargador': station_info[2],
-        'vida_util': vida_util_rango,
-        'flujos_caja': flujos_caja,
-        'NPV': NPV_por_año,
-        'NPV_final': NPV_por_año[-1]
-    })
+    
+    # Iterar sobre tasas de descuento y crecimiento de demanda
+    for tasa_descuento in tasa_descuento_rango:
+        i = 0
+        for income in incomes:
+            # Calcular NPV por año y flujos de caja
+            NPV_por_año, flujos_caja = calcular_NPV_por_año(
+                tasa_descuento,
+                crecimiento_demanda,
+                vida_util_rango[-1], 
+                station_info, 
+                PV_data,
+                income
+            )
+            # Almacenar los resultados en un diccionario
+            resultados.append({
+                'tasa_descuento': tasa_descuento,
+                'income': income_name[i],
+                'inversion_inicial': station_info[1],
+                'vida_util': vida_util_rango,
+                'flujos_caja': flujos_caja,
+                'NPV': NPV_por_año,
+                'NPV_final': NPV_por_año[-1]
+            })
+            i += 1
 
     return resultados
 
 
-def graficar(df_resultados):
+def graficar1(df_resultados):
     # Análisis de sensibilidad - Graficar NPV por vida útil
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(8, 4.2))
 
-    # Graficar NPV para cada resultado
-    for _, row in df_resultados.iterrows():
-        plt.plot(row['vida_util'], row['NPV'], label=f"Demand inc. {row['crecimiento_demanda']:.0%}, Discount rate {row['tasa_descuento']:.0%}")
+    row = df_resultados.iloc[0]
+    plt.plot(row['vida_util'], row['NPV'], label='NPV')
 
     # Configurar etiquetas y título
-    plt.xlabel('Service life (years)', fontsize=14, fontweight='bold')
-    plt.ylabel('Net Present Value (NPV) (USD)', fontsize=14, fontweight='bold')
-    plt.title(df_resultados['tipo_cargador'][0] + ' CS sensitivity analysis - NPV vs. service life', fontsize=16, fontweight='bold')
-    plt.legend()
+    # plt.xlabel('Service life (years)', fontsize=14, fontweight='bold')
+    # plt.ylabel('Net Present Value (NPV) (USD)', fontsize=14, fontweight='bold')
+    # plt.title(' CS sensitivity analysis - NPV vs. service life', fontsize=16, fontweight='bold')
+    plt.title('NPV en función de la vida útil', fontsize=16, fontweight='bold')
+    plt.xlabel('Vida útil (años)', fontsize=14, fontweight='bold')
+    plt.ylabel('NPV', fontsize=14, fontweight='bold')
     plt.grid()
-    plt.savefig(df_resultados['tipo_cargador'][0] + " VPN_All_Cases_10_Years.png")
+    # plt.savefig(" VPN_All_Cases_10_Years.png")
     plt.show()
 
-    # Encontrar índices de mejor y peor NPV_final
-    mejor_idx = df_resultados['NPV_final'].idxmax()
-    peor_idx = df_resultados['NPV_final'].idxmin()
-
     # Graficar comparación de flujos de caja - Mejor y Peor NPV_final
-    plt.figure(figsize=(12, 6))
-
-    # Graficar flujos de caja para el mejor y peor NPV_final
-    for idx, color, label in zip([mejor_idx, peor_idx], ['green', 'red'], ['Best NPV', 'Worst NPV']):
-        plt.bar(range(len(df_resultados['flujos_caja'].iloc[idx])),
-                df_resultados['flujos_caja'].iloc[idx],
-                label=f'{label}: {df_resultados["NPV_final"].iloc[idx]:.2f}',
-                alpha=0.7, width=0.4, align='center' if idx == mejor_idx else 'edge', color=color)
+    plt.figure(figsize=(10, 4.5))
+    idx = 0
+    plt.bar(range(len(df_resultados['flujos_caja'].iloc[idx])),
+            df_resultados['flujos_caja'].iloc[idx],
+            label=f'NPV: {df_resultados["NPV_final"].iloc[idx]:.2f}',
+            color='blue', alpha=0.7)
 
     # Configurar título y etiquetas
-    plt.title(df_resultados['tipo_cargador'][0] + ' CS cash flow - Best and worst NPV', fontsize=16, fontweight='bold')
-    plt.xlabel('Year', fontsize=14, fontweight='bold')
-    plt.ylabel('Cash Flow', fontsize=14, fontweight='bold')
+    # plt.title(' CS cash flow - Best and worst NPV', fontsize=16, fontweight='bold')
+    # plt.xlabel('Year', fontsize=14, fontweight='bold')
+    # plt.ylabel('Cash Flow', fontsize=14, fontweight='bold')
+    plt.title('Flujo de Caja', fontsize=16, fontweight='bold')
+    plt.xlabel('Año', fontsize=14, fontweight='bold')
+    plt.ylabel('Valor del flujo', fontsize=14, fontweight='bold')
     plt.legend(fontsize=12, title_fontsize='13', loc='best', frameon=True)
 
     # Configurar etiquetas de los ejes
@@ -108,8 +111,54 @@ def graficar(df_resultados):
     plt.yticks(fontsize=12, fontweight='bold')
 
     plt.grid(True)
-    plt.savefig(df_resultados['tipo_cargador'][0] + " Cash_Flow_Best_Worst.png", bbox_inches='tight')
+    # plt.savefig(" Cash_Flow_Best_Worst.png", bbox_inches='tight')
     plt.show()
+
+def graficar(df_resultados):
+
+    # Análisis de sensibilidad - Graficar NPV por vida útil
+    plt.figure(figsize=(12, 7))
+
+    for _, row in df_resultados.iterrows():
+        x = row['vida_util']
+        y = row['NPV']
+        label = f"Inc: {row['income']}, r: {row['tasa_descuento']:.0%}"
+        plt.plot(x, y, label=label)
+        
+        # Agregar texto al final de cada línea
+        plt.text(x[-1] + 0.3, y[-1], label, fontsize=9, verticalalignment='center')
+
+    # Etiquetas y estilo
+    plt.xlabel('Service life (years)', fontsize=14, fontweight='bold')
+    plt.ylabel('Net Present Value (NPV) (USD)', fontsize=14, fontweight='bold')
+    plt.title('CS sensitivity analysis - NPV vs. service life', fontsize=16, fontweight='bold')
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig("VPN_All_Cases_10_Years_Annotated.png")
+    plt.show()
+
+    # --- Segunda gráfica: flujos de caja ---
+    mejor_idx = df_resultados['NPV_final'].idxmax()
+    peor_idx = df_resultados['NPV_final'].idxmin()
+
+    plt.figure(figsize=(12, 6))
+
+    for idx, color, label in zip([mejor_idx, peor_idx], ['green', 'red'], ['Best NPV', 'Worst NPV']):
+        plt.bar(range(len(df_resultados['flujos_caja'].iloc[idx])),
+                df_resultados['flujos_caja'].iloc[idx],
+                label=f'{label}: {df_resultados["NPV_final"].iloc[idx]:.2f}',
+                alpha=0.7, width=0.4, align='center' if idx == mejor_idx else 'edge', color=color)
+
+    plt.title('CS cash flow - Best and worst NPV', fontsize=16, fontweight='bold')
+    plt.xlabel('Year', fontsize=14, fontweight='bold')
+    plt.ylabel('Cash Flow', fontsize=14, fontweight='bold')
+    plt.legend(fontsize=12, title_fontsize='13', loc='best', frameon=True)
+    plt.xticks(fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12, fontweight='bold')
+    plt.grid(True)
+    plt.savefig("Cash_Flow_Best_Worst.png", bbox_inches='tight')
+    plt.show()
+
 
 def PV_inclusion(condicion, PV_data):
 
@@ -153,8 +202,10 @@ if __name__ == '__main__':
     info_PV_gen = PV_inclusion(False, info_PV_gen)
 
     # Define una tasa de cambio
-    # T_C = 3951.65  # Promedio dólar durante 2024
-    T_C = 5000  # tasa de cambio para ser congruente con el trabajo de Nohora
+    T_C = 3951.65  # Promedio dólar durante 2024
+    # T_C = 5000  # tasa de cambio para ser congruente con el trabajo de Nohora
+
+    incomes = [680.74 * 3, 680.74 * 4, 680.74 * 5, 810.0 * 3, 810.0 * 4, 810.0 * 5]
 
     # Filtrar costos de estaciones lentas
     df_costs = df_costs[df_costs['Charge_type'] != 'Slow']
@@ -169,14 +220,14 @@ if __name__ == '__main__':
     inversion_inicial_rango = rebates_taxCredit(False, inversion_inicial_rango)
 
     # Asignar nombres a las inversiones iniciales
-    inversion_inicial_name = ['Semifast_Basic', 'Semifast', 'Fast']
+    income_name = ['680kW_3USD/kW', '680kW_4USD/kW', '680kW_5USD/kW', '810kW_3USD/kW', '810kW_4USD/kW', '810kW_5USD/kW']
 
     # Rango de variaciones para el análisis de sensibilidad
-    tasa_descuento = 0.1 # alrededor del 10% para Colombia
+    tasa_descuento_rango = [0.05, 0.1, 0.15]  # del 5% al 20% # alrededor del 10% para Colombia
     costos_mantenimiento_rango = [400, 800]  # Sin PV
     crecimiento_demanda = 0.00 # Asumimos una flota ya establecida con un numero fijo de buses o un bajo incremento cada varios años
     vida_util_short = np.arange(1, 16, 1)  # Vida útil de 1 a 20 años
-    vida_util_large = np.arange(1, 16, 1)  # Vida útil de 1 a 20 años
+    vida_util_large = np.arange(1, 21, 1)  # Vida útil de 1 a 20 años
     
     # Upgrade percentage
     
@@ -186,30 +237,32 @@ if __name__ == '__main__':
     # Groups input information by station type
     semi_fast_basic = [costos_mantenimiento_rango[0], 
                          inversion_inicial_rango[0], 
-                         inversion_inicial_name[0], 
+                         income_name[0], 
                          upgrade_semi] 
     semi_fast_complex = [costos_mantenimiento_rango[0], 
                          inversion_inicial_rango[1], 
-                         inversion_inicial_name[1], 
+                         income_name[1], 
                          upgrade_semi]
     fast = [costos_mantenimiento_rango[1], 
-                         inversion_inicial_rango[2], 
-                         inversion_inicial_name[2], 
+                         20000 * 7, #inversion_inicial_rango[2]/15*7, 
+                         income_name[1],
                          upgrade_fast]
     
     # Calcular NPV para cada configuración
-    df_semifast_Complex = pd.DataFrame(escenarios_NPV(tasa_descuento, 
-                                                      crecimiento_demanda, 
-                                                      vida_util_short,
-                                                      semi_fast_complex,
-                                                      info_PV_gen))
+    # df_semifast_Complex = pd.DataFrame(escenarios_NPV(tasa_descuento, 
+    #                                                   crecimiento_demanda, 
+    #                                                   vida_util_short,
+    #                                                   semi_fast_complex,
+    #                                                   info_PV_gen))
     # print(df_semifast_Complex['NPV_final'].to_string(index=False))
     # Calcular NPV para cada configuración
-    df_fast = pd.DataFrame(escenarios_NPV(tasa_descuento, 
+    df_fast = pd.DataFrame(escenarios_NPV(tasa_descuento_rango, 
                                                       crecimiento_demanda, 
                                                       vida_util_large,
                                                       fast,
-                                                      info_PV_gen))
+                                                      info_PV_gen,
+                                                      incomes,
+                                                      income_name))
     print(df_fast['NPV_final'].to_string(index=False))
     # graficar(df_semifast_Complex)
     graficar(df_fast)
@@ -217,5 +270,5 @@ if __name__ == '__main__':
     # # Concatenar los dataframes y exportar resultados
     # df_resultados = pd.concat([df_semifast_Basic, df_semifast_Complex, df_fast], ignore_index=True)
     # df_semifast_Complex.to_csv('H:\\My drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\15-11-2024\\L2_L3_PV40k_TF_SB.csv', index=False)
-    df_fast.to_csv('H:\\My drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\15-11-2024\\fast\\L3_PV40k_TF_SB_DF.csv', index=False)
+    df_fast.to_csv('H:\\My Drive\\Articulos tesis\\DESARROLLO\\Ob2\\OUTCOMES\\25-04-2025\\All.csv', index=False)
     
