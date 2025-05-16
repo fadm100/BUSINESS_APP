@@ -183,7 +183,7 @@ def graficar(df_left):
         df['flujos_caja'] = df['flujos_caja'].apply(safe_eval)
         df['flujos_caja'] = df['flujos_caja'].apply(lambda x: x[:-1])  # Excluir último año
 
-    fig, axes = plt.subplots(1, 2, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
     fig.subplots_adjust(hspace=0.3, wspace=0.3)
 
     # --- LEFT PLOTS ---

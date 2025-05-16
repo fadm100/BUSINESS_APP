@@ -241,47 +241,63 @@ def my_plot_dynamic(df, parameter, plot=True,  plotFile = None,
                 fig (matplotlib figure): Figure of the plot.
                 axs (numpy.ndarray of matplotlib.axes._subplots.AxesSubplot): Axis of the plot.
     '''
-
+    custom_legends = {
+        'Import Power [kW]': 'Importación [kW]',
+        'Load Power [kW]': 'Demanda Pasto [kW]',
+        'Battery Charging Power [kW]': 'Carga de baterías [kW]',
+        'Battery Discharging Power [kW]': 'Descarga de baterías [kW]',
+        'Tariff Energy [$/kWh]': 'Tarifa de energía [USD/kWh]',
+        'Battery Aggregate SOC [-]': 'Estado de carga SoC [%]'
+    }
     # number of subplots. eventually dynamically determined
     n = 3
 
-    if parameter['system']['battery']:
-        # if batteries are enabled, add plot for SOC
+    if parameter.get('system', {}).get('battery', False):
         n += 1
 
-    fig, axs = plt.subplots(n,1, figsize=(12, 3*n), sharex=True, sharey=False,
-                            gridspec_kw={'width_ratios':[1]})
+    fig, axs = plt.subplots(n, 1, figsize=(12, 3 * n), sharex=True, sharey=False)
     axs = axs.ravel()
-    # plot_streams(axs[0], df[['Import Power [kW]','Export Power [kW]']], times=times)
-    df[['Import Power [kW]','Load Power [kW]']].plot(ax=axs[0], title = 'Import/Load at PCC')
 
-    # create energy provision plot
+    # ----------- Gráfico 1: Importación y carga -----------
+    cols_1 = ['Import Power [kW]', 'Load Power [kW]']
+    labels_1 = [custom_legends.get(col, col) for col in cols_1] if custom_legends else cols_1
+    df[cols_1].plot(ax=axs[0], title='Importación / Demanda en el PCC')
+    axs[0].legend(labels_1)
 
-    # list of provision columns in results df
-    provision_cols = ['Import Power [kW]']
+    # ----------- Gráfico 2: Potencia batería -----------
     battery_cols = []
-    if parameter['system']['pv']:
-        provision_cols += ['PV Power [kW]']
-    if parameter['system']['genset']:
-        provision_cols += ['Genset Power [kW]']
-    if parameter['system']['battery']:
-        battery_cols += ['Battery Discharging Power [kW]']
-        battery_cols += ['Battery Charging Power [kW]']
-    if parameter['system']['load_control']:
-        provision_cols += ['Total Shed Load [kW]']
+    if parameter['system'].get('battery'):
+        battery_cols = ['Battery Discharging Power [kW]', 'Battery Charging Power [kW]']
+        labels_bat = [custom_legends.get(col, col) for col in battery_cols] if custom_legends else battery_cols
+        df[battery_cols].plot(ax=axs[1], title='Energía de las baterías')
+        axs[1].legend(labels_bat, loc='upper right')
+    else:
+        axs[1].set_visible(False)
 
-    df[battery_cols].plot(ax=axs[1], title='Battery Energy').legend(loc='upper right')
-    if parameter['system']['battery']:
-        df[['Battery Aggregate SOC [-]']].plot(ax=axs[n-1], title='Battery SOC')
-    df[['Tariff Energy [$/kWh]']].plot(ax=axs[2], title='Tariff Energy Price')
+    # ----------- Gráfico 3: Tarifa de energía -----------
+    col_tariff = 'Tariff Energy [$/kWh]'
+    label_tariff = custom_legends.get(col_tariff, col_tariff) if custom_legends else col_tariff
+    df[[col_tariff]].plot(ax=axs[2], title='Tarifa de energía')
+    axs[2].legend([label_tariff])
 
+    # ----------- Gráfico 4: SoC de batería (si aplica) -----------
+    if parameter['system'].get('battery'):
+        col_soc = 'Battery Aggregate SOC [-]'
+        label_soc = custom_legends.get(col_soc, col_soc) if custom_legends else col_soc
+        df[[col_soc]].plot(ax=axs[n - 1], title='Estado de carga (SoC)')
+        axs[n - 1].legend([label_soc])
+
+    # Guardar o mostrar
     if plotFile:
         plt.savefig(plotFile, dpi=300)
+
     if plot:
         if tight:
             plt.tight_layout()
         plt.show()
-    return fig, axs
+        return None
+    else:
+        return fig, axs
 
 def formatExternalData(df):
     '''
